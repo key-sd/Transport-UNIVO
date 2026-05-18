@@ -1,0 +1,254 @@
+/* style_login.css — TransporteU */
+
+body {
+    font-family: 'Outfit', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.login-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Lado izquierdo */
+.lado-izquierdo {
+    position: relative;
+    width: 55%;
+    overflow: hidden;
+}
+
+.fondo-carrusel {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.fondo-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+}
+
+.fondo-slide.activo {
+    opacity: 1;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: #0d2346c7;
+    z-index: 1;
+}
+
+.lado-texto {
+    position: relative;
+    z-index: 2;
+    padding: 3rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 5rem;
+}
+
+.logo-univo {
+    width: 80px;
+    filter: brightness(0) invert(1);
+}
+
+.bienvenida-sub {
+    color: #f5c518;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+}
+
+.bienvenida-titulo {
+    color: #ffffff;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.bienvenida-desc {
+    color: #ffffffb3;
+    font-size: 1rem;
+    font-weight: 300;
+    max-width: 360px;
+}
+
+.carrusel-dots {
+    position: absolute;
+    bottom: 2rem;
+    left: 3rem;
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffffff66;
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+}
+
+.dot.activo {
+    background: #f5c518;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* Lado derecho */
+.lado-derecho {
+    width: 60%;
+    background: linear-gradient(135deg, #0d2346, #0d2346, #1862a8, #f5c518);
+    background-size: 300% 300%;
+    padding: 2rem;
+    animation: moverDegradado 8s ease infinite;
+}
+
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    background: #c0d8ff;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid #be8f0280;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 20px 60px #00000066;
+}
+
+.bus-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #f5c51826;
+    border: 2px solid #be8f0280;
+    color: #be8f02;
+}
+
+.login-titulo {
+    font-size: 1.5rem;
+    color: #0d2346;
+}
+
+.login-subtitulo {
+    font-size: 0.82rem;
+    color: #0d2346;
+}
+
+.form-label {
+    color: #0d2346;
+    font-size: 0.85rem;
+}
+
+.campo-input-group .input-group-text {
+    background: #ffffff1a;
+    border-color: #ffffff33;
+    color: #28426b;
+}
+
+.campo-input-group .form-control {
+    background: #ffffff1a;
+    border-color: #ffffff33;
+    color: #5b79aa;
+}
+
+.campo-input-group .form-control::placeholder {
+    color: #0f2c5b82;
+}
+
+.campo-input-group .form-control:focus {
+    background: #ffffff26;
+    box-shadow: none;
+    border-color: #f5c518;
+    color: #0d2346;
+}
+
+.campo-input-group:focus-within .input-group-text {
+    border-color: #f5c518;
+}
+
+#btnVerPass {
+    cursor: pointer;
+    background: #ffffff1a;
+    border-color: #ffffff33;
+    color: #0d1246;
+}
+
+#btnVerPass:hover {
+    color: #f5c518;
+}
+
+.btn-ingresar {
+    background: linear-gradient(90deg, #f5c518 0%, #be8f02 100%);
+    border: none;
+    color: #0d2346;
+    padding: 0.7rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.btn-ingresar:hover  { opacity: 0.9; color: #0d2346; transform: translateY(-1px); }
+.btn-ingresar:active { transform: translateY(0); color: #0d2346; }
+
+/* animación del degradado del lado dderecho */
+@keyframes moverDegradado {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body { overflow: auto; }
+
+    .login-wrapper {
+        flex-direction: column;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    .lado-izquierdo {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+    }
+
+    .lado-texto,
+    .carrusel-dots {
+        display: none;
+    }
+
+    .lado-derecho {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        min-height: 100vh;
+        background: transparent;
+        padding: 2rem 1.25rem;
+    }
+
+    .login-card {
+        max-width: 80%;
+    }
+
+    .bienvenida-titulo { font-size: 1.6rem; }
+}
