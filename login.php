@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['rol']     = $datos['rol'];
 
         if ($datos['rol'] == "admin") {
-            header("Location: /Transport-UNIVO/dashboards/admin.php");
+            header("Location: /Transport-UNIVO/admin/admin.php");
             exit();
         } else if ($datos['rol'] == "estudiante") {
             header("Location: /Transport-UNIVO/dashboards/alumno.php");
@@ -35,9 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
 
-    } else {
-        $error = "Usuario o contraseña incorrectos.";
-    }
+        } else {
+            $_SESSION['error'] = "Usuario o contraseña incorrectos.";
+            header("Location: login.php");
+            exit();
+        }
 }
 ?>
 <!DOCTYPE html>
@@ -46,10 +48,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TransporteU — Iniciar Sesión</title>
+
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Flowbite -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style_login.css">
+    <!-- CSS propio -->
+    <link rel="stylesheet" href="css/login.css">
     <link rel="icon" type="image/x-icon" href="img/logo.png">
 </head>
 <body>
@@ -68,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="overlay"></div>
 
         <div class="lado-texto">
-            <img src="./img/logo.png" alt="Logo UNIVO" class="logo-univo mb-4">
+            <img src="img/logo.png" alt="Logo UNIVO" class="logo-univo mb-4">
             <p class="bienvenida-sub">Bienvenido/a</p>
             <h1 class="bienvenida-titulo">Sistema de Transporte<br>UNIVO</h1>
             <p class="bienvenida-desc">Informate del transporte universitario.</p>
@@ -82,22 +93,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     </div>
 
-    <!-- Lado derecho: degradado azul oscuro + formulario -->
+    <!-- Lado derecho: degradado + formulario -->
     <div class="lado-derecho d-flex align-items-center justify-content-center">
-        <div class="login-card">
+
+        <!-- animate__fadeInRight viene de Animate.css — entra desde la derecha al cargar -->
+        <div class="login-card animate__animated animate__fadeInRight">
 
             <div class="text-center mb-4">
                 <div class="bus-icon d-flex align-items-center justify-content-center mx-auto mb-3">
-                    <i class="bi bi-bus-front-fill fs-3"></i>
+                    <!-- Remix Icons en vez de Bootstrap Icons -->
+                    <i class="ri-bus-2-fill" style="font-size: 28px;"></i>
                 </div>
                 <h2 class="login-titulo fw-semibold">Iniciar Sesión</h2>
                 <p class="login-subtitulo mb-0">Acceso exclusivo para comunidad universitaria</p>
             </div>
 
-            <?php if ($error != ""): ?>
-                <div class="alert alert-danger d-flex align-items-center gap-2 py-2" role="alert">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    <span><?php echo $error; ?></span>
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 animate__animated animate__shakeX" role="alert">
+                    <i class="ri-error-warning-fill me-2"></i>
+                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
                 </div>
             <?php endif; ?>
 
@@ -107,7 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="usuario" class="form-label fw-medium">Usuario</label>
                     <div class="input-group campo-input-group">
                         <span class="input-group-text border-end-0">
-                            <i class="bi bi-person"></i>
+                            <!-- Remix Icons -->
+                            <i class="ri-user-3-line"></i>
                         </span>
                         <input
                             type="text"
@@ -125,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label for="password" class="form-label fw-medium">Contraseña</label>
                     <div class="input-group campo-input-group">
                         <span class="input-group-text border-end-0">
-                            <i class="bi bi-lock"></i>
+                            <i class="ri-lock-2-line"></i>
                         </span>
                         <input
                             type="password"
@@ -136,19 +151,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             autocomplete="current-password"
                         >
                         <button type="button" class="input-group-text border-start-0" id="btnVerPass">
-                            <i class="bi bi-eye" id="iconoOjo"></i>
+                            <i class="ri-eye-line" id="iconoOjo"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-ingresar w-100 fw-medium">Iniciar Sesión</button>
+                <button type="submit" class="btn btn-ingresar w-100 fw-medium">
+                    <i class="ri-login-box-line me-2"></i>Iniciar Sesión
+                </button>
 
             </form>
         </div>
     </div>
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

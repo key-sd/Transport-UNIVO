@@ -37,3 +37,17 @@ if (btnVerPass) {
         iconoOjo.classList.toggle('bi-eye-slash',  esPassword);
     });
 }
+
+//limpiar campos al recargar la página del login
+window.onload = function() {
+    document.getElementById('usuario').value = '';
+    document.getElementById('password').value = '';
+}
+
+// librería de Moment.js para la fecha en tiempo real
+const diasES  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const mesesES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+const hoy = moment();
+document.getElementById('fecha-hoy').textContent =
+    diasES[hoy.day()] + ', ' + hoy.date() + ' de ' + mesesES[hoy.month()] + ' de ' + hoy.year();

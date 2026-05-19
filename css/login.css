@@ -1,5 +1,3 @@
-/* style_login.css — TransporteU */
-
 body {
     font-family: 'Outfit', sans-serif;
     margin: 0;
@@ -12,10 +10,10 @@ body {
     min-height: 100vh;
 }
 
-/* Lado izquierdo */
+/* lado izquierdo con el carrusel */
 .lado-izquierdo {
     position: relative;
-    width: 55%;
+    width: 50%;
     overflow: hidden;
 }
 
@@ -39,6 +37,7 @@ body {
     opacity: 1;
 }
 
+/* oscurece las fotos para que el texto se lea bien */
 .overlay {
     position: absolute;
     inset: 0;
@@ -46,6 +45,7 @@ body {
     z-index: 1;
 }
 
+/* texto que va encima del carrusel */
 .lado-texto {
     position: relative;
     z-index: 2;
@@ -84,6 +84,7 @@ body {
     max-width: 360px;
 }
 
+/* puntitos del carrusel abajo a la izquierda */
 .carrusel-dots {
     position: absolute;
     bottom: 2rem;
@@ -108,7 +109,7 @@ body {
     border-radius: 4px;
 }
 
-/* Lado derecho */
+/* lado derecho con degradado animado */
 .lado-derecho {
     width: 60%;
     background: linear-gradient(135deg, #0d2346, #0d2346, #1862a8, #f5c518);
@@ -117,13 +118,11 @@ body {
     animation: moverDegradado 8s ease infinite;
 }
 
-
+/* tarjeta del formulario */
 .login-card {
     width: 100%;
     max-width: 400px;
     background: #c0d8ff;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid #be8f0280;
     border-radius: 20px;
     padding: 2.5rem 2rem;
@@ -154,6 +153,7 @@ body {
     font-size: 0.85rem;
 }
 
+/* campos del formulario */
 .campo-input-group .input-group-text {
     background: #ffffff1a;
     border-color: #ffffff33;
@@ -181,6 +181,7 @@ body {
     border-color: #f5c518;
 }
 
+/* ojito ver/ocultar contraseña */
 #btnVerPass {
     cursor: pointer;
     background: #ffffff1a;
@@ -192,6 +193,7 @@ body {
     color: #f5c518;
 }
 
+/* botón de iniciar sesión */
 .btn-ingresar {
     background: linear-gradient(90deg, #f5c518 0%, #be8f02 100%);
     border: none;
@@ -207,14 +209,14 @@ body {
 .btn-ingresar:hover  { opacity: 0.9; color: #0d2346; transform: translateY(-1px); }
 .btn-ingresar:active { transform: translateY(0); color: #0d2346; }
 
-/* animación del degradado del lado dderecho */
+/* animación del degradado del lado derecho */
 @keyframes moverDegradado {
     0%   { background-position: 0% 50%; }
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-/* Responsive */
+/* responsive — en móvil el carrusel queda de fondo y la tarjeta encima */
 @media (max-width: 768px) {
     body { overflow: auto; }
 
