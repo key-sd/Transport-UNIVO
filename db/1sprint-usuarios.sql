@@ -17,7 +17,7 @@ INSERT INTO `roles` (`nombre`) VALUES
 -- Tabla de usuarios
 CREATE TABLE `usuarios` (
   `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `codigo_universitario` varchar(20) NOT NULL,
+  `codigo_universitario` varchar(255) NOT NULL,
   `password_hash` varchar(20) NOT NULL,
   `rol_id` int NOT NULL,
   UNIQUE KEY `codigo_unico` (`codigo_universitario`),
