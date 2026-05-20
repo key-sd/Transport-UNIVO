@@ -811,6 +811,154 @@ body {
 .btn-guardar:hover { opacity: 0.9; transform: translateY(-1px); }
 .btn-guardar:active { transform: translateY(0); }
 
+/* TABLA HORARIS */
+
+.tabla-horario {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-horario thead tr {
+    background: #f8faff !important;
+}
+
+.tabla-horario tbody tr:hover { 
+    background: #f8faff !important; 
+}
+
+.tabla-horario tbody tr:last-child td { 
+    border-bottom: none !important; 
+}
+
+/* Estilos de Celdas y Encabezados */
+.tabla-horario th, 
+.tabla-conductores th {
+    padding: 10px 12px !important;
+    font-size: 11px !important;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.tabla-horario td, 
+.tabla-conductores td {
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle !important;
+}
+
+.tabla-horario td {
+    text-align: left;
+}
+
+/* Columna de Acciones */
+.tabla-horario td.text-end,
+.tabla-conductores td:last-child {
+    text-align: right !important;
+    white-space: nowrap !important;
+    width: 1% !important;
+    vertical-align: middle !important;
+}
+
+/* Badge de la Hora */
+.hora-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    background-color: #f0f4f8 !important;
+    color: #0d2346 !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    font-weight: 500 !important;
+    font-size: 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    line-height: 1 !important;
+}
+
+.hora-badge i {
+    color: #1862a8 !important;
+    font-size: 13px !important;
+    display: inline-block;
+    transform: translateY(0.5px);
+}
+
+/* Avatares de Conductores */
+.conductor-tabla-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 11px !important;
+    font-weight: 600;
+    background: rgba(13, 35, 70, 0.1) !important;
+    color: #0d2346 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    margin-right: 8px !important;
+    vertical-align: middle !important;
+}
+
+/* Botones de Acción Compactos */
+.btn-tabla-editar,
+.btn-tabla-eliminar,
+.btn-tabla-activar {
+    border: none !important;
+    border-radius: 6px !important;
+    width: 28px !important;
+    height: 28px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease-in-out !important;
+    margin: 0 2px !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+}
+
+.btn-tabla-editar {
+    background: rgba(24, 98, 168, 0.1) !important;
+    color: #1862a8 !important;
+}
+
+.btn-tabla-editar:hover {
+    background: rgba(24, 98, 168, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+.btn-tabla-eliminar {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #ef4444 !important;
+}
+
+.btn-tabla-eliminar:hover {
+    background: rgba(239, 68, 68, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+.btn-tabla-activar {
+    background: rgba(34, 197, 94, 0.1) !important;
+    color: #22c55e !important;
+}
+
+.btn-tabla-activar:hover {
+    background: rgba(34, 197, 94, 0.25) !important;
+    transform: translateY(-1px);
+}
+
+/* Encabezado del Buscador */
+.tabla-card-header {
+    padding: 0.75rem 1.25rem !important;
+}
+
 /* ── AGREGAR ESTO AL FINAL DE admin.css ── */
 
 /* ocultar sidebar en móvil */

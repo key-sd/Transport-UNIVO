@@ -6,7 +6,7 @@ solo_admin();
 header('Content-Type: application/json; charset=utf-8');
 
 // trae todos los conductores con su código asignado, para mostrarlos en la tabla del admin
-$sql = "SELECT c.id, c.nombre, c.apellido, c.telefono, u.codigo_universitario
+$sql = "SELECT c.id, c.nombre, c.apellido, c.telefono, c.estado, u.codigo_universitario
         FROM conductores c
         INNER JOIN usuarios u ON u.id = c.usuario_id
         ORDER BY c.nombre ASC, c.apellido ASC";
