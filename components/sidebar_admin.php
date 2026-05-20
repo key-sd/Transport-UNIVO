@@ -18,24 +18,24 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             <span>Dashboard</span>
         </a>
         <p class="sidebar-seccion">Usuarios</p>
-        <a href="conductores.php" class="sidebar-item <?php echo $pagina_actual == 'conductores.php' ? 'activo' : ''; ?>">
+        <a href="admin-conductores.php" class="sidebar-item <?php echo $pagina_actual == 'admin-conductores.php' ? 'activo' : ''; ?>">
             <i class="ri-steering-2-line"></i>
             <span>Conductores</span>
         </a>
-        <a href="pasajeros.php" class="sidebar-item <?php echo $pagina_actual == 'pasajeros.php' ? 'activo' : ''; ?>">
-            <i class="ri-group-line"></i>
-            <span>Pasajeros</span>
-        </a>
         <p class="sidebar-seccion">Operaciones</p>
-        <a href="unidades.php" class="sidebar-item <?php echo $pagina_actual == 'unidades.php' ? 'activo' : ''; ?>">
+        <a href="admin-unidades.php" class="sidebar-item <?php echo $pagina_actual == 'admin-unidades.php' ? 'activo' : ''; ?>">
             <i class="ri-bus-line"></i>
             <span>Unidades</span>
         </a>
-        <a href="rutas.php" class="sidebar-item <?php echo $pagina_actual == 'rutas.php' ? 'activo' : ''; ?>">
-            <i class="ri-map-2-line"></i>
-            <span>Rutas y Horarios</span>
+        <a href="admin-horarios.php" class="sidebar-item <?php echo $pagina_actual == 'admin-horarios.php' ? 'activo' : ''; ?>">
+            <i class="ri-time-line"></i>
+            <span>Horarios</span>
         </a>
-        <a href="reportes.php" class="sidebar-item <?php echo $pagina_actual == 'reportes.php' ? 'activo' : ''; ?>">
+        <a href="admin-rutas.php" class="sidebar-item <?php echo $pagina_actual == 'admin-rutas.php' ? 'activo' : ''; ?>">
+            <i class="ri-map-2-line"></i>
+            <span>Rutas</span>
+        </a>
+        <a href="admin-reportes.php" class="sidebar-item <?php echo $pagina_actual == 'admin-reportes.php' ? 'activo' : ''; ?>">
             <i class="ri-bar-chart-2-line"></i>
             <span>Reportes</span>
         </a>
