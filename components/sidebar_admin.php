@@ -19,20 +19,24 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             <span>Inicio</span>
         </a>
         <p class="sidebar-seccion">Usuarios</p>
-        <a href="conductor_section.php" class="sidebar-item <?php echo $pagina_actual == 'conductor_section.php' ? 'activo' : ''; ?>">
+        <a href="section_conductor.php" class="sidebar-item <?php echo $pagina_actual == 'section_conductor.php' ? 'activo' : ''; ?>">
             <i class="ri-steering-2-line"></i>
             <span>Conductores</span>
         </a>
         <p class="sidebar-seccion">Operaciones</p>
-        <a href="unidades.php" class="sidebar-item <?php echo $pagina_actual == 'unidades_section.php' ? 'activo' : ''; ?>">
+        <a href="section_unidades.php" class="sidebar-item <?php echo $pagina_actual == 'section_unidades.php' ? 'activo' : ''; ?>">
             <i class="ri-bus-line"></i>
             <span>Unidades</span>
         </a>
-        <a href="horario_section.php" class="sidebar-item <?php echo $pagina_actual == 'horario_section.php' ? 'activo' : ''; ?>">
+        <a href="section_horario.php" class="sidebar-item <?php echo $pagina_actual == 'section_horario.php' ? 'activo' : ''; ?>">
             <i class="ri-time-line"></i>
             <span>Horarios</span>
         </a>
-        <a href="rutas_section.php" class="sidebar-item <?php echo $pagina_actual == 'ruta_section.php' ? 'activo' : ''; ?>">
+        <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
+            <i class="ri-calendar-todo-line"></i>
+            <span>Cronograma</span>
+        </a>
+        <a href="section_rutas.php" class="sidebar-item <?php echo $pagina_actual == 'section_rutas.php' ? 'activo' : ''; ?>">
             <i class="ri-map-2-line"></i>
             <span>Rutas</span>
         </a>
@@ -63,20 +67,24 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
                 <span>Inicio</span>
             </a>
             <p class="sidebar-seccion">Usuarios</p>
-            <a href="conductor_section.php" class="sidebar-item <?php echo $pagina_actual == 'conductor_section.php' ? 'activo' : ''; ?>">
+            <a href="section_conductor.php" class="sidebar-item <?php echo $pagina_actual == 'section_conductor.php' ? 'activo' : ''; ?>">
                 <i class="ri-steering-2-line"></i>
                 <span>Conductores</span>
             </a>
             <p class="sidebar-seccion">Operaciones</p>
-            <a href="unidades.php" class="sidebar-item <?php echo $pagina_actual == 'unidades_section.php' ? 'activo' : ''; ?>">
+            <a href="section_unidades.php" class="sidebar-item <?php echo $pagina_actual == 'section_unidades.php' ? 'activo' : ''; ?>">
                 <i class="ri-bus-line"></i>
                 <span>Unidades</span>
             </a>
-            <a href="horario_section.php" class="sidebar-item <?php echo $pagina_actual == 'horario_section.php' ? 'activo' : ''; ?>">
+            <a href="section_horario.php" class="sidebar-item <?php echo $pagina_actual == 'section_horario.php' ? 'activo' : ''; ?>">
                 <i class="ri-time-line"></i>
                 <span>Horarios</span>
             </a>
-            <a href="rutas_section.php" class="sidebar-item <?php echo $pagina_actual == 'ruta_section.php' ? 'activo' : ''; ?>">
+            <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
+                <i class="ri-calendar-todo-line"></i>
+                <span>Cronograma</span>
+            </a>
+            <a href="section_ruta.php" class="sidebar-item <?php echo $pagina_actual == 'section_ruta.php' ? 'activo' : ''; ?>">
                 <i class="ri-map-2-line"></i>
                 <span>Rutas</span>
             </a>
