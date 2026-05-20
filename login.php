@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $datos = $resultado->fetch_assoc();
 
         /* ── Verificar contraseña con bcrypt ── */
-        if (password_verify($password, $datos['password_hash'])) {
+        if ($password === $datos['password_hash']) {
 
             /* Regenerar ID de sesión para evitar session fixation */
             session_regenerate_id(true);
@@ -46,11 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 case 'conductor':
                     header("Location: /Transport-UNIVO/dashboards/conductor.php");
                     break;
-                case 'pasajero':
+                case 'estudiante':
                     header("Location: /Transport-UNIVO/dashboards/alumno.php");
                     break;
                 default:
-                    $_SESSION['error'] = "Rol no reconocido. Contacta al administrador.";
+                    $_SESSION['error'] = "Rol no reconocido.";
                     header("Location: login.php");
             }
             exit();
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     } else {
         /* Usuario no encontrado */
-        $_SESSION['error'] = "Usuario o contraseña incorrectos.";
+        $_SESSION['error'] = "Usuario o contraseña no encontrados.";
         header("Location: login.php");
         exit();
     }

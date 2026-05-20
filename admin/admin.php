@@ -13,16 +13,14 @@ include("../includes/conexion.php");
 $q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'conductor'");
 $total_conductores = mysqli_fetch_assoc($q)['total'];
 
-// total de pasajeros — tabla usuarios y roles ya existen
-$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'estudiante'");
-$total_pasajeros = mysqli_fetch_assoc($q)['total'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TransporteU — Admin</title>
+    <title>Admin — Inicio</title>
+
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Flowbite -->
