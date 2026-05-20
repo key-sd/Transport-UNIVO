@@ -454,18 +454,393 @@ body {
     margin: 0;
 }
 
+/* offcanvas móvil */
+.sidebar-mobile {
+    background: linear-gradient(180deg, #0d2346 0%, #1a3d6e 50%, #0d2346 100%);
+    border-right: none !important;
+    width: 280px !important;
+}
+
+.sidebar-mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    border-bottom: 1px solid #ffffff18;
+}
+
+.sidebar-mobile-body {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-mobile-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #ffffff18;
+}
+
+.btn-cerrar-menu {
+    background: none;
+    border: none;
+    color: #ffffffaa;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.btn-cerrar-menu:hover {
+    color: #ffffff;
+}
+
+.sidebar-logout {
+    color: #ff6b6b !important;
+}
+
+.sidebar-logout i {
+    color: #ff6b6b !important;
+}
+
+.sidebar-logout:hover {
+    background: #ff6b6b18 !important;
+}
+
+/* botón hamburguesa */
+.hamburguesa {
+    background: none;
+    border: none;
+    color: #0d2346;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.hamburguesa:hover {
+    background: #0d234615;
+}
+
+.navbar-izquierda {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* responsive */
 @media (max-width: 1024px) {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-    .sidebar { display: none; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .dashboard-grid { grid-template-columns: 1fr; }
+    .navbar-fecha { font-size: 12px; }
 }
 
 @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
     .banner-icono { display: none; }
+    .admin-main { padding: 1rem; }
+}
+
+/* ── conductores.php ── */
+
+.btn-agregar {
+    background: linear-gradient(90deg, #0d2346 0%, #1862a8 100%);
+    border: none;
+    color: white;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-agregar:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-agregar:active { transform: translateY(0); }
+
+/* tabla */
+.tabla-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.tabla-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tabla-buscador {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8faff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.tabla-buscador input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    color: #0f172a;
+    width: 180px;
+}
+
+.tabla-buscador input::placeholder { color: #94a3b8; }
+
+.tabla-conductores {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-conductores thead tr {
+    background: #f8faff;
+}
+
+.tabla-conductores th {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.tabla-conductores td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.tabla-conductores tbody tr:last-child td { border-bottom: none; }
+
+.tabla-conductores tbody tr:hover { background: #f8faff; }
+
+/* avatar del conductor en la tabla */
+.conductor-tabla-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #0d234620;
+    color: #0d2346;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.tabla-empty {
+    text-align: center;
+    padding: 3rem !important;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+/* botones de acción en la tabla */
+.btn-tabla-editar,
+.btn-tabla-eliminar {
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-tabla-editar {
+    background: #1862a815;
+    color: #1862a8;
+}
+
+.btn-tabla-editar:hover { background: #1862a825; transform: translateY(-1px); }
+
+.btn-tabla-eliminar {
+    background: #ef444415;
+    color: #ef4444;
+    margin-left: 4px;
+}
+
+.btn-tabla-eliminar:hover { background: #ef444425; transform: translateY(-1px); }
+
+/* alertas */
+.alerta-global {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alerta-exito { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.alerta-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+.alerta-modal {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* modal personalizado */
+.modal-custom {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px #00000033;
+}
+
+.modal-custom-header {
+    background: linear-gradient(135deg, #0d2346 0%, #1862a8 100%);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-icono {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f5c51826;
+    border: 2px solid #f5c51866;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f5c518;
+    font-size: 17px;
+}
+
+.modal-btn-cerrar {
+    background: none;
+    border: none;
+    color: #ffffffaa;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.modal-btn-cerrar:hover { color: #ffffff; }
+
+.modal-custom-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.form-seccion-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0d2346;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.btn-cancelar {
+    background: #f1f5f9;
+    border: none;
+    color: #64748b;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.btn-cancelar:hover { background: #e2e8f0; }
+
+.btn-guardar {
+    background: linear-gradient(90deg, #f5c518 0%, #e0a800 100%);
+    border: none;
+    color: #0d2346;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex;
+    align-items: center;
+}
+
+.btn-guardar:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-guardar:active { transform: translateY(0); }
+
+/* ── AGREGAR ESTO AL FINAL DE admin.css ── */
+
+/* ocultar sidebar en móvil */
+@media (max-width: 991.98px) {
+    .sidebar { display: none !important; }
+}
+
+/* tarjetas de conductores — solo móvil */
+.conductor-card-mobile {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.conductor-card-mobile:hover {
+    box-shadow: 0 4px 16px #0d234612;
+}
+
+.conductor-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d2346, #1862a8);
+    color: #f5c518;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }

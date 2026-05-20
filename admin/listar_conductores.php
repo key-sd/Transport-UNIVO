@@ -1,40 +1,25 @@
 <?php
-/*
- ┌──────────────────────────────────────────────────────────────┐
- │  conductores/listar_conductores.php                          │
- │  Devuelve JSON con todos los conductores para la tabla AJAX  │
- └──────────────────────────────────────────────────────────────┘
-*/
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Transport-UNIVO/includes/sesion.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/Transport-UNIVO/includes/conexion.php';
+require_once '../includes/sesion.php';
+require_once '../includes/conexion.php';
 solo_admin();
 
 header('Content-Type: application/json; charset=utf-8');
 
-/*
-  JOIN entre conductores y usuarios para traer también
-  el código universitario (que funciona como "username").
-*/
-$sql = "
-    SELECT
-        c.id,
-        c.nombre,
-        c.apellido,
-        c.telefono,
-        u.codigo_universitario
-    FROM conductores c
-    INNER JOIN usuarios u ON u.id = c.usuario_id
-    ORDER BY c.nombre ASC, c.apellido ASC
-";
+// trae todos los conductores con su código asignado, para mostrarlos en la tabla del admin
+$sql = "SELECT c.id, c.nombre, c.apellido, c.telefono, u.codigo_universitario
+        FROM conductores c
+        INNER JOIN usuarios u ON u.id = c.usuario_id
+        ORDER BY c.nombre ASC, c.apellido ASC";
 
 $resultado = $conn->query($sql);
 
+// si hay un error en la consulta, respondemos con un error 500 y un array vacío
 if (!$resultado) {
     http_response_code(500);
     echo json_encode([]);
     exit;
 }
-
+// convertimos el resultado a un array de conductores con su código universitario para enviarlo al frontend
 $conductores = [];
 while ($fila = $resultado->fetch_assoc()) {
     $conductores[] = $fila;

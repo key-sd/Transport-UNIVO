@@ -2,7 +2,8 @@
 $pagina_actual = basename($_SERVER['PHP_SELF']);
 ?>
 
-<aside class="sidebar">
+<!-- sidebar desktop — se oculta en pantallas pequeñas -->
+<aside class="sidebar d-none d-lg-flex flex-column">
     <div class="sidebar-logo">
         <div class="sidebar-logo-icono">
             <i class="ri-bus-2-fill"></i>
@@ -15,29 +16,77 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
     <nav class="sidebar-nav">
         <a href="admin.php" class="sidebar-item <?php echo $pagina_actual == 'admin.php' ? 'activo' : ''; ?>">
             <i class="ri-dashboard-line"></i>
-            <span>Dashboard</span>
+            <span>Inicio</span>
         </a>
         <p class="sidebar-seccion">Usuarios</p>
-        <a href="gestionar_conductores.php" class="sidebar-item <?php echo $pagina_actual == 'gestionar_conductores.php' ? 'activo' : ''; ?>">
+        <a href="conductor_section.php" class="sidebar-item <?php echo $pagina_actual == 'conductor_section.php' ? 'activo' : ''; ?>">
             <i class="ri-steering-2-line"></i>
             <span>Conductores</span>
         </a>
-        <a href="pasajeros.php" class="sidebar-item <?php echo $pagina_actual == 'pasajeros.php' ? 'activo' : ''; ?>">
-            <i class="ri-group-line"></i>
-            <span>Pasajeros</span>
-        </a>
         <p class="sidebar-seccion">Operaciones</p>
-        <a href="unidades.php" class="sidebar-item <?php echo $pagina_actual == 'unidades.php' ? 'activo' : ''; ?>">
+        <a href="unidades.php" class="sidebar-item <?php echo $pagina_actual == 'unidades_section.php' ? 'activo' : ''; ?>">
             <i class="ri-bus-line"></i>
             <span>Unidades</span>
         </a>
-        <a href="rutas.php" class="sidebar-item <?php echo $pagina_actual == 'rutas.php' ? 'activo' : ''; ?>">
-            <i class="ri-map-2-line"></i>
-            <span>Rutas y Horarios</span>
+        <a href="horario_section.php" class="sidebar-item <?php echo $pagina_actual == 'horario_section.php' ? 'activo' : ''; ?>">
+            <i class="ri-time-line"></i>
+            <span>Horarios</span>
         </a>
-        <a href="reportes.php" class="sidebar-item <?php echo $pagina_actual == 'reportes.php' ? 'activo' : ''; ?>">
-            <i class="ri-bar-chart-2-line"></i>
-            <span>Reportes</span>
+        <a href="rutas_section.php" class="sidebar-item <?php echo $pagina_actual == 'ruta_section.php' ? 'activo' : ''; ?>">
+            <i class="ri-map-2-line"></i>
+            <span>Rutas</span>
         </a>
     </nav>
 </aside>
+
+<!-- offcanvas para móvil -->
+<div class="offcanvas offcanvas-start sidebar-mobile" tabindex="-1" id="sidebarMobile">
+    <div class="offcanvas-header" style="border-bottom:1px solid #ffffff18; padding:1.25rem;">
+        <div class="d-flex align-items-center gap-2">
+            <div class="sidebar-logo-icono">
+                <i class="ri-bus-2-fill"></i>
+            </div>
+            <div>
+                <p class="sidebar-nombre mb-0">TransporteU</p>
+                <p class="sidebar-rol mb-0">Panel Admin</p>
+            </div>
+        </div>
+        <button class="btn-cerrar-menu" data-bs-dismiss="offcanvas">
+            <i class="ri-close-line"></i>
+        </button>
+    </div>
+
+    <div class="offcanvas-body d-flex flex-column p-0">
+        <nav class="sidebar-nav flex-grow-1">
+            <a href="admin.php" class="sidebar-item <?php echo $pagina_actual == 'admin.php' ? 'activo' : ''; ?>">
+                <i class="ri-dashboard-line"></i>
+                <span>Inicio</span>
+            </a>
+            <p class="sidebar-seccion">Usuarios</p>
+            <a href="conductor_section.php" class="sidebar-item <?php echo $pagina_actual == 'conductor_section.php' ? 'activo' : ''; ?>">
+                <i class="ri-steering-2-line"></i>
+                <span>Conductores</span>
+            </a>
+            <p class="sidebar-seccion">Operaciones</p>
+            <a href="unidades.php" class="sidebar-item <?php echo $pagina_actual == 'unidades_section.php' ? 'activo' : ''; ?>">
+                <i class="ri-bus-line"></i>
+                <span>Unidades</span>
+            </a>
+            <a href="horario_section.php" class="sidebar-item <?php echo $pagina_actual == 'horario_section.php' ? 'activo' : ''; ?>">
+                <i class="ri-time-line"></i>
+                <span>Horarios</span>
+            </a>
+            <a href="rutas_section.php" class="sidebar-item <?php echo $pagina_actual == 'ruta_section.php' ? 'activo' : ''; ?>">
+                <i class="ri-map-2-line"></i>
+                <span>Rutas</span>
+            </a>
+        </nav>
+
+        <div style="padding:1rem 0.75rem; border-top:1px solid #ffffff18;">
+            <a href="../includes/logout.php" class="sidebar-item sidebar-logout">
+                <i class="ri-logout-box-r-line"></i>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+    </div>
+</div>
