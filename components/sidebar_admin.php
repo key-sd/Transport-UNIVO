@@ -18,7 +18,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             <span>Dashboard</span>
         </a>
         <p class="sidebar-seccion">Usuarios</p>
-        <a href="conductores.php" class="sidebar-item <?php echo $pagina_actual == 'conductores.php' ? 'activo' : ''; ?>">
+        <a href="gestionar_conductores.php" class="sidebar-item <?php echo $pagina_actual == 'gestionar_conductores.php' ? 'activo' : ''; ?>">
             <i class="ri-steering-2-line"></i>
             <span>Conductores</span>
         </a>

@@ -1,45 +1,75 @@
 <?php
 session_start();
-include("includes/conexion.php");
-
-$error = "";
+require_once 'includes/conexion.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $usuario  = $_POST['usuario'];
-    $password = $_POST['password'];
+    $codigo   = trim($_POST['usuario']   ?? '');
+    $password = trim($_POST['password']  ?? '');
 
-    $sql = "SELECT u.*, r.nombre AS rol
-            FROM usuarios u
-            INNER JOIN roles r ON u.rol_id = r.id
-            WHERE u.usuario = '$usuario'
-            AND u.password_hash = '$password'";
+    if (empty($codigo) || empty($password)) {
+        $_SESSION['error'] = "Por favor completa todos los campos.";
+        header("Location: login.php");
+        exit();
+    }
 
-    $resultado = mysqli_query($conexion, $sql);
+    /* ── Prepared statement — sin inyección SQL ── */
+    $sql  = "SELECT u.id, u.codigo_universitario, u.password_hash, r.nombre AS rol
+             FROM usuarios u
+             INNER JOIN roles r ON u.rol_id = r.id
+             WHERE u.codigo_universitario = ?
+             LIMIT 1";
 
-    if (mysqli_num_rows($resultado) > 0) {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $codigo);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
 
-        $datos = mysqli_fetch_assoc($resultado);
+    if ($resultado->num_rows === 1) {
 
-        $_SESSION['usuario'] = $datos['usuario'];
-        $_SESSION['rol']     = $datos['rol'];
+        $datos = $resultado->fetch_assoc();
 
-        if ($datos['rol'] == "admin") {
-            header("Location: /Transport-UNIVO/admin/admin.php");
+        /* ── Verificar contraseña con bcrypt ── */
+        if (password_verify($password, $datos['password_hash'])) {
+
+            /* Regenerar ID de sesión para evitar session fixation */
+            session_regenerate_id(true);
+
+            $_SESSION['usuario_id'] = $datos['id'];
+            $_SESSION['usuario']    = $datos['codigo_universitario'];
+            $_SESSION['rol']        = $datos['rol'];   // 'admin' | 'conductor' | 'pasajero'
+
+            switch ($datos['rol']) {
+                case 'admin':
+                    header("Location: /Transport-UNIVO/admin/admin.php");
+                    break;
+                case 'conductor':
+                    header("Location: /Transport-UNIVO/dashboards/conductor.php");
+                    break;
+                case 'pasajero':
+                    header("Location: /Transport-UNIVO/dashboards/alumno.php");
+                    break;
+                default:
+                    $_SESSION['error'] = "Rol no reconocido. Contacta al administrador.";
+                    header("Location: login.php");
+            }
             exit();
-        } else if ($datos['rol'] == "estudiante") {
-            header("Location: /Transport-UNIVO/dashboards/alumno.php");
-            exit();
-        } else if ($datos['rol'] == "conductor") {
-            header("Location: /Transport-UNIVO/dashboards/conductor.php");
-            exit();
-        }
 
         } else {
+            /* Contraseña incorrecta */
             $_SESSION['error'] = "Usuario o contraseña incorrectos.";
             header("Location: login.php");
             exit();
         }
+
+    } else {
+        /* Usuario no encontrado */
+        $_SESSION['error'] = "Usuario o contraseña incorrectos.";
+        header("Location: login.php");
+        exit();
+    }
+
+    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
@@ -93,15 +123,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     </div>
 
-    <!-- Lado derecho: degradado + formulario -->
+    <!-- Lado derecho -->
     <div class="lado-derecho d-flex align-items-center justify-content-center">
 
-        <!-- animate__fadeInRight viene de Animate.css — entra desde la derecha al cargar -->
         <div class="login-card animate__animated animate__fadeInRight">
 
             <div class="text-center mb-4">
                 <div class="bus-icon d-flex align-items-center justify-content-center mx-auto mb-3">
-                    <!-- Remix Icons en vez de Bootstrap Icons -->
                     <i class="ri-bus-2-fill" style="font-size: 28px;"></i>
                 </div>
                 <h2 class="login-titulo fw-semibold">Iniciar Sesión</h2>
@@ -111,17 +139,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php if (isset($_SESSION['error'])): ?>
                 <div class="flex items-center p-4 mb-4 text-red-800 rounded-lg bg-red-50 animate__animated animate__shakeX" role="alert">
                     <i class="ri-error-warning-fill me-2"></i>
-                    <span><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></span>
+                    <span><?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?></span>
                 </div>
             <?php endif; ?>
 
             <form method="POST" action="">
 
                 <div class="mb-3">
-                    <label for="usuario" class="form-label fw-medium">Usuario</label>
+                    <label for="usuario" class="form-label fw-medium">Código universitario</label>
                     <div class="input-group campo-input-group">
                         <span class="input-group-text border-end-0">
-                            <!-- Remix Icons -->
                             <i class="ri-user-3-line"></i>
                         </span>
                         <input
@@ -129,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             id="usuario"
                             name="usuario"
                             class="form-control border-start-0"
-                            placeholder="usuario@univo.edu"
+                            placeholder="Ej: u2026001"
                             autocomplete="username"
                             value="<?php echo isset($_POST['usuario']) ? htmlspecialchars($_POST['usuario']) : ''; ?>"
                         >
