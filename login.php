@@ -44,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     header("Location: /Transport-UNIVO/admin/admin.php");
                     break;
                 case 'conductor':
-                    header("Location: /Transport-UNIVO/dashboards/conductor.php");
+                    header("Location: /Transport-UNIVO/conductor/conductor.php");
                     break;
-                case 'estudiante':
-                    header("Location: /Transport-UNIVO/dashboards/alumno.php");
+                case 'pasajero':
+                    header("Location: /Transport-UNIVO/pasajero/pasajero.php");
                     break;
                 default:
                     $_SESSION['error'] = "Rol no reconocido.";
