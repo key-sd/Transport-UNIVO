@@ -61,7 +61,7 @@ include("../includes/conexion.php");
                     </div>
                     <div class="tabla-buscador">
                         <i class="ri-search-line"></i>
-                        <input type="text" id="buscador" placeholder="Buscar horario...">
+                        <input type="text" id="buscadorHorarios" placeholder="Buscar horario...">
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@ include("../includes/conexion.php");
             <div class="d-md-none animate__animated animate__fadeInUp">
                 <div class="tabla-buscador mb-3">
                     <i class="ri-search-line"></i>
-                    <input type="text" id="buscadorMobile" placeholder="Buscar horario..." style="flex:1; border:none; outline:none; background:transparent; font-family:'Outfit',sans-serif; font-size:13px; color:#0f172a;">
+                    <input type="text" id="buscadorMobileHorarios" placeholder="Buscar horario..." style="flex:1; border:none; outline:none; background:transparent; font-family:'Outfit',sans-serif; font-size:13px; color:#0f172a;">
                 </div>
                 <div id="contenedorTarjetasHorarios" class="d-flex flex-column gap-3">
                     <div class="text-center p-4 text-muted">
@@ -157,6 +157,7 @@ include("../includes/conexion.php");
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../js/main.js"></script>
 </body>
 </html>
