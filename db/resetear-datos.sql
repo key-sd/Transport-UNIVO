@@ -1,4 +1,4 @@
-use Transport-UNIVO;
+use Transport_univo;
 
 -- Eliminar datos de las tablas para resetear la base de datos
 DELETE FROM `conductores`;
