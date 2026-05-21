@@ -13,6 +13,7 @@ include("../includes/conexion.php");
 $q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'conductor'");
 $total_conductores = mysqli_fetch_assoc($q)['total'];
 
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -73,25 +74,13 @@ $total_conductores = mysqli_fetch_assoc($q)['total'];
                             <i class="ri-steering-2-line" style="color:#0d2346;"></i>
                         </div>
                     </div>
-                    <p class="stat-numero">-aquí va conexion-</p>
+                    <p class="stat-numero"><?php echo $total_conductores; ?></p>
                     <p class="stat-nota">registrados en el sistema</p>
                 </div>
 
                 <div class="stat-card">
                     <div class="stat-card-top">
-                        <p class="stat-label">Pasajeros</p>
-                        <div class="stat-icono" style="background:#f5c51820;">
-                            <i class="ri-group-line" style="color:#be8f02;"></i>
-                        </div>
-                    </div>
-                    <p class="stat-numero">-aquí va conexion-</p>
-                    <p class="stat-nota">registrados en el sistema</p>
-                </div>
-
-                <!-- estas dos tarjetas son estáticas hasta que existan las tablas -->
-                <div class="stat-card">
-                    <div class="stat-card-top">
-                        <p class="stat-label">Rutas en Marcha</p>
+                        <p class="stat-label">Rutas Disponibles</p>
                         <div class="stat-icono" style="background:#1862a815;">
                             <i class="ri-map-2-line" style="color:#1862a8;"></i>
                         </div>
@@ -112,55 +101,6 @@ $total_conductores = mysqli_fetch_assoc($q)['total'];
                 </div>
 
             </div>
-
-            <!-- esto cambiaría cuando se creen las tablas necesarias en la bd -->
-            <div class="dashboard-grid animate__animated animate__fadeInUp">
-
-                <div class="dash-card">
-                    <p class="dash-card-titulo">Estado de unidades</p>
-                    <div class="estado-lista">
-                        <div class="estado-item estado-en-ruta">
-                            <div class="estado-punto"></div>
-                            <span>Unidad 01 — Ruta 1</span>
-                            <span class="estado-badge badge-en-ruta">En ruta</span>
-                        </div>
-                        <div class="estado-item estado-por-salir">
-                            <div class="estado-punto"></div>
-                            <span>Unidad 02 — Ruta 2</span>
-                            <span class="estado-badge badge-por-salir">Por salir</span>
-                        </div>
-                        <div class="estado-item estado-llego">
-                            <div class="estado-punto"></div>
-                            <span>Unidad 03 — Ruta 3</span>
-                            <span class="estado-badge badge-llego">Llegó</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- esto también con las tablas de la bd -->
-                <div class="dash-card">
-                    <p class="dash-card-titulo">Conductores activos hoy</p>
-                    <div class="conductores-lista">
-                        <div class="conductor-item">
-                            <div class="conductor-avatar" style="background:#0d234620; color:#0d2346;">JM</div>
-                            <div class="conductor-info">
-                                <p class="conductor-nombre">Juan Martínez</p>
-                                <p class="conductor-ruta">Ruta 2</p>
-                            </div>
-                            <span class="estado-badge badge-en-ruta">En ruta</span>
-                        </div>
-                        <div class="conductor-item">
-                            <div class="conductor-avatar" style="background:#f5c51826; color:#be8f02;">CR</div>
-                            <div class="conductor-info">
-                                <p class="conductor-nombre">Carlos Ramos</p>
-                                <p class="conductor-ruta">Ruta 1</p>
-                            </div>
-                            <span class="estado-badge badge-por-salir">Por salir</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
         </main>
     </div>
 </div>
