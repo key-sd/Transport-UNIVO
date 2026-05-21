@@ -19,22 +19,21 @@ if ($id <= 0 || ($estado !== 0 && $estado !== 1)) {
     echo json_encode(['success' => false, 'message' => 'Datos inválidos para procesar el cambio de estado.']);
     exit;
 }
-$nuevo_estado = ($estado === 1) ? 0 : 1;
 
 // Preparar la actualización en la tabla real de horarios: horas_salida
 $stmt = $conn->prepare("UPDATE horas_salida SET estado = ? WHERE id = ?");
-$stmt->bind_param('ii', $nuevo_estado, $id);
+$stmt->bind_param('ii', $estado, $id);
 
 if ($stmt->execute()) {
     // La acción refleja el nuevo estado aplicado
-    $accion = ($nuevo_estado === 1) ? 'activado' : 'desactivado';
+    $accion = ($estado === 1) ? 'activado' : 'desactivado';
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => "El horario ha sido {$accion} correctamente."
     ]);
 } else {
     echo json_encode([
-        'success' => false, 
+        'success' => false,
         'message' => 'No se pudo actualizar el estado en la base de datos.'
     ]);
 }
