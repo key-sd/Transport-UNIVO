@@ -17,6 +17,17 @@ if (empty($hora_salida)) {
     exit;
 }
 
+// validaar el rango de hora de 5am a 6pm
+$hora = $_POST['hora_salida'];
+$t    = strtotime($hora);
+$min  = strtotime('05:00');
+$max  = strtotime('18:00');
+
+if ($t < $min || $t > $max) {
+    echo json_encode(['success' => false, 'message' => 'La hora debe estar entre las 5:00 AM y las 6:00 PM.']);
+    exit();
+}
+
 $stmtDup = $conn->prepare("SELECT id FROM horas_salida WHERE hora = ? LIMIT 1");
 $stmtDup->bind_param('s', $hora_salida);
 $stmtDup->execute();

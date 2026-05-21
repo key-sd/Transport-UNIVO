@@ -32,13 +32,13 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             <i class="ri-time-line"></i>
             <span>Horarios</span>
         </a>
-        <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
-            <i class="ri-calendar-todo-line"></i>
-            <span>Cronograma</span>
-        </a>
         <a href="section_rutas.php" class="sidebar-item <?php echo $pagina_actual == 'section_rutas.php' ? 'activo' : ''; ?>">
             <i class="ri-map-2-line"></i>
             <span>Rutas</span>
+        </a>
+        <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
+            <i class="ri-calendar-todo-line"></i>
+            <span>Cronograma</span>
         </a>
     </nav>
 </aside>
@@ -80,13 +80,13 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
                 <i class="ri-time-line"></i>
                 <span>Horarios</span>
             </a>
-            <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
-                <i class="ri-calendar-todo-line"></i>
-                <span>Cronograma</span>
-            </a>
             <a href="section_ruta.php" class="sidebar-item <?php echo $pagina_actual == 'section_ruta.php' ? 'activo' : ''; ?>">
                 <i class="ri-map-2-line"></i>
                 <span>Rutas</span>
+            </a>
+            <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
+                <i class="ri-calendar-todo-line"></i>
+                <span>Cronograma</span>
             </a>
         </nav>
 
