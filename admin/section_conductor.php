@@ -183,6 +183,7 @@ include("../includes/conexion.php");
                                             </span>
                                             <input type="password" id="password" name="password" class="form-control border-start-0" placeholder="Mín. 8 caracteres" required autocomplete="new-password">
                                         </div>
+                                        <small id="hintPassword" class="text-muted ms-1"></small>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label fw-medium">Confirmar *</label>

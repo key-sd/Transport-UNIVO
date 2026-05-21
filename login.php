@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $datos = $resultado->fetch_assoc();
 
         /* ── Verificar contraseña con bcrypt ── */
-        if ($password === $datos['password_hash']) {
+        if (password_verify($password, $datos['password_hash'])) {
 
             /* Regenerar ID de sesión para evitar session fixation */
             session_regenerate_id(true);
