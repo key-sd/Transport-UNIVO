@@ -84,7 +84,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
                 <i class="ri-map-2-line"></i>
                 <span>Rutas</span>
             </a>
-                        <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
+            <a href="section_cronograma.php" class="sidebar-item <?php echo $pagina_actual == 'section_cronograma.php' ? 'activo' : ''; ?>">
                 <i class="ri-calendar-todo-line"></i>
                 <span>Cronograma</span>
             </a>

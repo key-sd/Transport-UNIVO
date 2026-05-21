@@ -19,6 +19,20 @@ $horas_salida = [];
 while ($fila = $resultado->fetch_assoc()) {
     // formatea la hora para que no se vea "13:00:00" sino "01:00 PM":
     $fila['hora_formateada'] = date("g:i A", strtotime($fila['hora']));
+    // calcular turno según la hora
+    $t   = strtotime($fila['hora']);
+    $ini = strtotime('05:00:00');
+    $med = strtotime('12:00:00');
+    $fin = strtotime('18:00:00');
+
+    if ($t >= $ini && $t < $med) {
+        $fila['turno'] = 'Matutino';
+    } elseif ($t >= $med && $t <= $fin) {
+        $fila['turno'] = 'Vespertino';
+    } else {
+        $fila['turno'] = 'Fuera de rango';
+    }
+
     $horas_salida[] = $fila;
 }
 

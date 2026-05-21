@@ -816,7 +816,13 @@ body {
 .tabla-horario {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
+
+.tabla-horario th:nth-child(1) { width: 10%; }
+.tabla-horario th:nth-child(2) { width: 30%; }
+.tabla-horario th:nth-child(3) { width: 30%; }
+.tabla-horario th:nth-child(4) { width: 30%; }
 
 .tabla-horario thead tr {
     background: #f8faff !important;
@@ -857,15 +863,6 @@ body {
     text-align: left;
 }
 
-/* Columna de Acciones */
-.tabla-horario td.text-end,
-.tabla-conductores td:last-child {
-    text-align: right !important;
-    white-space: nowrap !important;
-    width: 1% !important;
-    vertical-align: middle !important;
-}
-
 /* Badge de la Hora */
 .hora-badge {
     display: inline-flex !important;
@@ -887,6 +884,32 @@ body {
     font-size: 13px !important;
     display: inline-block;
     transform: translateY(0.5px);
+}
+
+.badge-matutino {
+    background: #fefce8;
+    color: #f6d270;
+    border: 1px solid #fff783;
+    font-size: 13px;
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+.badge-vespertino {
+    background: #fcbb70;
+    color: #c78971;
+    border: 1px solid #be9465;
+    font-size: 13px;
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+.badge-fuera-rango {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 11px;
+    border-radius: 20px;
+    padding: 3px 10px;
 }
 
 /* Avatares de Conductores */

@@ -478,12 +478,18 @@ function renderTablaHorarios(lista) {
 
     cuerpoTablaHor.innerHTML = lista.map(h => {
         const esInactivo = parseInt(h.estado) === 0;
+        const turnoBadge = h.turno === 'Matutino'
+            ? `<span class="badge badge-matutino"><i class="ri-sun-cloudy-line me-1"></i>Matutino</span>`
+            : h.turno === 'Vespertino'
+            ? `<span class="badge badge-vespertino"><i class="ri-sun-line me-1"></i>Vespertino</span>`
+            : `<span class="badge badge-fuera-rango">—</span>`;
         return `
         <tr class="animate__animated animate__fadeIn ${esInactivo ? 'fila-inactiva' : ''}">
             <td>${h.id}</td>
             <td><span class="hora-badge"><i class="ri-time-fill"></i>${h.hora_formateada}</span></td>
-            <td class="text-end">
-                <div class="d-flex align-items-center justify-content-end gap-2">
+            <td>${turnoBadge}</td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
                     ${!esInactivo ? `
                         <button class="btn-accion btn-accion-editar" onclick="abrirModalEditarHorario(${h.id}, '${h.hora}')">
                             <i class="ri-edit-line me-1"></i>Editar

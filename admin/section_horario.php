@@ -71,12 +71,13 @@ include("../includes/conexion.php");
                             <tr>
                                 <th>ID</th>
                                 <th>Hora de Salida</th>
-                                <th class="text-end">Acciones</th>
+                                <th>Turno</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpoTablaHorarios">
                             <tr>
-                                <td colspan="3" class="tabla-empty">
+                                <td colspan="4" class="tabla-empty">
                                     <i class="ri-loader-4-line ri-spin"></i> Cargando horarios...
                                 </td>
                             </tr>
@@ -126,13 +127,14 @@ include("../includes/conexion.php");
                                 <div class="row g-3">
                                     <div class="col-12">
                                         <label class="form-label fw-medium">Hora de salida *</label>
+                                        
                                         <div class="input-group campo-input-group">
                                             <span class="input-group-text border-end-0">
                                                 <i class="ri-time-fill text-secondary"></i>
                                             </span>
-                                            <input type="time" id="hora_salida" name="hora_salida" class="form-control border-start-0" required>
+                                            <input type="time" id="hora_salida" name="hora_salida" class="form-control border-start-0" class="form-control border-start-0" min="05:00" max="18:00" required>
+                                            <small class="text-muted">Matutino: 5:00 AM–11:59 AM &nbsp;|&nbsp; Vespertino: 12:00 PM–18:00 PM</small>
                                         </div>
-                                        <small class="text-muted">Especifique la hora exacta en formato de 24 horas.</small>
                                     </div>
                                 </div>
                             </form>
