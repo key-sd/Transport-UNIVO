@@ -133,7 +133,9 @@ if (txtFechaHoy && typeof moment !== 'undefined') {
     txtFechaHoy.textContent = diasES[hoy.day()] + ', ' + hoy.date() + ' de ' + mesesES[hoy.month()] + ' de ' + hoy.year();
 }
 
+// ══════════════════════════════════════════════════════════════
 // PARA LA SECCIÓN DE CONDUCTORES
+// ══════════════════════════════════════════════════════════════
 const elModalConductor   = document.getElementById('modalConductor');
 const modalBS            = elModalConductor ? new bootstrap.Modal(elModalConductor) : null;
 const btnAbrir           = document.getElementById('btnAbrirModal');
@@ -145,21 +147,52 @@ const buscador           = document.getElementById('buscador');
 const contenedorTarjetas = document.getElementById('contenedorTarjetas');
 const buscadorMobile     = document.getElementById('buscadorMobile');
 
-let conductores = [];
+let conductores     = [];
+let modoModal       = 'crear';    // 'crear' o 'editar'
+let conductorEditId = null;       // ID del conductor que se está editando
 
-// abre el modal limpio para agregar un conductor
+// helpers para manejar el required de contraseñas según el modo
+function activarRequiredPassword() {
+    document.getElementById('password')?.setAttribute('required', 'required');
+    document.getElementById('confirmar_password')?.setAttribute('required', 'required');
+}
+function desactivarRequiredPassword() {
+    document.getElementById('password')?.removeAttribute('required');
+    document.getElementById('confirmar_password')?.removeAttribute('required');
+}
+function setHintPassword(texto) {
+    const hint = document.getElementById('hintPassword');
+    if (hint) hint.textContent = texto;
+}
+
+// abre el modal limpio para AGREGAR un conductor
 if (btnAbrir) {
     btnAbrir.addEventListener('click', () => {
+        modoModal       = 'crear';
+        conductorEditId = null;
+
         document.getElementById('modalTitle').textContent = 'Nuevo Conductor';
+        btnGuardar.innerHTML = '<i class="ri-save-line me-1"></i>Guardar conductor';
+
+        activarRequiredPassword();
+        setHintPassword('');
         form.reset();
         ocultarAlerta(alertaModal);
         if (modalBS) modalBS.show();
     });
 }
 
-// limpia el form cuando se cierra el modal
+// limpia el form y resetea el modo cuando se cierra el modal
 if (elModalConductor) {
     elModalConductor.addEventListener('hidden.bs.modal', () => {
+        modoModal       = 'crear';
+        conductorEditId = null;
+
+        document.getElementById('modalTitle').textContent = 'Nuevo Conductor';
+        btnGuardar.innerHTML = '<i class="ri-save-line me-1"></i>Guardar conductor';
+
+        activarRequiredPassword();
+        setHintPassword('');
         form.reset();
         ocultarAlerta(alertaModal);
     });
@@ -290,20 +323,40 @@ if (buscadorMobile) {
     });
 }
 
-// guarda el nuevo conductor
+// guarda conductor — detecta si es crear o editar y llama al archivo correcto
 if (btnGuardar) {
     btnGuardar.addEventListener('click', () => {
         ocultarAlerta(alertaModal);
-        const pwd  = document.getElementById('password')?.value || '';
-        const pwd2 = document.getElementById('confirmar_password')?.value || '';
-        if (!form.checkValidity()) { form.reportValidity(); return; }
-        if (pwd !== pwd2)   { mostrarAlerta(alertaModal, 'error', 'Las contraseñas no coinciden.'); return; }
-        if (pwd.length < 8) { mostrarAlerta(alertaModal, 'error', 'La contraseña debe tener al menos 8 caracteres.'); return; }
 
-        btnGuardar.disabled = true;
+        const pwd  = document.getElementById('password')?.value  || '';
+        const pwd2 = document.getElementById('confirmar_password')?.value || '';
+
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        // en modo CREAR la contraseña es obligatoria
+        if (modoModal === 'crear') {
+            if (pwd !== pwd2)   { mostrarAlerta(alertaModal, 'error', 'Las contraseñas no coinciden.'); return; }
+            if (pwd.length < 8) { mostrarAlerta(alertaModal, 'error', 'La contraseña debe tener al menos 8 caracteres.'); return; }
+        }
+
+        // en modo EDITAR solo valida si escribió algo en el campo
+        if (modoModal === 'editar' && pwd !== '') {
+            if (pwd !== pwd2)   { mostrarAlerta(alertaModal, 'error', 'Las contraseñas no coinciden.'); return; }
+            if (pwd.length < 8) { mostrarAlerta(alertaModal, 'error', 'La contraseña debe tener al menos 8 caracteres.'); return; }
+        }
+
+        btnGuardar.disabled  = true;
         btnGuardar.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando...';
 
-        fetch('crear_conductor.php', { method: 'POST', body: new FormData(form) })
+        const datos = new FormData(form);
+        let archivo = 'crear_conductor.php';
+
+        if (modoModal === 'editar') {
+            datos.append('conductor_id', conductorEditId);
+            archivo = 'editar_conductor.php';
+        }
+
+        fetch(archivo, { method: 'POST', body: datos })
             .then(r => r.json())
             .then(resp => {
                 if (resp.success) {
@@ -316,8 +369,10 @@ if (btnGuardar) {
             })
             .catch(() => mostrarAlerta(alertaModal, 'error', 'Error de conexión. Intenta de nuevo.'))
             .finally(() => {
-                btnGuardar.disabled = false;
-                btnGuardar.innerHTML = '<i class="ri-save-line me-1"></i>Guardar conductor';
+                btnGuardar.disabled  = false;
+                btnGuardar.innerHTML = modoModal === 'editar'
+                    ? '<i class="ri-save-line me-1"></i>Guardar cambios'
+                    : '<i class="ri-save-line me-1"></i>Guardar conductor';
             });
     });
 }
@@ -327,12 +382,40 @@ function cambiarEstadoConductor(id, estadoActual) {
     cambiarEstado(id, estadoActual, 'cambiar_estado_conductor.php', 'conductor', cargarConductores);
 }
 
-// para edición xd
+// abre el modal en modo EDITAR con los datos del conductor precargados
 function editarConductor(id) {
-    console.log('Editar conductor con ID:', id);
+    const c = conductores.find(c => parseInt(c.id) === parseInt(id));
+    if (!c) {
+        mostrarAlertaGlobal('error', 'No se encontraron los datos del conductor.');
+        return;
+    }
+
+    modoModal       = 'editar';
+    conductorEditId = id;
+
+    // cambiar título y botón
+    document.getElementById('modalTitle').textContent = 'Editar Conductor';
+    btnGuardar.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambios';
+
+    // pre-llenar campos con datos actuales
+    document.getElementById('nombre').value               = c.nombre;
+    document.getElementById('apellido').value             = c.apellido;
+    document.getElementById('telefono').value             = c.telefono;
+    document.getElementById('codigo_universitario').value = c.codigo_universitario;
+
+    // limpiar contraseñas y hacerlas opcionales
+    document.getElementById('password').value             = '';
+    document.getElementById('confirmar_password').value   = '';
+    desactivarRequiredPassword();
+    setHintPassword('Déjala en blanco para no cambiarla.');
+
+    ocultarAlerta(alertaModal);
+    if (modalBS) modalBS.show();
 }
 
+// ══════════════════════════════════════════════════════════════
 // PARA LA SECCIÓN DE HORARIOS
+// ══════════════════════════════════════════════════════════════
 const modalHorarioElem           = document.getElementById('modalHorario');
 const modalHorarioBS             = modalHorarioElem ? new bootstrap.Modal(modalHorarioElem) : null;
 const btnAbrirHor                = document.getElementById('btnAbrirModalHorario');
@@ -383,7 +466,6 @@ function cargarHorarios() {
 function renderTablaHorarios(lista) {
     if (!cuerpoTablaHor) return;
 
-    // activos arriba, inactivos abajo
     const activos   = lista.filter(h => parseInt(h.estado) === 1);
     const inactivos = lista.filter(h => parseInt(h.estado) === 0);
     lista = [...activos, ...inactivos];
