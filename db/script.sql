@@ -33,8 +33,9 @@ CREATE TABLE `conductores` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabla de microbuses
-CREATE TABLE `microbuses` (
+CREATE TABLE `unidades` (
   `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `nombre` varchar(50) NOT NULL,
   `placa` varchar(20) NOT NULL,
   `capacidad_maxima` int NOT NULL,
   `estado` tinyint(1) DEFAULT '1',
@@ -53,6 +54,7 @@ CREATE TABLE `sedes` (
 CREATE TABLE `horas_salida` (
   `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `hora` time NOT NULL,
+  `turno` enum('Matutino', 'Vespertino') NOT NULL,
   `estado` tinyint(1) DEFAULT '1',
   UNIQUE KEY `hora_unica` (`hora`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -68,20 +70,16 @@ CREATE TABLE `rutas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Cronograma semanal 
-CREATE TABLE `cronograma_semanal` (
+CREATE TABLE `cronograma_horarios` (
   `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `id_ruta` int NOT NULL,
   `id_hora_salida` int NOT NULL,
   `dia_semana` enum('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo') NOT NULL,
-  `id_conductor` int NOT NULL,
-  `id_microbus` int NOT NULL,
   `estado` tinyint(1) DEFAULT '1',
   -- Evita duplicados de conductor o microbus
-  UNIQUE KEY `itinerario_unico` (`dia_semana`, `id_hora_salida`, `id_microbus`),
+  UNIQUE KEY `itinerario_unico` (`id_ruta`, `id_hora_salida`, `dia_semana`),
   CONSTRAINT `fk_cronograma_rutas` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_cronograma_horas` FOREIGN KEY (`id_hora_salida`) REFERENCES `horas_salida` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_cronograma_conductores` FOREIGN KEY (`id_conductor`) REFERENCES `conductores` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `fk_cronograma_microbuses` FOREIGN KEY (`id_microbus`) REFERENCES `microbuses` (`id`) ON DELETE RESTRICT
+  CONSTRAINT `fk_cronograma_horas` FOREIGN KEY (`id_hora_salida`) REFERENCES `horas_salida` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insertar roles
@@ -90,16 +88,16 @@ INSERT INTO `roles` (`nombre`) VALUES
 
 -- Insertar usuarios 
 INSERT INTO `usuarios` (`codigo_universitario`, `password_hash`, `rol_id`) VALUES 
-('u2026001', 'adminpass', 1), 
-('u2026002', 'pasajeropass', 2), 
-('u2026003', 'conductorpass', 3);
+('u2026001','$2y$10$vqyXr8as1lK//K.JQF3Q2uxC9h4ivZl4Ijj.FfJfcyw.aCIqDA1Pi', 1), 
+('u2026002','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2), 
+('u2026003','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG', 3);
 
 -- Insertar conductor 
 INSERT INTO `conductores` (`usuario_id`, `nombre`, `apellido`, `telefono`) VALUES 
 (3, 'Juan', 'Pérez', '7777-1234'); 
--- Insertar microbuses
-INSERT INTO `microbuses` (`placa`, `capacidad_maxima`) VALUES 
-('U-12345', 30);
+-- Insertar unidades
+INSERT INTO `unidades` (`nombre`, `placa`, `capacidad_maxima`) VALUES 
+('Unidad 1', 'U-12345', 30);
 
 -- Insertar sedes
 INSERT INTO `sedes` (`nombre`) VALUES 
