@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             id="usuario"
                             name="usuario"
                             class="form-control border-start-0"
-                            placeholder="Ej: u2026001"
+                            placeholder="Ej: u20260001"
                             autocomplete="username"
                             value="<?php echo isset($_POST['usuario']) ? htmlspecialchars($_POST['usuario']) : ''; ?>"
                         >
