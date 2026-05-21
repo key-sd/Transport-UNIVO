@@ -610,3 +610,250 @@ function cambiarEstadoHorario(id, estadoActual) {
 function abrirModalEditarHorario(id, hora) {
     console.log('Editar horario con ID:', id, 'Hora:', hora);
 }
+
+// ══════════════════════════════════════════════════════════════
+// PARA LA SECCIÓN DE RUTAS
+// ══════════════════════════════════════════════════════════════
+const elModalRuta             = document.getElementById('modalRuta');
+const modalRutaBS             = elModalRuta ? new bootstrap.Modal(elModalRuta) : null;
+const btnAbrirRuta            = document.getElementById('btnAbrirModalRuta');
+const btnGuardarRuta          = document.getElementById('btnGuardarRuta');
+const formRuta                = document.getElementById('formRuta');
+const alertaModalRuta         = document.getElementById('alertaModalRuta');
+const cuerpoTablaRutas        = document.getElementById('cuerpoTablaRuta');
+const contenedorTarjetasRutas = document.getElementById('contenedorTarjetas');
+const buscadorDesktopRutas    = document.getElementById('buscadorRuta');
+const buscadorMobileRutas     = document.getElementById('buscadorMobileRutas');
+const selectOrigen            = document.getElementById('origen');
+const selectDestino           = document.getElementById('destino');
+
+let rutas      = [];
+let modoRuta   = 'crear';
+let rutaEditId = null;
+
+if (cuerpoTablaRutas) {
+    document.addEventListener('DOMContentLoaded', cargarRutas);
+
+    // abre el modal limpio para agregar ruta
+    if (btnAbrirRuta) {
+        btnAbrirRuta.addEventListener('click', () => {
+            modoRuta   = 'crear';
+            rutaEditId = null;
+
+            document.getElementById('modalTitle').textContent = 'Nueva Ruta';
+            btnGuardarRuta.innerHTML = '<i class="ri-save-line me-1"></i>Guardar ruta';
+
+            if (formRuta) formRuta.reset();
+            cargarSedes();
+            ocultarAlerta(alertaModalRuta);
+            if (modalRutaBS) modalRutaBS.show();
+        });
+    }
+
+    // limpia el form al cerrar
+    if (elModalRuta) {
+        elModalRuta.addEventListener('hidden.bs.modal', () => {
+            modoRuta   = 'crear';
+            rutaEditId = null;
+
+            document.getElementById('modalTitle').textContent = 'Nueva Ruta';
+            btnGuardarRuta.innerHTML = '<i class="ri-save-line me-1"></i>Guardar ruta';
+
+            if (formRuta) formRuta.reset();
+            ocultarAlerta(alertaModalRuta);
+        });
+    }
+}
+
+// carga las sedes en ambos selects
+function cargarSedes() {
+    fetch('listar_sedes.php')
+        .then(r => r.json())
+        .then(sedes => {
+            [selectOrigen, selectDestino].forEach(sel => {
+                if (!sel) return;
+                sel.innerHTML = '<option value="">Seleccionar sede</option>';
+                sedes.forEach(s => {
+                    sel.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+                });
+            });
+        })
+        .catch(() => mostrarAlertaGlobal('error', 'No se pudieron cargar las sedes.'));
+}
+
+// carga las rutas al entrar
+function cargarRutas() {
+    if (!cuerpoTablaRutas) return;
+    cuerpoTablaRutas.innerHTML = `<tr><td colspan="4" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando rutas...</td></tr>`;
+
+    fetch('listar_rutas.php')
+        .then(r => r.json())
+        .then(data => { rutas = data; renderTablaRutas(rutas); })
+        .catch(() => {
+            cuerpoTablaRutas.innerHTML = `<tr><td colspan="4" class="tabla-empty"><i class="ri-error-warning-line"></i> Error al cargar los datos.</td></tr>`;
+        });
+}
+
+// carga la tabla de rutas en desktop
+function renderTablaRutas(lista) {
+    if (!cuerpoTablaRutas) return;
+
+    const activos   = lista.filter(r => parseInt(r.estado) === 1);
+    const inactivos = lista.filter(r => parseInt(r.estado) === 0);
+    lista = [...activos, ...inactivos];
+
+    if (!lista.length) {
+        cuerpoTablaRutas.innerHTML = `<tr><td colspan="4" class="tabla-empty"><i class="ri-steering-2-line"></i> No hay rutas registradas.</td></tr>`;
+        renderTarjetasRutas([]);
+        return;
+    }
+
+    cuerpoTablaRutas.innerHTML = lista.map(r => {
+        const esInactivo = parseInt(r.estado) === 0;
+        return `
+        <tr class="animate__animated animate__fadeIn ${esInactivo ? 'fila-inactiva' : ''}">
+            <td>${r.id}</td>
+            <td><i class="ri-map-pin-2-line me-1 text-muted"></i>${r.origen}</td>
+            <td><i class="ri-map-pin-5-line me-1 text-muted"></i>${r.destino}</td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    ${!esInactivo ? `
+                        <button class="btn-accion btn-accion-editar" onclick="editarRuta(${r.id})">
+                            <i class="ri-edit-line me-1"></i>Editar
+                        </button>
+                    ` : ''}
+                    <button class="btn-accion ${!esInactivo ? 'btn-accion-activo' : 'btn-accion-inactivo'}"
+                            onclick="cambiarEstadoRuta(${r.id}, ${r.estado})">
+                        ${!esInactivo ? 'Activo' : 'Inactivo'}
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+
+    renderTarjetasRutas(lista);
+}
+
+// carga las tarjetas de rutas en móvil
+function renderTarjetasRutas(lista) {
+    if (!contenedorTarjetasRutas) return;
+    if (!lista.length) {
+        contenedorTarjetasRutas.innerHTML = `<div class="text-center p-4 text-muted"><i class="ri-steering-2-line d-block mb-2" style="font-size:2rem;"></i>No hay rutas registradas.</div>`;
+        return;
+    }
+
+    contenedorTarjetasRutas.innerHTML = lista.map(r => {
+        const esInactivo = parseInt(r.estado) === 0;
+        return `
+        <div class="conductor-card-mobile animate__animated animate__fadeIn ${esInactivo ? 'fila-inactiva' : ''}">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="conductor-card-avatar"><i class="ri-steering-2-line"></i></div>
+                    <div>
+                        <p class="fw-semibold mb-0" style="color:#0d2346; font-size:14px;">
+                            <i class="ri-map-pin-2-line me-1"></i>${r.origen}
+                        </p>
+                        <p class="text-muted mb-0" style="font-size:12px;">
+                            <i class="ri-arrow-right-line me-1"></i>${r.destino}
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex flex-column gap-1">
+                    ${!esInactivo ? `
+                        <button class="btn-accion btn-accion-editar" onclick="editarRuta(${r.id})">
+                            <i class="ri-edit-line me-1"></i>Editar
+                        </button>
+                    ` : ''}
+                    <button class="btn-accion ${!esInactivo ? 'btn-accion-activo' : 'btn-accion-inactivo'}"
+                            onclick="cambiarEstadoRuta(${r.id}, ${r.estado})">
+                        ${!esInactivo ? 'Activo' : 'Inactivo'}
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// buscador desktop rutas
+if (buscadorDesktopRutas) {
+    buscadorDesktopRutas.addEventListener('input', () => {
+        const q = buscadorDesktopRutas.value.toLowerCase();
+        renderTablaRutas(rutas.filter(r =>
+            r.origen.toLowerCase().includes(q)  ||
+            r.destino.toLowerCase().includes(q) ||
+            String(r.id).includes(q)
+        ));
+    });
+}
+
+// buscador móvil rutas — sincronizado con el de desktop
+if (buscadorMobileRutas) {
+    buscadorMobileRutas.addEventListener('input', () => {
+        const q = buscadorMobileRutas.value.toLowerCase();
+        renderTablaRutas(rutas.filter(r =>
+            r.origen.toLowerCase().includes(q)  ||
+            r.destino.toLowerCase().includes(q) ||
+            String(r.id).includes(q)
+        ));
+        if (buscadorDesktopRutas) buscadorDesktopRutas.value = buscadorMobileRutas.value;
+    });
+}
+
+// guarda la ruta mientras detecta si es crear o editar y llama al archivo correcto
+if (btnGuardarRuta && formRuta) {
+    btnGuardarRuta.addEventListener('click', () => {
+        ocultarAlerta(alertaModalRuta);
+        if (!formRuta.checkValidity()) { formRuta.reportValidity(); return; }
+
+        // validación extra: origen y destino no pueden ser iguales
+        if (selectOrigen?.value === selectDestino?.value) {
+            mostrarAlerta(alertaModalRuta, 'error', 'El origen y el destino no pueden ser la misma sede.');
+            return;
+        }
+
+        btnGuardarRuta.disabled  = true;
+        btnGuardarRuta.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando...';
+
+        const datos = new FormData(formRuta);
+        let archivo = 'crear_ruta.php';
+
+        if (modoRuta === 'editar') {
+            datos.append('ruta_id', rutaEditId);
+            archivo = 'editar_ruta.php';
+        }
+
+        fetch(archivo, { method: 'POST', body: datos })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.success) {
+                    if (modalRutaBS) modalRutaBS.hide();
+                    mostrarAlertaGlobal('exito', resp.message);
+                    cargarRutas();
+                } else {
+                    mostrarAlerta(alertaModalRuta, 'error', resp.message);
+                }
+            })
+            .catch(() => mostrarAlerta(alertaModalRuta, 'error', 'Error de conexión. Intenta de nuevo.'))
+            .finally(() => {
+                btnGuardarRuta.disabled  = false;
+                btnGuardarRuta.innerHTML = modoRuta === 'editar'
+                    ? '<i class="ri-save-line me-1"></i>Guardar cambios'
+                    : '<i class="ri-save-line me-1"></i>Guardar ruta';
+            });
+    });
+}
+
+// llama a cambiar_estado con los textos específicos para rutas
+function cambiarEstadoRuta(id, estadoActual) {
+    cambiarEstado(
+        id,
+        estadoActual,
+        'cambiar_estado_ruta.php',
+        'ruta',
+        cargarRutas,
+        {
+            desactivar: 'Esta ruta no estará disponible en el cronograma.',
+            activar:    'Esta ruta volverá a estar disponible en el cronograma.'
+        }
+    );
+}
