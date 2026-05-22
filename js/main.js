@@ -148,8 +148,8 @@ const contenedorTarjetas = document.getElementById('contenedorTarjetas');
 const buscadorMobile     = document.getElementById('buscadorMobile');
 
 let conductores     = [];
-let modoModal       = 'crear';    // 'crear' o 'editar'
-let conductorEditId = null;       // ID del conductor que se está editando
+let modoModal       = 'crear';
+let conductorEditId = null;
 
 // helpers para manejar el required de contraseñas según el modo
 function activarRequiredPassword() {
@@ -333,13 +333,11 @@ if (btnGuardar) {
 
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
-        // en modo CREAR la contraseña es obligatoria
         if (modoModal === 'crear') {
             if (pwd !== pwd2)   { mostrarAlerta(alertaModal, 'error', 'Las contraseñas no coinciden.'); return; }
             if (pwd.length < 8) { mostrarAlerta(alertaModal, 'error', 'La contraseña debe tener al menos 8 caracteres.'); return; }
         }
 
-        // en modo EDITAR solo valida si escribió algo en el campo
         if (modoModal === 'editar' && pwd !== '') {
             if (pwd !== pwd2)   { mostrarAlerta(alertaModal, 'error', 'Las contraseñas no coinciden.'); return; }
             if (pwd.length < 8) { mostrarAlerta(alertaModal, 'error', 'La contraseña debe tener al menos 8 caracteres.'); return; }
@@ -393,17 +391,14 @@ function editarConductor(id) {
     modoModal       = 'editar';
     conductorEditId = id;
 
-    // cambiar título y botón
     document.getElementById('modalTitle').textContent = 'Editar Conductor';
     btnGuardar.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambios';
 
-    // pre-llenar campos con datos actuales
     document.getElementById('nombre').value               = c.nombre;
     document.getElementById('apellido').value             = c.apellido;
     document.getElementById('telefono').value             = c.telefono;
     document.getElementById('codigo_universitario').value = c.codigo_universitario;
 
-    // limpiar contraseñas y hacerlas opcionales
     document.getElementById('password').value             = '';
     document.getElementById('confirmar_password').value   = '';
     desactivarRequiredPassword();
@@ -426,7 +421,9 @@ const contenedorTarjetasHorarios = document.getElementById('contenedorTarjetasHo
 const buscadorMobileHor          = document.getElementById('buscadorMobileHorarios');
 const buscadorDesktopHor         = document.getElementById('buscadorHorarios');
 
-let horarios = [];
+let horarios      = [];
+let modoHorario   = 'crear';
+let horarioEditId = null;
 
 if (cuerpoTablaHor) {
     document.addEventListener('DOMContentLoaded', cargarHorarios);
@@ -434,15 +431,29 @@ if (cuerpoTablaHor) {
     // abre el modal limpio para agregar horario
     if (btnAbrirHor) {
         btnAbrirHor.addEventListener('click', () => {
+            modoHorario   = 'crear';
+            horarioEditId = null;
+
+            const tituloModal = modalHorarioElem?.querySelector('#modalTitle');
+            if (tituloModal) tituloModal.textContent = 'Nuevo Horario';
+            if (btnGuardarHor) btnGuardarHor.innerHTML = '<i class="ri-save-line me-1"></i>Guardar horario';
+
             if (formHor) formHor.reset();
             ocultarAlerta(alertaModal);
             if (modalHorarioBS) modalHorarioBS.show();
         });
     }
 
-    // limpia el form al cerrar
+    // limpia el form al cerrar y resetea el modo
     if (modalHorarioElem) {
         modalHorarioElem.addEventListener('hidden.bs.modal', () => {
+            modoHorario   = 'crear';
+            horarioEditId = null;
+
+            const tituloModal = modalHorarioElem?.querySelector('#modalTitle');
+            if (tituloModal) tituloModal.textContent = 'Nuevo Horario';
+            if (btnGuardarHor) btnGuardarHor.innerHTML = '<i class="ri-save-line me-1"></i>Guardar horario';
+
             if (formHor) formHor.reset();
             ocultarAlerta(alertaModal);
         });
@@ -564,16 +575,24 @@ if (buscadorMobileHor) {
     });
 }
 
-// guarda el nuevo horario
+// guarda el horario — detecta si es crear o editar y llama al archivo correcto
 if (btnGuardarHor && formHor) {
     btnGuardarHor.addEventListener('click', () => {
         ocultarAlerta(alertaModal);
         if (!formHor.checkValidity()) { formHor.reportValidity(); return; }
 
-        btnGuardarHor.disabled = true;
+        btnGuardarHor.disabled  = true;
         btnGuardarHor.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando...';
 
-        fetch('crear_horario.php', { method: 'POST', body: new FormData(formHor) })
+        const datos = new FormData(formHor);
+        let archivo = 'crear_horario.php';
+
+        if (modoHorario === 'editar') {
+            datos.append('horario_id', horarioEditId);
+            archivo = 'editar_horario.php';
+        }
+
+        fetch(archivo, { method: 'POST', body: datos })
             .then(r => r.json())
             .then(resp => {
                 if (resp.success) {
@@ -586,8 +605,10 @@ if (btnGuardarHor && formHor) {
             })
             .catch(() => mostrarAlerta(alertaModal, 'error', 'Error de conexión.'))
             .finally(() => {
-                btnGuardarHor.disabled = false;
-                btnGuardarHor.innerHTML = '<i class="ri-save-line me-1"></i>Guardar horario';
+                btnGuardarHor.disabled  = false;
+                btnGuardarHor.innerHTML = modoHorario === 'editar'
+                    ? '<i class="ri-save-line me-1"></i>Guardar cambios'
+                    : '<i class="ri-save-line me-1"></i>Guardar horario';
             });
     });
 }
@@ -607,8 +628,22 @@ function cambiarEstadoHorario(id, estadoActual) {
     );
 }
 
+// abre el modal en modo EDITAR con la hora actual precargada
 function abrirModalEditarHorario(id, hora) {
-    console.log('Editar horario con ID:', id, 'Hora:', hora);
+    modoHorario   = 'editar';
+    horarioEditId = id;
+
+    // cambiar título y botón
+    const tituloModal = modalHorarioElem?.querySelector('#modalTitle');
+    if (tituloModal) tituloModal.textContent = 'Editar Horario';
+    if (btnGuardarHor) btnGuardarHor.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambios';
+
+    // pre-llenar el input con la hora actual (formato HH:MM para el input type="time")
+    const inputHora = formHor?.querySelector('#hora_salida');
+    if (inputHora) inputHora.value = hora.substring(0, 5); // recorta segundos si vienen HH:MM:SS
+
+    ocultarAlerta(alertaModal);
+    if (modalHorarioBS) modalHorarioBS.show();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -621,7 +656,7 @@ const btnGuardarRuta          = document.getElementById('btnGuardarRuta');
 const formRuta                = document.getElementById('formRuta');
 const alertaModalRuta         = document.getElementById('alertaModalRuta');
 const cuerpoTablaRutas        = document.getElementById('cuerpoTablaRuta');
-const contenedorTarjetasRutas = document.getElementById('contenedorTarjetas');
+const contenedorTarjetasRutas = document.getElementById('contenedorTarjetasRutas');
 const buscadorDesktopRutas    = document.getElementById('buscadorRuta');
 const buscadorMobileRutas     = document.getElementById('buscadorMobileRutas');
 const selectOrigen            = document.getElementById('origen');
@@ -640,7 +675,8 @@ if (cuerpoTablaRutas) {
             modoRuta   = 'crear';
             rutaEditId = null;
 
-            document.getElementById('modalTitle').textContent = 'Nueva Ruta';
+            const tituloModal = elModalRuta?.querySelector('#modalTitle');
+            if (tituloModal) tituloModal.textContent = 'Nueva Ruta';
             btnGuardarRuta.innerHTML = '<i class="ri-save-line me-1"></i>Guardar ruta';
 
             if (formRuta) formRuta.reset();
@@ -650,13 +686,14 @@ if (cuerpoTablaRutas) {
         });
     }
 
-    // limpia el form al cerrar
+    // limpia el form al cerrar y resetea el modo
     if (elModalRuta) {
         elModalRuta.addEventListener('hidden.bs.modal', () => {
             modoRuta   = 'crear';
             rutaEditId = null;
 
-            document.getElementById('modalTitle').textContent = 'Nueva Ruta';
+            const tituloModal = elModalRuta?.querySelector('#modalTitle');
+            if (tituloModal) tituloModal.textContent = 'Nueva Ruta';
             btnGuardarRuta.innerHTML = '<i class="ri-save-line me-1"></i>Guardar ruta';
 
             if (formRuta) formRuta.reset();
@@ -799,7 +836,7 @@ if (buscadorMobileRutas) {
     });
 }
 
-// guarda la ruta mientras detecta si es crear o editar y llama al archivo correcto
+// guarda la ruta — detecta si es crear o editar y llama al archivo correcto
 if (btnGuardarRuta && formRuta) {
     btnGuardarRuta.addEventListener('click', () => {
         ocultarAlerta(alertaModalRuta);
@@ -843,7 +880,7 @@ if (btnGuardarRuta && formRuta) {
     });
 }
 
-// llama a cambiar_estado con los textos específicos para rutas
+// llama a cambiarEstado con los textos específicos para rutas
 function cambiarEstadoRuta(id, estadoActual) {
     cambiarEstado(
         id,
@@ -856,4 +893,42 @@ function cambiarEstadoRuta(id, estadoActual) {
             activar:    'Esta ruta volverá a estar disponible en el cronograma.'
         }
     );
+}
+
+// abre el modal en modo EDITAR con los selects de origen y destino precargados
+function editarRuta(id) {
+    const r = rutas.find(r => parseInt(r.id) === parseInt(id));
+    if (!r) {
+        mostrarAlertaGlobal('error', 'No se encontraron los datos de la ruta.');
+        return;
+    }
+
+    modoRuta   = 'editar';
+    rutaEditId = id;
+
+    // cambiar título y botón
+    const tituloModal = elModalRuta?.querySelector('#modalTitle');
+    if (tituloModal) tituloModal.textContent = 'Editar Ruta';
+    btnGuardarRuta.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambios';
+
+    // cargar las sedes primero y luego pre-seleccionar origen y destino
+    fetch('listar_sedes.php')
+        .then(res => res.json())
+        .then(sedes => {
+            [selectOrigen, selectDestino].forEach(sel => {
+                if (!sel) return;
+                sel.innerHTML = '<option value="">Seleccionar sede</option>';
+                sedes.forEach(s => {
+                    sel.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+                });
+            });
+
+            // pre-seleccionar los valores actuales de la ruta
+            if (selectOrigen)  selectOrigen.value  = r.id_sede_origen;
+            if (selectDestino) selectDestino.value = r.id_sede_destino;
+        })
+        .catch(() => mostrarAlertaGlobal('error', 'No se pudieron cargar las sedes.'));
+
+    ocultarAlerta(alertaModalRuta);
+    if (modalRutaBS) modalRutaBS.show();
 }
