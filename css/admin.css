@@ -334,23 +334,17 @@ body {
 }
 
 .tabla-conductores,
-.tabla-horario,
-.tabla-rutas,
 .tabla-cronograma {
     width: 100%;
     border-collapse: collapse;
 }
 
 .tabla-conductores thead tr,
-.tabla-horario thead tr,
-.tabla-rutas thead tr,
 .tabla-cronograma thead tr {
     background: #f8faff;
 }
 
 .tabla-conductores th,
-.tabla-horario th,
-.tabla-rutas th,
 .tabla-cronograma th {
     padding: 10px 12px;
     font-size: 11px;
@@ -364,8 +358,6 @@ body {
 }
 
 .tabla-conductores td,
-.tabla-horario td,
-.tabla-rutas td,
 .tabla-cronograma td {
     padding: 8px 12px;
     font-size: 12.5px;
@@ -375,13 +367,9 @@ body {
 }
 
 .tabla-conductores tbody tr:last-child td,
-.tabla-horario tbody tr:last-child td,
-.tabla-rutas tbody tr:last-child td,
 .tabla-cronograma tbody tr:last-child td { border-bottom: none; }
 
 .tabla-conductores tbody tr:hover,
-.tabla-horario tbody tr:hover,
-.tabla-rutas tbody tr:hover,
 .tabla-cronograma tbody tr:hover { background: #f8faff; }
 
 .tabla-empty {
@@ -391,20 +379,6 @@ body {
     font-size: 14px;
 }
 
-/* columnas de la tabla de horarios */
-.tabla-horario { table-layout: fixed; }
-.tabla-horario th:nth-child(1) { width: 10%; }
-.tabla-horario th:nth-child(2) { width: 30%; }
-.tabla-horario th:nth-child(3) { width: 30%; }
-.tabla-horario th:nth-child(4) { width: 30%; }
-
-/* columnas de la tabla de rutas */
-.tabla-rutas { table-layout: fixed; }
-.tabla-rutas th:nth-child(1) { width: 8%;  }
-.tabla-rutas th:nth-child(2) { width: 30%; }
-.tabla-rutas th:nth-child(3) { width: 30%; }
-.tabla-rutas th:nth-child(4) { width: 32%; }
-
 /* columnas de la tabla de cronograma */
 .tabla-cronograma { table-layout: fixed; }
 .tabla-cronograma th:nth-child(1) { width: 10%; }
@@ -412,6 +386,57 @@ body {
 .tabla-cronograma th:nth-child(3) { width: 25%; }
 .tabla-cronograma th:nth-child(4) { width: 25%; }
 .tabla-cronograma th:nth-child(5) { width: 15%; }
+
+/* nomas de prueba xd */
+/* Nuevos estilos adaptados para horarios múltiples y checkboxes */
+.form-check-inline {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 6px 16px 6px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.form-check-inline:hover {
+    border-color: #1862a8;
+    background: #f8faff;
+}
+
+.form-check-input:checked + .form-check-label {
+    color: #0d2346;
+    font-weight: 600;
+}
+
+/* Botón pequeño de agregar hora en el formulario */
+#btnAgregarHora {
+    border-color: #1862a8;
+    color: #1862a8;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+#btnAgregarHora:hover {
+    background: #1862a8;
+    color: #ffffff;
+}
+
+/* Botón de eliminar hora individual */
+.btn-eliminar-hora {
+    background: #ef444410;
+    color: #ef4444;
+    border: 1px solid #e2e8f0;
+    border-left: none;
+}
+
+.btn-eliminar-hora:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
 
 /* avatar en la tabla */
 .conductor-tabla-avatar {
