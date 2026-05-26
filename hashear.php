@@ -8,14 +8,15 @@ require_once 'includes/conexion.php';
 
 // usuarios seed con sus contraseñas originales en texto plano
 $usuarios = [
-    ['codigo' => 'u2026001', 'pass' => 'adminpass'],
+    ['codigo' => 'a2026001', 'pass' => 'adminpass'],
     ['codigo' => 'u2026002', 'pass' => 'pasajeropass'],
-    ['codigo' => 'u2026003', 'pass' => 'conductorpass'],
+    ['codigo' => 'c0001', 'pass' => 'conductorpass'],
+    ['codigo' => 'c0002', 'pass' => 'conductorpass'],
 ];
 
 foreach ($usuarios as $u) {
     $hash = password_hash($u['pass'], PASSWORD_BCRYPT);
-    $stmt = $conn->prepare("UPDATE usuarios SET password_hash = ? WHERE codigo_universitario = ?");
+    $stmt = $conn->prepare("UPDATE usuarios SET password_hash = ? WHERE codigo = ?");
     $stmt->bind_param('ss', $hash, $u['codigo']);
 
     if ($stmt->execute()) {

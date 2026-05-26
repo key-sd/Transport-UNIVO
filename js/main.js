@@ -240,7 +240,7 @@ function renderTabla(lista) {
                 </div>
             </td>
             <td><i class="ri-phone-line me-1 text-muted"></i>${c.telefono}</td>
-            <td><i class="ri-id-card-line me-1 text-muted"></i><code>${c.codigo_universitario}</code></td>
+            <td><i class="ri-id-card-line me-1 text-muted"></i><code>${c.codigo}</code></td>
             <td>
                 <div class="d-flex align-items-center gap-2">
                     ${!esInactivo ? `
@@ -277,7 +277,7 @@ function renderTarjetas(lista) {
                 <div class="conductor-card-avatar">${ini}</div>
                 <div class="flex-grow-1">
                     <p class="fw-semibold mb-0" style="color:#0d2346; font-size:14px;">${c.nombre} ${c.apellido}</p>
-                    <p class="text-muted mb-0" style="font-size:12px;"><i class="ri-id-card-line me-1"></i><code>${c.codigo_universitario}</code></p>
+                    <p class="text-muted mb-0" style="font-size:12px;"><i class="ri-id-card-line me-1"></i><code>${c.codigo}</code></p>
                     <p class="text-muted mb-0" style="font-size:12px;"><i class="ri-phone-line me-1"></i>${c.telefono}</p>
                 </div>
                 <div class="d-flex flex-column gap-1">
@@ -303,7 +303,7 @@ if (buscador) {
         renderTabla(conductores.filter(c =>
             c.nombre.toLowerCase().includes(q)               ||
             c.apellido.toLowerCase().includes(q)             ||
-            c.codigo_universitario.toLowerCase().includes(q) ||
+            c.codigo.toLowerCase().includes(q) ||
             c.telefono.includes(q)
         ));
     });
@@ -316,7 +316,7 @@ if (buscadorMobile) {
         renderTabla(conductores.filter(c =>
             c.nombre.toLowerCase().includes(q)               ||
             c.apellido.toLowerCase().includes(q)             ||
-            c.codigo_universitario.toLowerCase().includes(q) ||
+            c.codigo.toLowerCase().includes(q) ||
             c.telefono.includes(q)
         ));
         if (buscador) buscador.value = buscadorMobile.value;
@@ -397,7 +397,7 @@ function editarConductor(id) {
     document.getElementById('nombre').value               = c.nombre;
     document.getElementById('apellido').value             = c.apellido;
     document.getElementById('telefono').value             = c.telefono;
-    document.getElementById('codigo_universitario').value = c.codigo_universitario;
+    document.getElementById('codigo').value = c.codigo;
 
     document.getElementById('password').value             = '';
     document.getElementById('confirmar_password').value   = '';

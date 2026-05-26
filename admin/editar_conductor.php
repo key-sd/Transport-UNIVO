@@ -17,7 +17,7 @@ $conductor_id         = intval($_POST['conductor_id']         ?? 0);
 $nombre               = trim($_POST['nombre']                 ?? '');
 $apellido             = trim($_POST['apellido']               ?? '');
 $telefono             = trim($_POST['telefono']               ?? '');
-$codigo_universitario = trim($_POST['codigo_universitario']   ?? '');
+$codigo = trim($_POST['codigo']   ?? '');
 $password             = $_POST['password']                    ?? '';
 $confirmar_pwd        = $_POST['confirmar_password']          ?? '';
 
@@ -30,7 +30,7 @@ if ($conductor_id <= 0)           $errores[] = 'ID de conductor inválido.';
 if (empty($nombre))               $errores[] = 'El nombre es obligatorio.';
 if (empty($apellido))             $errores[] = 'El apellido es obligatorio.';
 if (empty($telefono))             $errores[] = 'El teléfono es obligatorio.';
-if (empty($codigo_universitario)) $errores[] = 'El código universitario es obligatorio.';
+if (empty($codigo)) $errores[] = 'El código es obligatorio.';
 
 // contraseña opcional en edición — solo valida si se escribió algo
 $cambiarPassword = !empty($password);
@@ -63,9 +63,9 @@ if (empty($usuario_id)) {
    4. VERIFICAR QUE EL CÓDIGO NO LO USE OTRO USUARIO
 ════════════════════════════════════════════════ */
 $stmtDup = $conn->prepare(
-    "SELECT id FROM usuarios WHERE codigo_universitario = ? AND id != ? LIMIT 1"
+    "SELECT id FROM usuarios WHERE codigo = ? AND id != ? LIMIT 1"
 );
-$stmtDup->bind_param('si', $codigo_universitario, $usuario_id);
+$stmtDup->bind_param('si', $codigo, $usuario_id);
 $stmtDup->execute();
 $stmtDup->store_result();
 
@@ -73,7 +73,7 @@ if ($stmtDup->num_rows > 0) {
     $stmtDup->close();
     echo json_encode([
         'success' => false,
-        'message' => "El código '{$codigo_universitario}' ya está en uso por otro usuario."
+        'message' => "El código '{$codigo}' ya está en uso por otro usuario."
     ]);
     exit;
 }
@@ -90,14 +90,14 @@ try {
     if ($cambiarPassword) {
         $password_hash = password_hash($password, PASSWORD_BCRYPT);
         $stmtU = $conn->prepare(
-            "UPDATE usuarios SET codigo_universitario = ?, password_hash = ? WHERE id = ?"
+            "UPDATE usuarios SET codigo = ?, password_hash = ? WHERE id = ?"
         );
-        $stmtU->bind_param('ssi', $codigo_universitario, $password_hash, $usuario_id);
+        $stmtU->bind_param('ssi', $codigo, $password_hash, $usuario_id);
     } else {
         $stmtU = $conn->prepare(
-            "UPDATE usuarios SET codigo_universitario = ? WHERE id = ?"
+            "UPDATE usuarios SET codigo = ? WHERE id = ?"
         );
-        $stmtU->bind_param('si', $codigo_universitario, $usuario_id);
+        $stmtU->bind_param('si', $codigo, $usuario_id);
     }
     $stmtU->execute();
     $stmtU->close();

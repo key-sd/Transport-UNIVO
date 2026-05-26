@@ -171,7 +171,7 @@ include("../includes/conexion.php");
                                             <span class="input-group-text border-end-0">
                                                 <i class="ri-id-card-line text-secondary"></i>
                                             </span>
-                                            <input type="text" id="codigo_universitario" name="codigo_universitario" class="form-control border-start-0" placeholder="u2026010" required>
+                                            <input type="text" id="codigo" name="codigo" class="form-control border-start-0" placeholder="c0000" required>
                                         </div>
                                         <small class="text-muted">Este código será el usuario para iniciar sesión.</small>
                                     </div>
