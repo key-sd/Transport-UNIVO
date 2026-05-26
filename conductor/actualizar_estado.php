@@ -13,7 +13,7 @@ header('Content-Type: application/json; charset=utf-8');
 $estado    = $_POST['estado']    ?? '';
 $capacidad = $_POST['capacidad'] ?? '';
 
-$estados_validos    = ['en_sede', 'proximo_salir', 'en_trafico', 'llegando'];
+$estados_validos    = ['en_sede', 'proximo_salir', 'en_camino', 'llegando'];
 $capacidad_valida   = ['disponible', 'medio_lleno', 'lleno'];
 
 if (!in_array($estado, $estados_validos) || !in_array($capacidad, $capacidad_valida)) {

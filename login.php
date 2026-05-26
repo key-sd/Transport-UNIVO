@@ -14,10 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     /* ── Prepared statement — sin inyección SQL ── */
-    $sql  = "SELECT u.id, u.codigo_universitario, u.password_hash, r.nombre AS rol
+    $sql  = "SELECT u.id, u.codigo, u.password_hash, r.nombre AS rol
              FROM usuarios u
              INNER JOIN roles r ON u.rol_id = r.id
-             WHERE u.codigo_universitario = ?
+             WHERE u.codigo = ?
              LIMIT 1";
 
     $stmt = $conn->prepare($sql);
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             session_regenerate_id(true);
 
             $_SESSION['usuario_id'] = $datos['id'];
-            $_SESSION['usuario']    = $datos['codigo_universitario'];
+            $_SESSION['usuario']    = $datos['codigo'];
             $_SESSION['rol']        = $datos['rol'];   // 'admin' | 'conductor' | 'pasajero'
 
             switch ($datos['rol']) {
@@ -57,14 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         } else {
             /* Contraseña incorrecta */
-            $_SESSION['error'] = "Usuario o contraseña incorrectos.";
+            $_SESSION['error'] = "Código o contraseña incorrectos.";
             header("Location: login.php");
             exit();
         }
 
     } else {
         /* Usuario no encontrado */
-        $_SESSION['error'] = "Usuario o contraseña no encontrados.";
+        $_SESSION['error'] = "Código o contraseña no encontrados.";
         header("Location: login.php");
         exit();
     }
