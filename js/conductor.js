@@ -1,0 +1,246 @@
+// Para el reloj y la fecha
+const diasES   = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const mesesES  = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function actualizarReloj() {
+    const ahora = moment();
+    document.getElementById('reloj').textContent = ahora.format('HH:mm');
+    const fecha = diasES[ahora.day()] + ', ' + ahora.date() + ' de ' + mesesES[ahora.month()] + ' de ' + ahora.year();
+    document.getElementById('fecha-hoy').textContent = fecha;
+}
+actualizarReloj();
+setInterval(actualizarReloj, 1000);
+
+// Para los horarios y la próxima salida
+let proximaHoraMoment = null;
+
+function cargarHorarios() {
+    fetch('obtener_horarios.php')
+        .then(r => r.json())
+        .then(data => {
+            const contenedor = document.getElementById('contenedor-horarios');
+
+            if (!data.length) {
+                contenedor.innerHTML = '<p class="cargando">No hay viajes programados para hoy.</p>';
+                return;
+            }
+
+            const ahora = moment();
+            let proximoEncontrado = false;
+
+            const html = data.map(viaje => {
+                const horaSalida = moment(viaje.hora_salida, 'HH:mm:ss');
+                let estado, badgeClass, badgeTexto;
+
+                if (horaSalida.isBefore(ahora)) {
+                    estado = 'completado';
+                    badgeClass = 'badge-completado';
+                    badgeTexto = 'Completado';
+                } else if (!proximoEncontrado) {
+                    estado = 'proximo';
+                    badgeClass = 'badge-proximo';
+                    badgeTexto = 'Próximo';
+                    proximoEncontrado = true;
+                    proximaHoraMoment = horaSalida;
+                    actualizarProximaSalida(viaje, horaSalida);
+                } else {
+                    estado = 'pendiente';
+                    badgeClass = 'badge-pendiente';
+                    badgeTexto = 'Pendiente';
+                }
+
+                return `
+                    <div class="viaje-item ${estado}">
+                        <span class="viaje-hora">${horaSalida.format('HH:mm')}</span>
+                        <span class="viaje-ruta">${viaje.origen} → ${viaje.destino}</span>
+                        <span class="viaje-badge ${badgeClass}">${badgeTexto}</span>
+                    </div>
+                `;
+            }).join('');
+
+            contenedor.innerHTML = html;
+
+            if (!proximoEncontrado) {
+                document.getElementById('proxima-hora').textContent = '—';
+                document.getElementById('proxima-ruta').textContent = 'Sin más viajes hoy';
+                document.getElementById('cuenta-regresiva').textContent = 'Fin del día';
+            }
+        })
+        .catch(() => {
+            document.getElementById('contenedor-horarios').innerHTML = '<p class="cargando">Error al cargar horarios.</p>';
+        });
+}
+
+function actualizarProximaSalida(viaje, horaMoment) {
+    document.getElementById('proxima-hora').textContent = horaMoment.format('HH:mm');
+    document.getElementById('proxima-ruta').textContent = viaje.origen + ' → ' + viaje.destino;
+}
+
+// Cuenta regresiva para la próxima salida
+function actualizarCuentaRegresiva() {
+    if (!proximaHoraMoment) return;
+    const ahora = moment();
+    const diff = proximaHoraMoment.diff(ahora);
+
+    if (diff <= 0) {
+        document.getElementById('cuenta-regresiva').textContent = '¡Es hora de salir!';
+        cargarHorarios();
+        return;
+    }
+
+    const horas   = Math.floor(diff / 3600000);
+    const minutos = Math.floor((diff % 3600000) / 60000);
+    const segundos = Math.floor((diff % 60000) / 1000);
+
+    let texto = '';
+    if (horas > 0) texto += horas + 'h ';
+    texto += minutos + 'min ' + segundos + 's';
+
+    document.getElementById('cuenta-regresiva').textContent = texto;
+}
+
+cargarHorarios();
+setInterval(actualizarCuentaRegresiva, 1000);
+
+// estado y capacidad del micro
+let estadoSeleccionado = null;
+let capacidadSeleccionada = null;
+
+document.querySelectorAll('.btn-estado').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-estado').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        estadoSeleccionado = btn.dataset.estado;
+    });
+});
+
+document.querySelectorAll('.btn-capacidad').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-capacidad').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        capacidadSeleccionada = btn.dataset.cap;
+    });
+});
+
+document.getElementById('btn-guardar-estado').addEventListener('click', () => {
+    if (!estadoSeleccionado || !capacidadSeleccionada) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Selecciona el estado y la capacidad antes de guardar.',
+            confirmButtonColor: '#0d2346',
+            width: '320px'
+        });
+        return;
+    }
+
+    const datos = new FormData();
+    datos.append('estado', estadoSeleccionado);
+    datos.append('capacidad', capacidadSeleccionada);
+
+    fetch('actualizar_estado.php', { method: 'POST', body: datos })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.success) {
+                const ahora = moment().format('HH:mm');
+                document.getElementById('ultima-actualizacion').textContent = 'Última actualización: ' + ahora;
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Listo!',
+                    text: resp.message,
+                    confirmButtonColor: '#0d2346',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    width: '320px'
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: resp.message, confirmButtonColor: '#0d2346', width: '320px' });
+            }
+        })
+        .catch(() => {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar el estado.', confirmButtonColor: '#0d2346', width: '320px' });
+        });
+});
+
+// Mapa leaflet y GPS
+const sedes = [
+    { nombre: 'Campus Ciudad Universitaria', lat: 13.509544916895331, lng: -88.23213992427416},
+    { nombre: 'Sede Central',  lat: 13.482012750212768, lng: -88.18369862029535 },
+    { nombre: 'Campus Agronomía y Veterinaria',  lat: 13.430735664341332, lng: -88.06646258443071 }
+];
+
+const mapa = L.map('mapa-conductor').setView([13.4820, -88.1780], 14);
+
+// para el estilo del mapa
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+}).addTo(mapa);
+
+// Marcar las sedes fijas en el mapa
+sedes.forEach(sede => {
+    L.marker([sede.lat, sede.lng])
+        .addTo(mapa)
+        .bindPopup(`<b>${sede.nombre}</b>`);
+});
+
+// GPS
+let gpsActivo = false;
+let watchId = null;
+let marcadorConductor = null;
+
+document.getElementById('btn-gps').addEventListener('click', () => {
+    if (!gpsActivo) {
+        activarGPS();
+    } else {
+        desactivarGPS();
+    }
+});
+
+function activarGPS() {
+    if (!navigator.geolocation) {
+        Swal.fire({ icon: 'error', title: 'Sin GPS', text: 'Tu navegador no soporta geolocalización.', width: '320px' });
+        return;
+    }
+
+    watchId = navigator.geolocation.watchPosition(
+        pos => {
+            const { latitude, longitude } = pos.coords;
+
+            if (!marcadorConductor) {
+                marcadorConductor = L.marker([latitude, longitude], {
+                    icon: L.divIcon({ className: '', html: '<div style="background:#f5c518;border:3px solid #0d2346;width:16px;height:16px;border-radius:50%;"></div>' })
+                }).addTo(mapa).bindPopup('Tu ubicación');
+            } else {
+                marcadorConductor.setLatLng([latitude, longitude]);
+            }
+
+            mapa.setView([latitude, longitude], 15);
+
+            // Enviar ubicación al servidor
+            const datos = new FormData();
+            datos.append('lat', latitude);
+            datos.append('lng', longitude);
+            fetch('actualizar_ubicacion.php', { method: 'POST', body: datos });
+
+            document.getElementById('gps-estado').textContent = 'GPS activo — ubicación compartida';
+        },
+        err => {
+            Swal.fire({ icon: 'error', title: 'Error GPS', text: 'No se pudo obtener tu ubicación.', width: '320px' });
+        },
+        { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+
+    gpsActivo = true;
+    const btn = document.getElementById('btn-gps');
+    btn.classList.add('activo');
+    btn.innerHTML = '<i class="ri-gps-fill"></i> Desactivar GPS';
+}
+
+function desactivarGPS() {
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    gpsActivo = false;
+    const btn = document.getElementById('btn-gps');
+    btn.classList.remove('activo');
+    btn.innerHTML = '<i class="ri-gps-line"></i> Activar GPS';
+    document.getElementById('gps-estado').textContent = 'GPS inactivo';
+}

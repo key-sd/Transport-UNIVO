@@ -75,12 +75,38 @@ CREATE TABLE `cronograma_horarios` (
   `id_ruta` int NOT NULL,
   `id_hora_salida` int NOT NULL,
   `dia_semana` enum('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo') NOT NULL,
+  `conductor_id` int NULL,
   `estado` tinyint(1) DEFAULT '1',
   -- Evita duplicados de conductor o microbus
   UNIQUE KEY `itinerario_unico` (`id_ruta`, `id_hora_salida`, `dia_semana`),
   CONSTRAINT `fk_cronograma_rutas` FOREIGN KEY (`id_ruta`) REFERENCES `rutas` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_cronograma_horas` FOREIGN KEY (`id_hora_salida`) REFERENCES `horas_salida` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+-- Para la logica de estado de unidades en tiempo real
+CREATE TABLE `estado_unidad` (
+  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `conductor_id` int NOT NULL,
+  `unidad_id` int NOT NULL,
+  `estado` enum('en_sede','proximo_salir','en_trafico','llegando') NOT NULL,
+  `capacidad` enum('disponible','medio_lleno','lleno') NOT NULL,
+  `actualizado_en` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_estado_conductor` FOREIGN KEY (`conductor_id`) REFERENCES `conductores` (`id`),
+  CONSTRAINT `fk_estado_unidad` FOREIGN KEY (`unidad_id`) REFERENCES `unidades` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ -- Para almacenar la ubicación en tiempo real de los conductores según lo cambien
+CREATE TABLE `ubicaciones` (
+  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `conductor_id` int NOT NULL,
+  `latitud` decimal(10,8) NOT NULL,
+  `longitud` decimal(11,8) NOT NULL,
+  `actualizado_en` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT `fk_ubicacion_conductor` FOREIGN KEY (`conductor_id`) REFERENCES `conductores` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 
 -- Insertar roles
 INSERT INTO `roles` (`nombre`) VALUES 
@@ -104,3 +130,127 @@ INSERT INTO `sedes` (`nombre`) VALUES
 ('Sede Central'), 
 ('Ciudad Universitaria'), 
 ('Campus de Agronomía y Veterinaria');
+
+
+--- Datos de pruebas con los horarios reales de la U
+INSERT INTO `horas_salida` (`hora`, `turno`) VALUES
+('06:15:00', 'Matutino'),
+('06:20:00', 'Matutino'),
+('06:40:00', 'Matutino'),
+('07:15:00', 'Matutino'),
+('07:20:00', 'Matutino'),
+('08:00:00', 'Matutino'),
+('09:25:00', 'Matutino'),
+('10:00:00', 'Matutino'),
+('10:40:00', 'Matutino'),
+('11:10:00', 'Matutino'),
+('11:20:00', 'Matutino'),
+('12:10:00', 'Vespertino'),
+('12:20:00', 'Vespertino'),
+('12:30:00', 'Vespertino'),
+('12:50:00', 'Vespertino'),
+('14:30:00', 'Vespertino'),
+('14:40:00', 'Vespertino'),
+('15:15:00', 'Vespertino'),
+('15:30:00', 'Vespertino'),
+('16:00:00', 'Vespertino'),
+('16:10:00', 'Vespertino'),
+('16:20:00', 'Vespertino'),
+('16:40:00', 'Vespertino'),
+('16:45:00', 'Vespertino'),
+('17:10:00', 'Vespertino');
+ 
+INSERT INTO `rutas` (`id_sede_origen`, `id_sede_destino`) VALUES
+(1, 2),
+(2, 1),
+(1, 3),
+(3, 1);
+ 
+INSERT INTO `cronograma_horarios` (`id_ruta`, `id_hora_salida`, `dia_semana`, `conductor_id`) VALUES
+(1, (SELECT id FROM horas_salida WHERE hora='06:40:00'), 'Lunes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Lunes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='11:10:00'), 'Lunes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='12:50:00'), 'Lunes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:00:00'), 'Lunes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:45:00'), 'Lunes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='06:40:00'), 'Martes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Martes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='10:00:00'), 'Martes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='12:30:00'), 'Martes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='15:15:00'), 'Martes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:40:00'), 'Martes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='06:40:00'), 'Miércoles', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Miércoles', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='11:10:00'), 'Miércoles', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='12:50:00'), 'Miércoles', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:00:00'), 'Miércoles', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:45:00'), 'Miércoles', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='06:40:00'), 'Jueves', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Jueves', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='10:00:00'), 'Jueves', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='12:30:00'), 'Jueves', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='15:15:00'), 'Jueves', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:40:00'), 'Jueves', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='06:40:00'), 'Viernes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Viernes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='11:10:00'), 'Viernes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='12:50:00'), 'Viernes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:00:00'), 'Viernes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='16:45:00'), 'Viernes', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='06:40:00'), 'Sábado', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Sábado', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='11:10:00'), 'Sábado', 1),
+(1, (SELECT id FROM horas_salida WHERE hora='15:15:00'), 'Sábado', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='06:15:00'), 'Lunes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Lunes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='10:40:00'), 'Lunes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Lunes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='15:30:00'), 'Lunes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Lunes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='06:15:00'), 'Martes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='07:20:00'), 'Martes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='09:25:00'), 'Martes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='12:10:00'), 'Martes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='14:40:00'), 'Martes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='16:10:00'), 'Martes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='06:15:00'), 'Miércoles', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Miércoles', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='10:40:00'), 'Miércoles', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Miércoles', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='15:30:00'), 'Miércoles', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Miércoles', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='06:15:00'), 'Jueves', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Jueves', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='09:25:00'), 'Jueves', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='12:10:00'), 'Jueves', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='14:40:00'), 'Jueves', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='16:10:00'), 'Jueves', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='06:15:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='09:25:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='10:40:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='15:30:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Viernes', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='06:15:00'), 'Sábado', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='08:00:00'), 'Sábado', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='10:40:00'), 'Sábado', 1),
+(2, (SELECT id FROM horas_salida WHERE hora='14:40:00'), 'Sábado', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='07:15:00'), 'Martes', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Martes', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='07:15:00'), 'Miércoles', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Miércoles', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='07:15:00'), 'Jueves', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Jueves', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='07:15:00'), 'Viernes', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='12:20:00'), 'Viernes', 1),
+(3, (SELECT id FROM horas_salida WHERE hora='06:20:00'), 'Sábado', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='11:20:00'), 'Martes', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Martes', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='11:20:00'), 'Miércoles', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Miércoles', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='11:20:00'), 'Jueves', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Jueves', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='11:20:00'), 'Viernes', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='16:20:00'), 'Viernes', 1),
+(4, (SELECT id FROM horas_salida WHERE hora='14:30:00'), 'Sábado', 1);
