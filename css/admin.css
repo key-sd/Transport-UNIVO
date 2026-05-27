@@ -381,11 +381,11 @@ body {
 
 /* columnas de la tabla de cronograma */
 .tabla-cronograma { table-layout: fixed; }
-.tabla-cronograma th:nth-child(1) { width: 10%; }
-.tabla-cronograma th:nth-child(2) { width: 25%; }
+.tabla-cronograma th:nth-child(1) { width: 5%; }
+.tabla-cronograma th:nth-child(2) { width: 35%; }
 .tabla-cronograma th:nth-child(3) { width: 25%; }
 .tabla-cronograma th:nth-child(4) { width: 25%; }
-.tabla-cronograma th:nth-child(5) { width: 15%; }
+.tabla-cronograma th:nth-child(5) { width: 10%; }
 
 /* nomas de prueba xd */
 /* Nuevos estilos adaptados para horarios múltiples y checkboxes */
@@ -413,14 +413,14 @@ body {
     border-color: #1862a8;
     color: #1862a8;
     font-family: 'Outfit', sans-serif;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 500;
     border-radius: 6px;
     transition: all 0.2s;
 }
 
 #btnAgregarHora:hover {
-    background: #1862a8;
+    background: #1a3a6e;
     color: #ffffff;
 }
 
@@ -438,6 +438,167 @@ body {
     border-color: #ef4444;
 }
 
+/*  botón de cada día  */
+.acordeon-dia-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: #0d2346; 
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    text-align: left;
+    transition: background 0.25s ease, border-radius 0.25s ease;
+}
+.acordeon-dia-btn:hover {
+    background: #1a3a6e;
+}
+/* cuando se abre es celeste */
+.acordeon-dia-btn:not(.acordeon-dia-btn--collapsed) {
+    background: #1862a8;
+    border-radius: 8px 8px 0 0;
+}
+
+/* flecha con rotación suave */
+.acordeon-flecha {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+    color: #f5c518;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.acordeon-dia-btn--collapsed .acordeon-flecha {
+    transform: rotate(0deg);
+}
+.acordeon-dia-btn:not(.acordeon-dia-btn--collapsed) .acordeon-flecha {
+    transform: rotate(180deg);
+}
+
+/*  cuerpo del acordeón  */
+.acordeon-cuerpo {
+    border: 1px solid #c7d7f8;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* badges de días en la tabla */
+.badge-dia {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e8f0fe;
+    color: #0d2346;
+    font-family: 'Outfit', sans-serif;
+}
+
+/* botón Ver en la tabla */
+.btn-accion-ver {
+    background: #e8f0fe;
+    color: #0d2346;
+    border: 1px solid #c7d7f8;
+}
+.btn-accion-ver:hover {
+    background: #c7d7f8;
+}
+
+/* contador de horarios */
+.badge-dia-count {
+    font-size: 11px;
+    color: #f5c518;
+    font-weight: 400;
+}
+
+/* etiquetas Mañana / Tarde */
+.turno-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.turno-matutino  { color: #f5c518; } 
+.turno-vespertino { color: #ea7c2b; } 
+
+/*  chips de hora */
+.hora-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 3px 10px 3px 8px;
+    font-size: 12px;
+    font-family: 'Outfit', sans-serif;
+    color: #0f172a;
+    margin: 2px;
+    transition: background 0.15s;
+}
+.hora-chip:hover { background: #e2e8f0; }
+
+.btn-quitar-hora-chip {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    transition: color .2s;
+}
+.btn-quitar-hora-chip:hover { color: #dc2626; }
+
+/*  lista de horas */
+.horas-lista {
+    min-height: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+/*  botón Agregar hora dentro del acordeón  */
+.btn-agregar-hora-dia {
+    background: #0d2346;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: background .2s;
+}
+.btn-agregar-hora-dia:hover { background: #1a3a6e; }
+
+/* botón quitar hora en el form crear */
+.btn-quitar-hora {
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background .2s;
+    white-space: nowrap;
+}
+.btn-quitar-hora:hover { background: #fecaca; }
+/*  sección nuevo día  */
+.nuevo-dia-seccion {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+}
 /* avatar en la tabla */
 .conductor-tabla-avatar {
     width: 28px;
@@ -453,50 +614,6 @@ body {
     margin-right: 8px;
     flex-shrink: 0;
     vertical-align: middle;
-}
-
-/* badge de hora */
-.hora-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background: #f0f4f8;
-    color: #0d2346;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-    font-size: 12px;
-    border: 1px solid #e2e8f0;
-}
-
-.hora-badge i { color: #1862a8; font-size: 13px; }
-
-/* badges de turno */
-span.badge.badge-matutino {
-    background: #fefce8;
-    color: #ca8a04;
-    border: 1px solid #fef08a;
-    font-size: 11px;
-    border-radius: 20px;
-    padding: 3px 10px;
-}
-
-span.badge.badge-vespertino {
-    background: #fff7ed;
-    color: #c2410c;
-    border: 1px solid #fed7aa;
-    font-size: 11px;
-    border-radius: 20px;
-    padding: 3px 10px;
-}
-
-.badge-fuera-rango {
-    background: #f1f5f9;
-    color: #64748b;
-    font-size: 11px;
-    border-radius: 20px;
-    padding: 3px 10px;
 }
 
 /*Botones de acción en tablass*/
