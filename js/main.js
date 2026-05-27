@@ -1121,3 +1121,250 @@ function ordenarChips(lista) {
     });
     chips.forEach(c => lista.appendChild(c));
 }
+
+// ══════════════════════════════════════════════════════════════
+// PARA LA SECCIÓN DE UNIDADES
+// ══════════════════════════════════════════════════════════════
+const elModalUnidad              = document.getElementById('modalUnidad');
+const modalUnidadBS              = elModalUnidad ? new bootstrap.Modal(elModalUnidad) : null;
+const btnAbrirUnidad             = document.getElementById('btnAbrirModalUnidad');
+const btnGuardarUnidad           = document.getElementById('btnGuardarUnidad');
+const formUnidad                 = document.getElementById('formUnidad');
+const alertaModalUnidad          = document.getElementById('alertaModalUnidad');
+const cuerpoTablaUnidades        = document.getElementById('cuerpoTablaUnidades');
+const contenedorTarjetasUnidades = document.getElementById('contenedorTarjetasUnidades');
+const buscadorDesktopUnidades    = document.getElementById('buscadorUnidades');
+const buscadorMobileUnidades     = document.getElementById('buscadorMobileUnidades');
+ 
+let unidades     = [];
+let modoUnidad   = 'crear';
+let unidadEditId = null;
+ 
+if (cuerpoTablaUnidades) {
+    document.addEventListener('DOMContentLoaded', cargarUnidades);
+ 
+    // abre el modal limpio para agregar una unidad
+    if (btnAbrirUnidad) {
+        btnAbrirUnidad.addEventListener('click', () => {
+            modoUnidad   = 'crear';
+            unidadEditId = null;
+ 
+            document.getElementById('modalTitleUnidad').textContent = 'Nueva Unidad';
+            btnGuardarUnidad.innerHTML = '<i class="ri-save-line me-1"></i>Guardar unidad';
+ 
+            if (formUnidad) formUnidad.reset();
+            ocultarAlerta(alertaModalUnidad);
+            if (modalUnidadBS) modalUnidadBS.show();
+        });
+    }
+ 
+    // limpia el form y resetea el modo cuando se cierra el modal
+    if (elModalUnidad) {
+        elModalUnidad.addEventListener('hidden.bs.modal', () => {
+            modoUnidad   = 'crear';
+            unidadEditId = null;
+ 
+            document.getElementById('modalTitleUnidad').textContent = 'Nueva Unidad';
+            btnGuardarUnidad.innerHTML = '<i class="ri-save-line me-1"></i>Guardar unidad';
+ 
+            if (formUnidad) formUnidad.reset();
+            ocultarAlerta(alertaModalUnidad);
+        });
+    }
+}
+ 
+// carga las unidades al entrar a la página
+function cargarUnidades() {
+    if (!cuerpoTablaUnidades) return;
+    cuerpoTablaUnidades.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando unidades...</td></tr>`;
+ 
+    fetch('listar_unidades.php')
+        .then(r => r.json())
+        .then(data => { unidades = data; renderTablaUnidades(unidades); })
+        .catch(() => {
+            cuerpoTablaUnidades.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-error-warning-line"></i> Error al cargar los datos.</td></tr>`;
+        });
+}
+ 
+// carga la tabla de unidades en desktop
+function renderTablaUnidades(lista) {
+    if (!cuerpoTablaUnidades) return;
+ 
+    const activos   = lista.filter(u => parseInt(u.estado) === 1);
+    const inactivos = lista.filter(u => parseInt(u.estado) === 0);
+    lista = [...activos, ...inactivos];
+ 
+    if (!lista.length) {
+        cuerpoTablaUnidades.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-bus-line"></i> No hay unidades registradas.</td></tr>`;
+        renderTarjetasUnidades([]);
+        return;
+    }
+ 
+    cuerpoTablaUnidades.innerHTML = lista.map((u, i) => {
+        const esInactivo = parseInt(u.estado) === 0;
+        return `
+        <tr class="animate__animated animate__fadeIn ${esInactivo ? 'fila-inactiva' : ''}">
+            <td>${i + 1}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="conductor-tabla-avatar"><i class="ri-bus-line" style="font-size:13px;"></i></div>
+                    <span>${u.nombre}</span>
+                </div>
+            </td>
+            <td><code>${u.placa}</code></td>
+            <td><i class="ri-group-line me-1 text-muted"></i>${u.capacidad_maxima} pasajeros</td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    ${!esInactivo ? `
+                        <button class="btn-accion btn-accion-editar" onclick="editarUnidad(${u.id})">
+                            <i class="ri-edit-line me-1"></i>Editar
+                        </button>
+                    ` : ''}
+                    <button class="btn-accion ${!esInactivo ? 'btn-accion-activo' : 'btn-accion-inactivo'}"
+                            onclick="cambiarEstadoUnidad(${u.id}, ${u.estado})">
+                        ${!esInactivo ? 'Activo' : 'Inactivo'}
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+ 
+    renderTarjetasUnidades(lista);
+}
+ 
+// carga las tarjetas de unidades en móvil
+function renderTarjetasUnidades(lista) {
+    if (!contenedorTarjetasUnidades) return;
+    if (!lista.length) {
+        contenedorTarjetasUnidades.innerHTML = `<div class="text-center p-4 text-muted"><i class="ri-bus-line d-block mb-2" style="font-size:2rem;"></i>No hay unidades registradas.</div>`;
+        return;
+    }
+ 
+    contenedorTarjetasUnidades.innerHTML = lista.map(u => {
+        const esInactivo = parseInt(u.estado) === 0;
+        return `
+        <div class="conductor-card-mobile animate__animated animate__fadeIn ${esInactivo ? 'fila-inactiva' : ''}">
+            <div class="d-flex align-items-center gap-3">
+                <div class="conductor-card-avatar"><i class="ri-bus-line"></i></div>
+                <div class="flex-grow-1">
+                    <p class="fw-semibold mb-0" style="color:#0d2346; font-size:14px;">${u.nombre}</p>
+                    <p class="text-muted mb-0" style="font-size:12px;"><i class="ri-car-line me-1"></i><code>${u.placa}</code></p>
+                    <p class="text-muted mb-0" style="font-size:12px;"><i class="ri-group-line me-1"></i>${u.capacidad_maxima} pasajeros</p>
+                </div>
+                <div class="d-flex flex-column gap-1">
+                    ${!esInactivo ? `
+                        <button class="btn-accion btn-accion-editar" onclick="editarUnidad(${u.id})">
+                            <i class="ri-edit-line me-1"></i>Editar
+                        </button>
+                    ` : ''}
+                    <button class="btn-accion ${!esInactivo ? 'btn-accion-activo' : 'btn-accion-inactivo'}"
+                            onclick="cambiarEstadoUnidad(${u.id}, ${u.estado})">
+                        ${!esInactivo ? 'Activo' : 'Inactivo'}
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+ 
+// buscador desktop unidades
+if (buscadorDesktopUnidades) {
+    buscadorDesktopUnidades.addEventListener('input', () => {
+        const q = buscadorDesktopUnidades.value.toLowerCase();
+        renderTablaUnidades(unidades.filter(u =>
+            u.nombre.toLowerCase().includes(q) ||
+            u.placa.toLowerCase().includes(q)  ||
+            String(u.capacidad_maxima).includes(q)
+        ));
+    });
+}
+ 
+// buscador móvil unidades — sincronizado con el de desktop
+if (buscadorMobileUnidades) {
+    buscadorMobileUnidades.addEventListener('input', () => {
+        const q = buscadorMobileUnidades.value.toLowerCase();
+        renderTablaUnidades(unidades.filter(u =>
+            u.nombre.toLowerCase().includes(q) ||
+            u.placa.toLowerCase().includes(q)  ||
+            String(u.capacidad_maxima).includes(q)
+        ));
+        if (buscadorDesktopUnidades) buscadorDesktopUnidades.value = buscadorMobileUnidades.value;
+    });
+}
+ 
+// guarda la unidad — detecta si es crear o editar y llama al archivo correcto
+if (btnGuardarUnidad && formUnidad) {
+    btnGuardarUnidad.addEventListener('click', () => {
+        ocultarAlerta(alertaModalUnidad);
+        if (!formUnidad.checkValidity()) { formUnidad.reportValidity(); return; }
+ 
+        btnGuardarUnidad.disabled  = true;
+        btnGuardarUnidad.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando...';
+ 
+        const datos = new FormData(formUnidad);
+        let archivo = 'crear_unidad.php';
+ 
+        if (modoUnidad === 'editar') {
+            datos.append('unidad_id', unidadEditId);
+            archivo = 'editar_unidad.php';
+        }
+ 
+        fetch(archivo, { method: 'POST', body: datos })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.success) {
+                    if (modalUnidadBS) modalUnidadBS.hide();
+                    mostrarAlertaGlobal('exito', resp.message);
+                    cargarUnidades();
+                } else {
+                    mostrarAlerta(alertaModalUnidad, 'error', resp.message);
+                }
+            })
+            .catch(() => mostrarAlerta(alertaModalUnidad, 'error', 'Error de conexión. Intenta de nuevo.'))
+            .finally(() => {
+                btnGuardarUnidad.disabled  = false;
+                btnGuardarUnidad.innerHTML = modoUnidad === 'editar'
+                    ? '<i class="ri-save-line me-1"></i>Guardar cambios'
+                    : '<i class="ri-save-line me-1"></i>Guardar unidad';
+            });
+    });
+}
+ 
+// llama a cambiarEstado con los textos específicos para unidades
+function cambiarEstadoUnidad(id, estadoActual) {
+    cambiarEstado(
+        id,
+        estadoActual,
+        'cambiar_estado_unidad.php',
+        'unidad',
+        cargarUnidades,
+        {
+            desactivar: 'Esta unidad no estará disponible para asignaciones.',
+            activar:    'Esta unidad volverá a estar disponible para asignaciones.'
+        }
+    );
+}
+ 
+// abre el modal en modo EDITAR con los datos de la unidad precargados
+function editarUnidad(id) {
+    const u = unidades.find(u => parseInt(u.id) === parseInt(id));
+    if (!u) {
+        mostrarAlertaGlobal('error', 'No se encontraron los datos de la unidad.');
+        return;
+    }
+ 
+    modoUnidad   = 'editar';
+    unidadEditId = id;
+ 
+    // cambiar título y botón
+    document.getElementById('modalTitleUnidad').textContent = 'Editar Unidad';
+    btnGuardarUnidad.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambios';
+ 
+    // pre-llenar los campos con los datos actuales
+    document.getElementById('nombreUnidad').value    = u.nombre;
+    document.getElementById('placaUnidad').value     = u.placa;
+    document.getElementById('capacidadUnidad').value = u.capacidad_maxima;
+ 
+    ocultarAlerta(alertaModalUnidad);
+    if (modalUnidadBS) modalUnidadBS.show();
+}
