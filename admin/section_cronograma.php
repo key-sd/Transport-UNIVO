@@ -72,14 +72,13 @@ include("../includes/conexion.php");
                             <tr>
                                 <th>ID</th>
                                 <th>Ruta</th>
-                                <th>Horario</th>
-                                <th>Día</th>
+                                <th>Días</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpoTablaCronograma">
                             <tr>
-                                <td colspan="5" class="tabla-empty">
+                                <td colspan="4" class="tabla-empty">
                                     <i class="ri-loader-4-line ri-spin"></i> Cargando cronograma de horarios...
                                 </td>
                             </tr>
@@ -101,108 +100,127 @@ include("../includes/conexion.php");
                 </div>
             </div>
 
-            <!-- modal agregar/editar ruta -->
-            <div class="modal fade" id="modalCronograma" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true" data-bs-backdrop="static">
-                <div class="modal-dialog modal-dialog-centered">
+            <!-- modal agregar/editar cronograma -->
+            <div class="modal fade" id="modalCronograma" tabindex="-1"
+                 aria-labelledby="modalTitleCronograma" aria-hidden="true"
+                 data-bs-backdrop="static">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content modal-custom">
-                        
+
                         <div class="modal-custom-header">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="modal-icono">
-                                    <i class="ri-steering-2-line"></i>
+                                    <i class="ri-calendar-todo-line"></i>
                                 </div>
-                                <h5 class="mb-0 fw-semibold text-white" id="modalTitleCronograma">Nuevo Horario</h5>
+                                <h5 class="mb-0 fw-semibold text-white" id="modalTitleCronograma">
+                                    Nuevo Cronograma
+                                </h5>
                             </div>
-                            <button type="button" class="modal-btn-cerrar" data-bs-dismiss="modal" aria-label="Cerrar">
+                            <button type="button" class="modal-btn-cerrar"
+                                    data-bs-dismiss="modal" aria-label="Cerrar">
                                 <i class="ri-close-line"></i>
                             </button>
                         </div>
 
-                        <div class="modal-body p-4">
-                            <div id="alertaModalCronograma" class="alerta-modal d-none mb-3 animate__animated"></div>
-                            
-                            <form id="formCronograma" novalidate>
-                                <p class="form-seccion-label">
-                                    <i class="ri-map-pin-line me-1"></i>Datos del horario del transporte
+                        <div class="modal-body p-4" style="max-height:70vh; overflow-y:auto;">
+
+                            <div id="alertaModalCronograma"
+                                 class="alerta-modal d-none mb-3 animate__animated"></div>
+
+                            <!-- esta es la seccion normal del formulaario -->
+                            <div id="seccionCrearCronograma">
+                                <form id="formCronograma" novalidate>
+                                    <p class="form-seccion-label">
+                                        <i class="ri-map-pin-line me-1"></i>Datos del horario del transporte
+                                    </p>
+
+                                    <!-- origen y destino -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label fw-medium">Sede Origen *</label>
+                                            <div class="input-group campo-input-group">
+                                                <span class="input-group-text border-end-0">
+                                                    <i class="ri-map-pin-2-line text-secondary"></i>
+                                                </span>
+                                                <select id="id_sede_origen" name="id_sede_origen"
+                                                        class="form-control border-start-0" required>
+                                                    <option value="">Seleccionar origen</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-medium">Sede Destino *</label>
+                                            <div class="input-group campo-input-group">
+                                                <span class="input-group-text border-end-0">
+                                                    <i class="ri-map-pin-5-line text-secondary"></i>
+                                                </span>
+                                                <select id="id_sede_destino" name="id_sede_destino"
+                                                        class="form-control border-start-0" required>
+                                                    <option value="">Seleccionar destino</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- días de la semana -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium d-block">Días de la Semana *</label>
+                                        <div class="d-flex flex-wrap gap-2 p-2 border rounded bg-light">
+                                            <?php
+                                            $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+                                            $abreviaturas = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+                                            foreach ($dias as $i => $dia):
+                                                $id = 'chk' . $abreviaturas[$i];
+                                            ?>
+                                            <div class="form-check form-check-inline m-0">
+                                                <input class="form-check-input" type="checkbox"
+                                                       name="dias[]" id="<?= $id ?>" value="<?= $dia ?>">
+                                                <label class="form-check-label" for="<?= $id ?>">
+                                                    <?= $abreviaturas[$i] ?>
+                                                </label>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- horarios de salida -->
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="form-label fw-medium mb-0">
+                                                Horarios de Salida *
+                                                <small class="text-muted fw-normal ms-1">(06:00 AM – 18:00 PM)</small>
+                                            </label>
+                                            <button type="button" id="btnAgregarHora" class="btn btn-sm">
+                                                <i class="ri-add-line"></i> Agregar hora
+                                            </button>
+                                        </div>
+
+                                        <div id="contenedorHorarios" class="d-flex flex-column gap-2">
+                                            <div class="input-group campo-input-group hora-item">
+                                                <span class="input-group-text border-end-0">
+                                                    <i class="ri-time-line text-secondary"></i>
+                                                </span>
+                                                <input type="time" name="horas[]"
+                                                       class="form-control border-start-0"
+                                                       min="06:00" max="18:00" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- SECCIÓN EDITAR (acordeón por día) -->
+                            <div id="seccionEditarCronograma" style="display:none;">
+                                <p class="form-seccion-label mb-3">
+                                    <i class="ri-calendar-check-line me-1"></i>Horarios por día
+                                    <small class="text-muted fw-normal ms-1">(06:00 AM – 18:00 PM)</small>
                                 </p>
-                                
-                                <div class="row g-3 mb-3">
-                                    <div class="col-6">
-                                        <label class="form-label fw-medium">Sede Origen *</label>
-                                        <div class="input-group campo-input-group">
-                                            <span class="input-group-text border-end-0">
-                                                <i class="ri-map-pin-2-line text-secondary"></i>
-                                            </span>
-                                            <select id="id_sede_origen" name="id_sede_origen" class="form-control border-start-0" required>
-                                                <option value="">Seleccionar origen</option>
-                                                </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label fw-medium">Sede Destino *</label>
-                                        <div class="input-group campo-input-group">
-                                            <span class="input-group-text border-end-0">
-                                                <i class="ri-map-pin-5-line text-secondary"></i>
-                                            </span>
-                                            <select id="id_sede_destino" name="id_sede_destino" class="form-control border-start-0" required>
-                                                <option value="">Seleccionar destino</option>
-                                                </select>
-                                        </div>
+                                <div class="accordion accordion-flush" id="acordeonDias">
+                                    <div class="text-center p-4 text-muted">
+                                        <i class="ri-loader-4-line ri-spin me-1"></i> Cargando horarios...
                                     </div>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium d-block">Días de la Semana *</label>
-                                    <div class="d-flex flex-wrap gap-2 p-2 border rounded bg-light">
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkLunes" value="Lunes">
-                                            <label class="form-check-label" for="chkLunes">Lun</label>
-                                        </div>
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkMartes" value="Martes">
-                                            <label class="form-check-label" for="chkMartes">Mar</label>
-                                        </div>
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkMiercoles" value="Miércoles">
-                                            <label class="form-check-label" for="chkMiercoles">Mié</label>
-                                        </div>
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkJueves" value="Jueves">
-                                            <label class="form-check-label" for="chkJueves">Jue</label>
-                                        </div>
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkViernes" value="Viernes">
-                                            <label class="form-check-label" for="chkViernes">Vie</label>
-                                        </div>
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkSabado" value="Sábado">
-                                            <label class="form-check-label" for="chkSabado">Sáb</label>
-                                        </div>
-                                        <div class="form-check form-check-inline m-0">
-                                            <input class="form-check-input" type="checkbox" name="dias[]" id="chkDomingo" value="Domingo">
-                                            <label class="form-check-label" for="chkDomingo">Dom</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label class="form-label fw-medium mb-0">Horarios de Salida *</label>
-                                        <button type="button" id="btnAgregarHora" class="btn btn-sm">
-                                            <i class="ri-add-line"></i> Agregar hora
-                                        </button>
-                                    </div>
-                                    
-                                    <div id="contenedorHorarios" class="d-flex flex-column gap-2">
-                                        <div class="input-group campo-input-group hora-item">
-                                            <span class="input-group-text border-end-0">
-                                                <i class="ri-time-line text-secondary"></i>
-                                            </span>
-                                            <input type="time" name="horas[]" class="form-control border-start-0" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                            </div>
                         </div>
 
                         <div class="modal-custom-footer">
@@ -210,13 +228,14 @@ include("../includes/conexion.php");
                                 <i class="ri-close-line me-1"></i>Cancelar
                             </button>
                             <button type="button" class="btn-guardar" id="btnGuardarCronograma">
-                                <i class="ri-save-line me-1"></i>Guardar horario
+                                <i class="ri-save-line me-1"></i>Guardar cronograma
                             </button>
                         </div>
 
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
 </div>
