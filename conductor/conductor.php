@@ -5,11 +5,9 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
     exit();
 }
 include("../includes/conexion.php");
-
 // Datos del conductor desde sesión
 $nombre_conductor = $_SESSION['usuario'] ?? 'Conductor';
 $conductor_id = $_SESSION['usuario_id'] ?? null;
-
 // Buscar datos del conductor
 $datos_conductor = null;
 if ($conductor_id) {
@@ -19,7 +17,6 @@ if ($conductor_id) {
     $datos_conductor = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
-
 $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_conductor['apellido'] : $nombre_conductor;
 ?>
 <!DOCTYPE html>
@@ -27,43 +24,61 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TransporteU — Conductor</title>
+    <title>TransportU — Conductor</title>
 
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Flowbite -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+    <!-- Remix Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Animate.css -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+
     <link rel="stylesheet" href="../css/conductor.css">
+    <link rel="icon" href="../img/logo.png">
 </head>
 <body>
-
     <!-- HEADER -->
-    <header class="conductor-header">
-        <div class="header-izq">
-            <img src="../img/logo.png" alt="Logo" class="header-logo">
-            <div>
-                <p class="header-saludo">Bienvenido</p>
-                <p class="header-nombre"><?php echo htmlspecialchars($nombre_display); ?></p>
+    <div class="cabecera-sticky">
+        <header class="conductor-header">
+            <div class="header-izq">
+                <img src="../img/logo.png" alt="Logo" class="header-logo">
+                <div>
+                    <p class="header-saludo">Bienvenido</p>
+                    <p class="header-nombre"><?php echo htmlspecialchars($nombre_display); ?></p>
+                </div>
             </div>
-        </div>
-        <div class="header-der">
-            <div class="header-fecha-hora">
-                <p class="header-hora" id="reloj">--:--</p>
-                <p class="header-fecha" id="fecha-hoy"></p>
+            <div class="header-der">
+                <div class="header-fecha-hora">
+                    <p class="header-hora" id="reloj">--:--</p>
+                    <p class="header-fecha" id="fecha-hoy"></p>
+                </div>
+                <a href="../includes/logout.php" class="btn-logout" title="Cerrar sesión">
+                    <i class="ri-logout-box-r-line"></i>
+                </a>
             </div>
-            <a href="../includes/logout.php" class="btn-logout" title="Cerrar sesión">
-                <i class="ri-logout-box-r-line"></i>
+        </header>
+        <nav class="conductor-nav">
+            <a href="#seccion-viajes" class="conductor-nav-link active">
+                <i class="ri-route-line"></i> Viajes
             </a>
-        </div>
-    </header>
-
+            <a href="#seccion-estado" class="conductor-nav-link">
+                <i class="ri-bus-line"></i> Estado
+            </a>
+            <a href="#seccion-mapa" class="conductor-nav-link">
+                <i class="ri-map-2-line"></i> Ubicación
+            </a>
+        </nav>
+    </div>
+    <!-- NAVBAR DE SECCIONES (Navegación interna) -->
     <main class="conductor-main">
-
         <!-- TARJETA: RUTA Y HORARIOS DE HOY -->
-        <section class="card-conductor animate__animated animate__fadeInUp">
+        <section id="seccion-viajes" class="card-conductor animate__animated animate__fadeInUp">
             <div class="card-titulo">
                 <i class="ri-route-line"></i>
                 <span>Mis viajes de hoy</span>
@@ -74,7 +89,6 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                 </div>
             </div>
         </section>
-
         <!-- TARJETA: PRÓXIMA SALIDA -->
         <section class="card-conductor card-proxima animate__animated animate__fadeInUp" style="animation-delay:.1s">
             <div class="card-titulo">
@@ -90,14 +104,12 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                 </div>
             </div>
         </section>
-
         <!-- TARJETA: ESTADO DEL MICRO -->
-        <section class="card-conductor animate__animated animate__fadeInUp" style="animation-delay:.2s">
+        <section id="seccion-estado" class="card-conductor animate__animated animate__fadeInUp" style="animation-delay:.2s">
             <div class="card-titulo">
                 <i class="ri-bus-line"></i>
                 <span>Estado del microbús</span>
             </div>
-
             <div class="estado-grid">
                 <button class="btn-estado" data-estado="en_sede">
                     <i class="ri-map-pin-line"></i>
@@ -116,7 +128,6 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                     <span>Llegando</span>
                 </button>
             </div>
-
             <div class="capacidad-grupo">
                 <p class="capacidad-label">Capacidad actual</p>
                 <div class="capacidad-opciones">
@@ -131,16 +142,13 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                     </button>
                 </div>
             </div>
-
             <button class="btn-guardar-estado" id="btn-guardar-estado">
                 <i class="ri-save-line me-2"></i>Guardar estado
             </button>
-
             <p class="ultima-actualizacion" id="ultima-actualizacion"></p>
         </section>
-
         <!-- TARJETA: MAPA -->
-        <section class="card-conductor card-mapa animate__animated animate__fadeInUp" style="animation-delay:.3s">
+        <section id="seccion-mapa" class="card-conductor card-mapa animate__animated animate__fadeInUp" style="animation-delay:.3s">
             <div class="card-titulo">
                 <i class="ri-map-2-line"></i>
                 <span>Ubicación en tiempo real</span>
@@ -151,9 +159,7 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
             <div id="mapa-conductor"></div>
             <p class="gps-estado" id="gps-estado">GPS inactivo</p>
         </section>
-
     </main>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>

@@ -134,6 +134,19 @@ CREATE TABLE `ubicaciones` (
   CONSTRAINT `fk_ubicacion_conductor` FOREIGN KEY (`conductor_id`) REFERENCES `conductores` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- TABLA PARA ALMACENAR EL ESTADO DE LAS UNIDADES EN TIEMPO REAL DESDE LA INTERFAZ DEL CONDUCTOR :D
+CREATE TABLE estado_unidad (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `conductor_id` INT NOT NULL,
+    `unidad_id` INT NOT NULL,
+    `estado` ENUM('en_sede', 'proximo_salir', 'en_camino','llegando') NOT NULL,
+    `capacidad` ENUM('disponible','medio_lleno','lleno') NOT NULL,
+    `actualizado_en` TIMESTAMP DEFAULT `CURRENT_TIMESTAMP`ON UPDATE `CURRENT_TIMESTAMP`,
+    UNIQUE KEY `uq_conductor` (`conductor_id`),
+    CONSTRAINT `fk_estado_conductor` FOREIGN KEY (`conductor_id`) REFERENCES `conductores`(`id`),
+    CONSTRAINT `fk_estado_unidad` FOREIGN KEY (`unidad_id`) REFERENCES `unidades`(`id`)
+);
+
 -- VALORES INSERTADOS
 -- Insertar roles
 INSERT INTO `roles` (`nombre`) VALUES
