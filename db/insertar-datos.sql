@@ -90,31 +90,3 @@ INSERT INTO `cronograma_horarios`
 (3,1,'Miércoles','16:20','Vespertino'),
 (3,1,'Jueves',   '11:20','Matutino'),
 (3,1,'Jueves',   '16:20','Vespertino');
-
---  HORARIOS DE TRABAJO Y ASIGNACIONES
-
--- Horario A: Levi cubre SC↔CU de lunes a sábado mañana+tarde
-INSERT INTO `horarios_conductor`
-  (`id_unidad`,`dia_semana`,`hora_inicio`,`hora_fin`) VALUES
-(1,'Martes','06:00','17:30'),
-(1,'Miércoles','06:00','17:30'),
-(1,'Jueves','06:00','17:30');
-
--- Horario B: Daniela cubre ruta Agro (solo Ma-V)
-INSERT INTO `horarios_conductor`
-  (`id_unidad`,`dia_semana`,`hora_inicio`,`hora_fin`) VALUES
-(2,'Martes',   '07:00','17:00'),
-(2,'Miércoles','07:00','17:00'),
-(2,'Jueves',   '07:00','17:00');
-
--- Asignaciones
-INSERT INTO `asignaciones_conductor`
-  (`id_horario`,`id_conductor`,`fecha_inicio`) VALUES
--- Levi cubre horarios 
-(1,1,'2026-05-26'), 
-(2,1,'2026-05-26'), 
-(3,1,'2026-05-26'), 
--- Daniela cubre horarios agro
-(4,2,'2026-05-26'), 
-(5,2,'2026-05-26'), 
-(6,2,'2026-05-26'); 
