@@ -205,12 +205,16 @@ function cargarConductores() {
     if (!cuerpoTabla) return;
     cuerpoTabla.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando conductores...</td></tr>`;
 
-    fetch('listar_conductores.php')
-        .then(r => r.json())
-        .then(data => { conductores = data; renderTabla(conductores); })
-        .catch(() => {
-            cuerpoTabla.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-error-warning-line"></i> Error al cargar los datos.</td></tr>`;
-        });
+    fetch('listar_asignaciones.php')
+    .then(r => r.text())
+    .then(texto => {
+        console.log(texto);
+
+        const data = JSON.parse(texto);
+
+        asignaciones = data;
+        renderTablaAsig(asignaciones);
+    })
 }
 
 // carga la tabla de conductores en desktop
@@ -1367,4 +1371,643 @@ function editarUnidad(id) {
  
     ocultarAlerta(alertaModalUnidad);
     if (modalUnidadBS) modalUnidadBS.show();
+}
+
+// ══════════════════════════════════════════════════════════════
+// SECCIÓN: GESTIÓN DE ASIGNACIONES
+// Flujo: admin selecciona ruta(s) → ve horarios disponibles →
+//        elige conductor + unidad → guarda
+// ══════════════════════════════════════════════════════════════
+
+const ORDEN_DIAS_ASIG = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const ABREV_DIAS      = { Lunes:'Lun', Martes:'Mar', 'Miércoles':'Mié', Jueves:'Jue',
+                          Viernes:'Vie', 'Sábado':'Sáb', Domingo:'Dom' };
+
+// ── referencias DOM ──
+const btnNuevaAsignacion     = document.getElementById('btnNuevaAsignacion');
+const alertaGlobal           = document.getElementById('alertaGlobal');
+const cuerpoTablaAsig        = document.getElementById('cuerpoTablaAsig');
+const contenedorTarjetasAsig = document.getElementById('contenedorTarjetasAsig');
+const buscadorAsig           = document.getElementById('buscadorAsig');
+const buscadorMobileAsig     = document.getElementById('buscadorMobileAsig');
+
+// Modal nueva asignación
+const modalNuevaAsigEl       = document.getElementById('modalNuevaAsig');
+const modalNuevaAsigBS       = modalNuevaAsigEl ? new bootstrap.Modal(modalNuevaAsigEl) : null;
+const alertaModalAsig        = document.getElementById('alertaModalAsig');
+const btnGuardarAsig         = document.getElementById('btnGuardarAsig');
+
+// Modal detalle conductor
+const modalDetalleConductorEl  = document.getElementById('modalDetalleConductor');
+const modalDetalleConductorBS  = modalDetalleConductorEl ? new bootstrap.Modal(modalDetalleConductorEl) : null;
+const alertaDetalle            = document.getElementById('alertaDetalle');
+
+// Modal reasignar
+const modalReasignarEl         = document.getElementById('modalReasignar');
+const modalReasignarBS         = modalReasignarEl ? new bootstrap.Modal(modalReasignarEl) : null;
+const btnGuardarReasignacion   = document.getElementById('btnGuardarReasignacion');
+
+// ── estado global ──
+let asignaciones       = [];
+let catalogoCache      = null;   // cache de listar_catalogos.php
+let conductorDetalleId = null;
+let asigReasignarId    = null;
+
+// ══════════════════════════════════════════════════════════════
+// CARGA INICIAL
+// ══════════════════════════════════════════════════════════════
+if (cuerpoTablaAsig) {
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', cargarAsignaciones)
+        : cargarAsignaciones();
+}
+
+function cargarAsignaciones() {
+    if (!cuerpoTablaAsig) return;
+    cuerpoTablaAsig.innerHTML = `
+        <tr><td colspan="5" class="tabla-empty">
+            <i class="ri-loader-4-line ri-spin"></i> Cargando asignaciones…
+        </td></tr>`;
+
+    fetch('listar_asignaciones.php')
+        .then(r => r.json())
+        .then(data => { asignaciones = data; renderTablaAsig(asignaciones); })
+        .catch(() => {
+            cuerpoTablaAsig.innerHTML = `
+                <tr><td colspan="5" class="tabla-empty">
+                    <i class="ri-error-warning-line"></i> Error al cargar los datos.
+                </td></tr>`;
+        });
+}
+
+function renderTablaAsig(lista) {
+    if (!cuerpoTablaAsig) return;
+
+    if (!lista.length) {
+        cuerpoTablaAsig.innerHTML = `
+            <tr><td colspan="5" class="tabla-empty">
+                <i class="ri-steering-2-line"></i> No hay asignaciones registradas.
+            </td></tr>`;
+        renderTarjetasAsig([]);
+        return;
+    }
+
+    cuerpoTablaAsig.innerHTML = lista.map((c, i) => {
+        const diasBadges  = (c.dias_abrev || []).map(d =>
+            `<span class="badge-dia">${d}</span>`).join('');
+        const rutasBadges = (c.rutas_fmt || []).map(r =>
+            `<span class="badge-ruta">${r}</span>`).join('');
+        const estadoBadge = c.estado
+            ? `<span class="badge-estado badge-activo">Activo</span>`
+            : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
+
+        return `
+        <tr class="animate__animated animate__fadeIn">
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="conductor-tabla-avatar">${iniciales(c.nombre)}</div>
+                    <span class="fw-medium">${escHtml(c.nombre)}</span>
+                </div>
+            </td>
+            <td><div class="d-flex flex-wrap gap-1">${rutasBadges || '<span class="text-muted small">Sin asignar</span>'}</div></td>
+            <td><div class="d-flex flex-wrap gap-1">${diasBadges || '<span class="text-muted small">—</span>'}</div></td>
+            <td>${estadoBadge}</td>
+            <td>
+                <button class="btn-accion btn-accion-ver"
+                        onclick="abrirDetalleConductor(${c.id}, '${escHtml(c.nombre)}', ${c.estado})">
+                    <i class="ri-eye-line me-1"></i>Ver
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    renderTarjetasAsig(lista);
+}
+
+function renderTarjetasAsig(lista) {
+    if (!contenedorTarjetasAsig) return;
+
+    if (!lista.length) {
+        contenedorTarjetasAsig.innerHTML = `
+            <div class="text-center p-4 text-muted">
+                <i class="ri-steering-2-line d-block mb-2" style="font-size:2rem;"></i>
+                No hay asignaciones registradas.
+            </div>`;
+        return;
+    }
+
+    contenedorTarjetasAsig.innerHTML = lista.map(c => {
+        const diasBadges = (c.dias_abrev || []).map(d =>
+            `<span class="badge-dia">${d}</span>`).join('');
+        const estadoBadge = c.estado
+            ? `<span class="badge-estado badge-activo">Activo</span>`
+            : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
+
+        return `
+        <div class="asig-card-mobile animate__animated animate__fadeIn">
+            <div class="d-flex align-items-start gap-3">
+                <div class="conductor-tabla-avatar">${iniciales(c.nombre)}</div>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <p class="fw-semibold mb-0" style="color:#0d2346;font-size:14px;">${escHtml(c.nombre)}</p>
+                        ${estadoBadge}
+                    </div>
+                    <div class="d-flex flex-wrap gap-1 mb-2">
+                        ${diasBadges || '<span class="text-muted small">Sin días asignados</span>'}
+                    </div>
+                    <button class="btn-accion btn-accion-ver w-100"
+                            onclick="abrirDetalleConductor(${c.id}, '${escHtml(c.nombre)}', ${c.estado})">
+                        <i class="ri-eye-line me-1"></i>Ver detalle
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ── buscadores ──
+[buscadorAsig, buscadorMobileAsig].forEach(el => {
+    if (!el) return;
+    el.addEventListener('input', () => {
+        const q = el.value.toLowerCase();
+        renderTablaAsig(asignaciones.filter(c =>
+            c.nombre.toLowerCase().includes(q) ||
+            (c.dias || []).some(d => d.toLowerCase().includes(q)) ||
+            (c.rutas_fmt || []).some(r => r.toLowerCase().includes(q))
+        ));
+        // sincronizar ambos buscadores
+        if (buscadorAsig)       buscadorAsig.value       = el.value;
+        if (buscadorMobileAsig) buscadorMobileAsig.value = el.value;
+    });
+});
+
+// ══════════════════════════════════════════════════════════════
+// MODAL NUEVA ASIGNACIÓN
+// Flujo: 1) Seleccionar ruta(s)  2) Elegir horarios  3) Conductor + Unidad
+// ══════════════════════════════════════════════════════════════
+
+if (btnNuevaAsignacion) {
+    btnNuevaAsignacion.addEventListener('click', () => {
+        resetearModalNuevaAsig();
+        if (modalNuevaAsigBS) modalNuevaAsigBS.show();
+    });
+}
+
+if (modalNuevaAsigEl) {
+    modalNuevaAsigEl.addEventListener('hidden.bs.modal', resetearModalNuevaAsig);
+}
+
+function resetearModalNuevaAsig() {
+    ocultarAlerta(alertaModalAsig);
+
+    // limpiar selects de ruta
+    const selOrigen  = document.getElementById('asig_origen');
+    const selDestino = document.getElementById('asig_destino');
+    if (selOrigen)  selOrigen.value  = '';
+    if (selDestino) selDestino.value = '';
+
+    // limpiar grilla de horarios
+    limpiarGrillaHorarios();
+
+    // limpiar conductor/unidad/fechas
+    ['asig_conductor','asig_unidad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    ['asig_desde','asig_hasta'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+
+    // cargar catálogos si no están en caché
+    cargarCatalogos();
+}
+
+// ── Carga catálogos (con caché) ──
+function cargarCatalogos(forzar = false) {
+    if (catalogoCache && !forzar) {
+        poblarSelectsModal(catalogoCache);
+        return;
+    }
+
+    fetch('listar_catalogos.php')
+        .then(r => r.json())
+        .then(data => {
+            catalogoCache = data;
+            poblarSelectsModal(data);
+        })
+        .catch(() => console.error('Error al cargar catálogos.'));
+}
+
+function poblarSelectsModal(data) {
+    const selOrigen  = document.getElementById('asig_origen');
+    const selDestino = document.getElementById('asig_destino');
+
+    // Obtener rutas únicas desde cronogramas
+    const rutasOrigen  = [...new Set(data.cronogramas.map(c => JSON.stringify({id: c.id_sede_origen,  nombre: c.origen})))].map(s => JSON.parse(s));
+    const rutasDestino = [...new Set(data.cronogramas.map(c => JSON.stringify({id: c.id_sede_destino, nombre: c.destino})))].map(s => JSON.parse(s));
+
+    // dedup por id
+    const uniqOrigen  = [...new Map(rutasOrigen.map(r  => [r.id, r])).values()];
+    const uniqDestino = [...new Map(rutasDestino.map(r => [r.id, r])).values()];
+
+    if (selOrigen) {
+        selOrigen.innerHTML = '<option value="">— Sede origen —</option>' +
+            uniqOrigen.map(s => `<option value="${s.id}">${escHtml(s.nombre)}</option>`).join('');
+    }
+    if (selDestino) {
+        selDestino.innerHTML = '<option value="">— Sede destino —</option>' +
+            uniqDestino.map(s => `<option value="${s.id}">${escHtml(s.nombre)}</option>`).join('');
+    }
+
+    // conductor y unidad
+    const selConductor = document.getElementById('asig_conductor');
+    const selUnidad    = document.getElementById('asig_unidad');
+
+    if (selConductor) {
+        selConductor.innerHTML = '<option value="">— Seleccionar conductor —</option>' +
+            (data.conductores || []).map(c =>
+                `<option value="${c.id}">${escHtml(c.nombre_completo)}</option>`
+            ).join('');
+    }
+    if (selUnidad) {
+        selUnidad.innerHTML = '<option value="">— Seleccionar unidad —</option>' +
+            (data.unidades || []).map(u =>
+                `<option value="${u.id}">${escHtml(u.etiqueta)}</option>`
+            ).join('');
+    }
+}
+
+// ── Cuando cambia origen o destino → regenerar grilla de horarios ──
+['asig_origen','asig_destino'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', actualizarGrillaHorarios);
+});
+
+function actualizarGrillaHorarios() {
+    const origen  = parseInt(document.getElementById('asig_origen')?.value  || 0);
+    const destino = parseInt(document.getElementById('asig_destino')?.value || 0);
+
+    // ocultar aviso "elige ruta" en cuanto el usuario empieza a seleccionar
+    const avisoElegir = document.getElementById('avisoElegirRuta');
+    if (avisoElegir && (origen || destino)) avisoElegir.style.display = 'none';
+
+    limpiarGrillaHorarios();
+    if (!origen || !destino || origen === destino) {
+        if (origen && destino && origen === destino) {
+            mostrarAlerta(alertaModalAsig, 'error', 'El origen y destino no pueden ser iguales.');
+        }
+        return;
+    }
+
+    ocultarAlerta(alertaModalAsig);
+
+    if (!catalogoCache) { return; }
+
+    // filtrar cronogramas de esta ruta
+    const horariosFiltrados = catalogoCache.cronogramas.filter(c =>
+        c.id_sede_origen === origen && c.id_sede_destino === destino
+    );
+
+    if (!horariosFiltrados.length) {
+        const aviso = document.getElementById('avisoSinHorarios');
+        if (aviso) aviso.classList.remove('d-none');
+        return;
+    }
+
+    renderGrillaHorarios(horariosFiltrados);
+}
+
+function limpiarGrillaHorarios() {
+    const grid = document.getElementById('gridHorarios');
+    if (grid) grid.innerHTML = '';
+    const aviso = document.getElementById('avisoSinHorarios');
+    if (aviso) aviso.classList.add('d-none');
+    const counter = document.getElementById('contadorSeleccionados');
+    if (counter) counter.textContent = '0 horarios seleccionados';
+}
+
+function renderGrillaHorarios(horarios) {
+    const grid = document.getElementById('gridHorarios');
+    if (!grid) return;
+
+    // Agrupar por día
+    const porDia = {};
+    ORDEN_DIAS_ASIG.forEach(d => porDia[d] = []);
+    horarios.forEach(h => {
+        if (porDia[h.dia_semana]) porDia[h.dia_semana].push(h);
+    });
+
+    let html = '';
+    ORDEN_DIAS_ASIG.forEach(dia => {
+        if (!porDia[dia].length) return;
+        html += `<div class="horario-dia-grupo">
+            <div class="horario-dia-label">${dia}</div>
+            <div class="horario-dia-slots">`;
+
+        porDia[dia].forEach(h => {
+            const yaAsignado = h.tiene_asignacion;
+            const hora12     = formatHora12(h.hora_salida);
+            html += `
+            <label class="horario-slot${yaAsignado ? ' ya-asignado' : ''}" title="${yaAsignado ? 'Ya tiene conductor asignado' : ''}">
+                <input type="checkbox" name="crono_ids[]" value="${h.id}"
+                       class="horario-slot-check" onchange="actualizarContador()">
+                <span class="horario-slot-hora">${hora12}</span>
+                <span class="horario-slot-turno">${h.turno}</span>
+                ${yaAsignado ? '<span class="horario-slot-badge-asig"><i class="ri-user-line"></i></span>' : ''}
+            </label>`;
+        });
+
+        html += `</div></div>`;
+    });
+
+    grid.innerHTML = html;
+    actualizarContador();
+}
+
+function actualizarContador() {
+    const checks   = document.querySelectorAll('input[name="crono_ids[]"]:checked');
+    const counter  = document.getElementById('contadorSeleccionados');
+    if (counter) counter.textContent = `${checks.length} horario${checks.length !== 1 ? 's' : ''} seleccionado${checks.length !== 1 ? 's' : ''}`;
+}
+
+// ── Selección rápida: "Ping pong" ──
+// Botones para seleccionar todos los horarios del día o turno
+const btnSelTodos = document.getElementById('btnSelTodosHorarios');
+if (btnSelTodos) {
+    btnSelTodos.addEventListener('click', () => {
+        document.querySelectorAll('input[name="crono_ids[]"]').forEach(c => c.checked = true);
+        actualizarContador();
+    });
+}
+const btnDeselTodos = document.getElementById('btnDeselTodosHorarios');
+if (btnDeselTodos) {
+    btnDeselTodos.addEventListener('click', () => {
+        document.querySelectorAll('input[name="crono_ids[]"]').forEach(c => c.checked = false);
+        actualizarContador();
+    });
+}
+
+// ── Guardar nueva asignación ──
+if (btnGuardarAsig) {
+    btnGuardarAsig.addEventListener('click', guardarNuevaAsignacion);
+}
+
+function guardarNuevaAsignacion() {
+    ocultarAlerta(alertaModalAsig);
+
+    const origen    = document.getElementById('asig_origen')?.value;
+    const destino   = document.getElementById('asig_destino')?.value;
+    const conductor = document.getElementById('asig_conductor')?.value;
+    const unidad    = document.getElementById('asig_unidad')?.value;
+    const desde     = document.getElementById('asig_desde')?.value;
+    const hasta     = document.getElementById('asig_hasta')?.value;
+    const checks    = [...document.querySelectorAll('input[name="crono_ids[]"]:checked')];
+
+    // validaciones
+    if (!origen || !destino) { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona la ruta (origen y destino).'); return; }
+    if (origen === destino)  { mostrarAlerta(alertaModalAsig, 'error', 'El origen y destino no pueden ser iguales.'); return; }
+    if (!checks.length)      { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona al menos un horario.'); return; }
+    if (!conductor)          { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona un conductor.'); return; }
+    if (!unidad)             { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona una unidad.'); return; }
+    if (!desde)              { mostrarAlerta(alertaModalAsig, 'error', 'Ingresa la fecha de inicio de vigencia.'); return; }
+    if (hasta && hasta < desde) { mostrarAlerta(alertaModalAsig, 'error', 'La fecha fin no puede ser anterior al inicio.'); return; }
+
+    btnGuardarAsig.disabled  = true;
+    btnGuardarAsig.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando…';
+
+    const fd = new FormData();
+    fd.append('id_conductor',  conductor);
+    fd.append('id_unidad',     unidad);
+    fd.append('fecha_inicio',  desde);
+    if (hasta) fd.append('fecha_fin', hasta);
+    fd.append('cronogramas', JSON.stringify(checks.map(c => parseInt(c.value))));
+
+    fetch('crear_asignacion.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(resp => {
+            if (!resp.success) { mostrarAlerta(alertaModalAsig, 'error', resp.message); return; }
+            if (modalNuevaAsigBS) modalNuevaAsigBS.hide();
+            mostrarAlertaGlobal('exito', resp.message);
+            catalogoCache = null; // invalidar caché para reflejar nuevas asignaciones
+            cargarAsignaciones();
+        })
+        .catch(err => mostrarAlerta(alertaModalAsig, 'error', 'Error de conexión.'))
+        .finally(() => {
+            btnGuardarAsig.disabled  = false;
+            btnGuardarAsig.innerHTML = '<i class="ri-save-line me-1"></i>Guardar asignaciones';
+        });
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL DETALLE CONDUCTOR
+// ══════════════════════════════════════════════════════════════
+
+function abrirDetalleConductor(id, nombre, estado) {
+    conductorDetalleId = id;
+
+    const avatar = document.getElementById('detalleAvatar');
+    const nomEl  = document.getElementById('detalleNombre');
+    const badge  = document.getElementById('detalleEstadoBadge');
+
+    if (avatar) avatar.textContent = iniciales(nombre);
+    if (nomEl)  nomEl.textContent  = nombre;
+    if (badge) {
+        badge.textContent = estado ? 'Activo' : 'Inactivo';
+        badge.className   = `badge-estado ${estado ? 'badge-activo' : 'badge-inactivo'}`;
+    }
+
+    ocultarAlerta(alertaDetalle);
+
+    const cuerpo = document.getElementById('cuerpoTablaAsignacionesDetalle');
+    if (cuerpo) cuerpo.innerHTML = `
+        <tr><td colspan="6" class="tabla-empty">
+            <i class="ri-loader-4-line ri-spin"></i> Cargando…
+        </td></tr>`;
+
+    if (modalDetalleConductorBS) modalDetalleConductorBS.show();
+
+    fetch(`listar_asignaciones.php?id_conductor=${id}`)
+        .then(r => r.json())
+        .then(data => renderAsignacionesDetalle(data.asignaciones || []))
+        .catch(() => mostrarAlerta(alertaDetalle, 'error', 'Error al cargar los datos.'));
+}
+
+function renderAsignacionesDetalle(asigs) {
+    const cuerpo = document.getElementById('cuerpoTablaAsignacionesDetalle');
+    if (!cuerpo) return;
+
+    if (!asigs.length) {
+        cuerpo.innerHTML = `
+            <tr><td colspan="6" class="tabla-empty">
+                <i class="ri-calendar-close-line"></i> Sin asignaciones activas.
+            </td></tr>`;
+        return;
+    }
+
+    cuerpo.innerHTML = asigs.map(a => `
+        <tr class="animate__animated animate__fadeIn">
+            <td>
+                <span class="fw-medium text-dark">${escHtml(a.sede_origen)}</span>
+                <i class="ri-arrow-right-line mx-1 text-muted" style="font-size:11px;"></i>
+                <span class="fw-medium text-dark">${escHtml(a.sede_destino)}</span>
+            </td>
+            <td><span class="badge-dia">${(ABREV_DIAS[a.dia_semana] || a.dia_semana)}</span></td>
+            <td>${formatHora12(a.hora_salida)}</td>
+            <td><span class="badge-turno badge-turno-${a.turno.toLowerCase()}">${a.turno}</span></td>
+            <td>
+                <div class="d-flex align-items-center gap-1">
+                    <i class="ri-bus-line" style="color:#64748b;font-size:12px;"></i>
+                    <span style="font-size:12px;">${escHtml(a.unidad)}</span>
+                </div>
+            </td>
+            <td>
+                <button class="btn-accion btn-accion-ver"
+                        onclick="abrirModalReasignar(${a.asig_id}, ${a.unidad_id})"
+                        title="Reasignar conductor o unidad">
+                    <i class="ri-user-follow-line me-1"></i>Reasignar
+                </button>
+            </td>
+        </tr>`
+    ).join('');
+}
+
+function recargarAsignacionesDetalle() {
+    if (!conductorDetalleId) return;
+    fetch(`listar_asignaciones.php?id_conductor=${conductorDetalleId}`)
+        .then(r => r.json())
+        .then(data => renderAsignacionesDetalle(data.asignaciones || []));
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL REASIGNAR
+// ══════════════════════════════════════════════════════════════
+
+function abrirModalReasignar(asigId, unidadActualId) {
+    asigReasignarId = asigId;
+
+    const selConductor = document.getElementById('reasig_conductor');
+    const selUnidad    = document.getElementById('reasig_unidad');
+    const inpDesde     = document.getElementById('reasig_desde');
+    const inpHasta     = document.getElementById('reasig_hasta');
+
+    if (inpDesde) inpDesde.value = new Date().toISOString().split('T')[0];
+    if (inpHasta) inpHasta.value = '';
+
+    if (selConductor) selConductor.innerHTML = '<option value="">Cargando…</option>';
+    if (selUnidad)    selUnidad.innerHTML    = '<option value="">Cargando…</option>';
+
+    const llenar = (data) => {
+        if (selConductor) {
+            selConductor.innerHTML = '<option value="">— Seleccionar conductor —</option>' +
+                (data.conductores || []).map(c =>
+                    `<option value="${c.id}"${c.id == conductorDetalleId ? ' selected' : ''}>${escHtml(c.nombre_completo)}</option>`
+                ).join('');
+        }
+        if (selUnidad) {
+            selUnidad.innerHTML = '<option value="">— Seleccionar unidad —</option>' +
+                (data.unidades || []).map(u =>
+                    `<option value="${u.id}"${u.id == unidadActualId ? ' selected' : ''}>${escHtml(u.etiqueta)}</option>`
+                ).join('');
+        }
+    };
+
+    if (catalogoCache) { llenar(catalogoCache); }
+    else {
+        fetch('listar_catalogos.php').then(r => r.json()).then(data => {
+            catalogoCache = data;
+            llenar(data);
+        }).catch(() => {
+            if (selConductor) selConductor.innerHTML = '<option value="">Error al cargar</option>';
+            if (selUnidad)    selUnidad.innerHTML    = '<option value="">Error al cargar</option>';
+        });
+    }
+
+    if (modalReasignarBS) modalReasignarBS.show();
+}
+
+if (btnGuardarReasignacion) {
+    btnGuardarReasignacion.addEventListener('click', () => {
+        if (!asigReasignarId) return;
+
+        const conductor = document.getElementById('reasig_conductor')?.value;
+        const unidad    = document.getElementById('reasig_unidad')?.value;
+        const desde     = document.getElementById('reasig_desde')?.value;
+        const hasta     = document.getElementById('reasig_hasta')?.value;
+
+        if (!conductor) { Swal.fire({ title: 'Falta conductor', text: 'Selecciona un conductor.', icon: 'warning', heightAuto: false }); return; }
+        if (!unidad)    { Swal.fire({ title: 'Falta unidad',    text: 'Selecciona una unidad.',   icon: 'warning', heightAuto: false }); return; }
+
+        btnGuardarReasignacion.disabled  = true;
+        btnGuardarReasignacion.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando…';
+
+        const fd = new FormData();
+        fd.append('asig_id',      asigReasignarId);
+        fd.append('id_conductor', conductor);
+        fd.append('id_unidad',    unidad);
+        fd.append('fecha_inicio', desde);
+        if (hasta) fd.append('fecha_fin', hasta);
+
+        fetch('editar_asignacion.php', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(resp => {
+                if (!resp.success) { Swal.fire({ title: 'Error', text: resp.message, icon: 'error', heightAuto: false }); return; }
+                if (modalReasignarBS) modalReasignarBS.hide();
+                mostrarAlertaGlobal('exito', resp.message);
+                recargarAsignacionesDetalle();
+                cargarAsignaciones();
+            })
+            .catch(() => Swal.fire({ title: 'Error', text: 'Error de conexión.', icon: 'error', heightAuto: false }))
+            .finally(() => {
+                btnGuardarReasignacion.disabled  = false;
+                btnGuardarReasignacion.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambio';
+            });
+    });
+}
+
+// ══════════════════════════════════════════════════════════════
+// UTILIDADES
+// ══════════════════════════════════════════════════════════════
+
+function formatHora12(horaStr) {
+    if (!horaStr) return '—';
+    const [h, m] = horaStr.split(':').map(Number);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12  = h % 12 || 12;
+    return `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function iniciales(nombre) {
+    if (!nombre) return '?';
+    const p = nombre.trim().split(' ');
+    return (p[0][0] + (p[1]?.[0] || '')).toUpperCase();
+}
+
+function escHtml(str) {
+    if (typeof str !== 'string') return str ?? '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function mostrarAlerta(el, tipo, mensaje) {
+    if (!el) return;
+    el.className = `alerta-modal animate__animated animate__fadeIn alerta-${tipo}`;
+    el.innerHTML = `<i class="ri-${tipo === 'exito' ? 'checkbox-circle' : 'error-warning'}-line me-1"></i>${mensaje}`;
+    el.classList.remove('d-none');
+}
+
+function ocultarAlerta(el) {
+    if (!el) return;
+    el.classList.add('d-none');
+    el.innerHTML = '';
+}
+
+function mostrarAlertaGlobal(tipo, mensaje) {
+    if (!alertaGlobal) return;
+    alertaGlobal.className = `alerta-global animate__animated animate__fadeInDown alerta-${tipo}`;
+    alertaGlobal.innerHTML = `<i class="ri-${tipo === 'exito' ? 'checkbox-circle' : 'error-warning'}-line me-1"></i>${mensaje}`;
+    alertaGlobal.classList.remove('d-none');
+    setTimeout(() => {
+        alertaGlobal.classList.add('animate__fadeOut');
+        setTimeout(() => { alertaGlobal.classList.add('d-none'); alertaGlobal.classList.remove('animate__fadeOut'); }, 500);
+    }, 4000);
 }
