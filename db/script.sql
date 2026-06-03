@@ -140,8 +140,8 @@ INSERT INTO `usuarios` (`codigo`, `password_hash`, `rol_id`) VALUES
 
 -- Conductores reales del horario
 INSERT INTO `conductores` (`usuario_id`,`nombre`,`apellido`,`telefono`) VALUES
-(3,'Salvador','Alemán',  '7777-0001'),
-(4,'Oscar',   'Hernández','7777-0002'),
+(3,'Salvador','Aleman',  '7777-0001'),
+(4,'Oscar',   'Hernandez','7777-0002'),
 (5,'Manuel',  'Ramos',   '7777-0003');
 
 -- Vehículos reales
@@ -153,7 +153,7 @@ INSERT INTO `unidades` (`nombre`,`placa`,`capacidad_maxima`) VALUES
 INSERT INTO `sedes` (`nombre`) VALUES
 ('Sede Central'),
 ('Ciudad Universitaria'),
-('Campus Agronomía y Veterinaria');
+('Campus Agronomia y Veterinaria');
 
 --  cronograma de horarios — Martes, Miércoles y Jueves completos
 --  Rutas: 1=SC→CU  2=CU→SC  3=SC→Agro  4=Agro→SC
@@ -168,12 +168,12 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 (1,2,'Martes','15:15','Vespertino'),
 (1,2,'Martes','16:40','Vespertino'),
 -- Miércoles
-(1,2,'Miércoles','06:40','Matutino'),
-(1,2,'Miércoles','08:00','Matutino'),
-(1,2,'Miércoles','11:10','Matutino'),
-(1,2,'Miércoles','12:50','Vespertino'),
-(1,2,'Miércoles','16:00','Vespertino'),
-(1,2,'Miércoles','16:45','Vespertino'),
+(1,2,'Miercoles','06:40','Matutino'),
+(1,2,'Miercoles','08:00','Matutino'),
+(1,2,'Miercoles','11:10','Matutino'),
+(1,2,'Miercoles','12:50','Vespertino'),
+(1,2,'Miercoles','16:00','Vespertino'),
+(1,2,'Miercoles','16:45','Vespertino'),
 -- Jueves
 (1,2,'Jueves','06:40','Matutino'),
 (1,2,'Jueves','08:00','Matutino'),
@@ -182,10 +182,10 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 (1,2,'Jueves','15:15','Vespertino'),
 (1,2,'Jueves','16:40','Vespertino'),
 -- sabado
-(1,2,'Sábado','06:40','Matutino'),(1,2,'Sábado','07:40','Matutino'),
-(1,2,'Sábado','08:40','Matutino'),(1,2,'Sábado','10:00','Matutino'),
-(1,2,'Sábado','11:10','Matutino'),(1,2,'Sábado','12:50','Vespertino'),
-(1,2,'Sábado','16:45','Vespertino');
+(1,2,'Sabado','06:40','Matutino'),(1,2,'Sabado','07:40','Matutino'),
+(1,2,'Sabado','08:40','Matutino'),(1,2,'Sabado','10:00','Matutino'),
+(1,2,'Sabado','11:10','Matutino'),(1,2,'Sabado','12:50','Vespertino'),
+(1,2,'Sabado','16:45','Vespertino');
 
 -- RUTA 2: Ciudad Universitaria → Sede Central 
 INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
@@ -204,12 +204,12 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 (2,1,'Martes',  '15:30','Vespertino'),(2,1,'Martes','16:10','Vespertino'),
 (2,1,'Martes',  '16:20','Vespertino'),
 -- Miércoles
-(2,1,'Miércoles','06:15','Matutino'),(2,1,'Miércoles','07:00','Matutino'),
-(2,1,'Miércoles','08:00','Matutino'),(2,1,'Miércoles','09:25','Matutino'),
-(2,1,'Miércoles','10:40','Matutino'),(2,1,'Miércoles','12:10','Vespertino'),
-(2,1,'Miércoles','12:20','Vespertino'),(2,1,'Miércoles','14:40','Vespertino'),
-(2,1,'Miércoles','15:30','Vespertino'),(2,1,'Miércoles','16:10','Vespertino'),
-(2,1,'Miércoles','16:20','Vespertino'),
+(2,1,'Miercoles','06:15','Matutino'),(2,1,'Miercoles','07:00','Matutino'),
+(2,1,'Miercoles','08:00','Matutino'),(2,1,'Miercoles','09:25','Matutino'),
+(2,1,'Miercoles','10:40','Matutino'),(2,1,'Miercoles','12:10','Vespertino'),
+(2,1,'Miercoles','12:20','Vespertino'),(2,1,'Miercoles','14:40','Vespertino'),
+(2,1,'Miercoles','15:30','Vespertino'),(2,1,'Miercoles','16:10','Vespertino'),
+(2,1,'Miercoles','16:20','Vespertino'),
 -- Jueves
 (2,1,'Jueves',  '06:15','Matutino'),(2,1,'Jueves',  '07:00','Matutino'),
 (2,1,'Jueves',  '08:00','Matutino'),(2,1,'Jueves',  '09:25','Matutino'),
@@ -225,17 +225,17 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 (2,1,'Viernes', '15:30','Vespertino'),(2,1,'Viernes','16:10','Vespertino'),
 (2,1,'Viernes', '16:20','Vespertino'),
 -- sabado
-(2,1,'Sábado','06:10','Matutino'),(2,1,'Sábado','07:00','Matutino'),
-(2,1,'Sábado','08:00','Matutino'),(2,1,'Sábado','09:25','Matutino'),
-(2,1,'Sábado','10:40','Matutino'),(2,1,'Sábado','12:20','Vespertino'),
-(2,1,'Sábado','16:20','Vespertino');
+(2,1,'Sabado','06:10','Matutino'),(2,1,'Sabado','07:00','Matutino'),
+(2,1,'Sabado','08:00','Matutino'),(2,1,'Sabado','09:25','Matutino'),
+(2,1,'Sabado','10:40','Matutino'),(2,1,'Sabado','12:20','Vespertino'),
+(2,1,'Sabado','16:20','Vespertino');
 
 -- RUTA 3: Sede Central → Campus Agronomía 
 INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
 (1,3,'Martes','07:15','Matutino'),
 (1,3,'Martes','12:20','Vespertino'),
-(1,3,'Miércoles','07:15','Matutino'),
-(1,3,'Miércoles','12:20','Vespertino'),
+(1,3,'Miercoles','07:15','Matutino'),
+(1,3,'Miercoles','12:20','Vespertino'),
 (1,3,'Jueves','07:15','Matutino'),
 (1,3,'Jueves','12:20','Vespertino');
 
@@ -243,8 +243,8 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
 (3,1,'Martes','11:20','Matutino'),
 (3,1,'Martes','16:20','Vespertino'),
-(3,1,'Miércoles','11:20','Matutino'),
-(3,1,'Miércoles','16:20','Vespertino'),
+(3,1,'Miercoles','11:20','Matutino'),
+(3,1,'Miercoles','16:20','Vespertino'),
 (3,1,'Jueves','11:20','Matutino'),
 (3,1,'Jueves','16:20','Vespertino');
 
