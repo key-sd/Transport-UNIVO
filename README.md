@@ -125,6 +125,9 @@ En caso de dudas con la instalación, contactar a:
 ### 🛠️ Panel Administrador
 ![Administrador](Evidencias/admin.png)
 
+### 🚍 Panel Conductor
+![Conductor](Evidencias/conductor.png)
+
 
 ---
 
