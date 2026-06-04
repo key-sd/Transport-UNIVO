@@ -204,12 +204,11 @@ if (cuerpoTabla) document.addEventListener('DOMContentLoaded', cargarConductores
 function cargarConductores() {
     if (!cuerpoTabla) return;
     cuerpoTabla.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando conductores...</td></tr>`;
-
-fetch('listar_conductores.php')
+    fetch('listar_conductores.php')
         .then(r => r.json())
         .then(data => { conductores = data; renderTabla(conductores); })
         .catch(() => {
-            cuerpoTabla.innerHTML = <tr><td colspan="5" class="tabla-empty"><i class="ri-error-warning-line"></i> Error al cargar los datos.</td></tr>;
+            cuerpoTabla.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-error-warning-line"></i> Error al cargar los datos.</td></tr>`;
         });
 }
 
