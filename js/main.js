@@ -204,18 +204,14 @@ if (cuerpoTabla) document.addEventListener('DOMContentLoaded', cargarConductores
 function cargarConductores() {
     if (!cuerpoTabla) return;
     cuerpoTabla.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando conductores...</td></tr>`;
-
-    fetch('listar_asignaciones.php')
-    .then(r => r.text())
-    .then(texto => {
-        console.log(texto);
-
-        const data = JSON.parse(texto);
-
-        asignaciones = data;
-        renderTablaAsig(asignaciones);
-    })
+    fetch('listar_conductores.php')
+        .then(r => r.json())
+        .then(data => { conductores = data; renderTabla(conductores); })
+        .catch(() => {
+            cuerpoTabla.innerHTML = `<tr><td colspan="5" class="tabla-empty"><i class="ri-error-warning-line"></i> Error al cargar los datos.</td></tr>`;
+        });
 }
+
 
 // carga la tabla de conductores en desktop
 function renderTabla(lista) {
