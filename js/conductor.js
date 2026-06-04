@@ -32,36 +32,75 @@ function cargarHorarios() {
             if (!data.length) {
                 contenedor.innerHTML =
                     '<p class="cargando">No hay viajes programados para hoy.</p>';
+                // Sin viajes, limpiar la sección de próxima salida
+                document.getElementById('proxima-hora').textContent      = '—';
+                document.getElementById('proxima-ruta').textContent      = 'Sin viajes hoy';
+                document.getElementById('cuenta-regresiva').textContent  = 'Fin del día';
+                proximaHoraMoment = null;
                 return;
             }
-            const ahora = moment();
+
+            const ahora           = moment();
             let proximoEncontrado = false;
 
             const html = data.map(viaje => {
-                const horaSalida = moment(viaje.hora_salida, 'HH:mm:ss');
-                let estado;
+                const horaSalida      = moment(viaje.hora_salida, 'HH:mm:ss');
+                const estadoRecorrido = viaje.estado_recorrido; // viene de la BD
+
                 let badgeClass;
                 let badgeTexto;
+                let claseItem;
 
-                if (horaSalida.isBefore(ahora)) {
-                    estado = 'completado';
+                // Prioridad 1: el conductor ya marcó este viaje como completado en la BD
+                if (estadoRecorrido === 'completado') {
+                    claseItem  = 'completado';
                     badgeClass = 'badge-completado';
                     badgeTexto = 'Completado';
 
-                } else if (!proximoEncontrado) {
-                    estado = 'proximo';
-                    badgeClass = 'badge-proximo';
-                    badgeTexto = 'Próximo';
-                    proximoEncontrado = true;
-                    proximaHoraMoment = horaSalida;
-                    actualizarProximaSalida(viaje, horaSalida);
+                // Prioridad 2: el viaje está en proceso (conductor lo inició)
+                } else if (
+                    estadoRecorrido === 'en_camino'      ||
+                    estadoRecorrido === 'llegando'        ||
+                    estadoRecorrido === 'proximo_salir'
+                ) {
+                    claseItem  = 'en-proceso';
+                    badgeClass = 'badge-en-proceso';
+                    badgeTexto = 'En proceso';
+
+                    // Este es el viaje activo, lo usamos como referencia de próxima salida
+                    if (!proximoEncontrado) {
+                        proximoEncontrado = true;
+                        proximaHoraMoment = horaSalida;
+                        actualizarProximaSalida(viaje, horaSalida);
+                    }
+
+                // Prioridad 3: sin estado en BD, decidir por hora
                 } else {
-                    estado = 'pendiente';
-                    badgeClass = 'badge-pendiente';
-                    badgeTexto = 'Pendiente';
+                    if (horaSalida.isBefore(ahora)) {
+                        // La hora ya pasó pero no tiene estado → mostrar como completado
+                        claseItem  = 'completado';
+                        badgeClass = 'badge-completado';
+                        badgeTexto = 'Completado';
+
+                    } else if (!proximoEncontrado) {
+                        // Es el próximo viaje futuro sin estado
+                        claseItem  = 'proximo';
+                        badgeClass = 'badge-proximo';
+                        badgeTexto = 'Próximo';
+                        proximoEncontrado = true;
+                        proximaHoraMoment = horaSalida;
+                        actualizarProximaSalida(viaje, horaSalida);
+
+                    } else {
+                        // Viajes futuros después del próximo
+                        claseItem  = 'pendiente';
+                        badgeClass = 'badge-pendiente';
+                        badgeTexto = 'Pendiente';
+                    }
                 }
+
                 return `
-                    <div class="viaje-item ${estado}">
+                    <div class="viaje-item ${claseItem}">
                         <span class="viaje-hora">${horaSalida.format('HH:mm')}</span>
                         <span class="viaje-ruta">${viaje.origen} → ${viaje.destino}</span>
                         <span class="viaje-badge ${badgeClass}">${badgeTexto}</span>
@@ -70,12 +109,13 @@ function cargarHorarios() {
             }).join('');
 
             contenedor.innerHTML = html;
+
+            // Si no se encontró ningún viaje próximo o en proceso, actualizar sección
             if (!proximoEncontrado) {
-                document.getElementById('proxima-hora').textContent = '—';
-                document.getElementById('proxima-ruta').textContent =
-                    'Sin más viajes hoy';
-                document.getElementById('cuenta-regresiva').textContent =
-                    'Fin del día';
+                document.getElementById('proxima-hora').textContent     = '—';
+                document.getElementById('proxima-ruta').textContent     = 'Sin más viajes hoy';
+                document.getElementById('cuenta-regresiva').textContent = 'Fin del día';
+                proximaHoraMoment = null;
             }
         })
         .catch(error => {
@@ -88,41 +128,39 @@ function cargarHorarios() {
 function actualizarProximaSalida(viaje, horaMoment) {
     document.getElementById('proxima-hora').textContent =
         horaMoment.format('HH:mm');
-
     document.getElementById('proxima-ruta').textContent =
         viaje.origen + ' → ' + viaje.destino;
 }
+
 // Cuenta regresiva para la próxima salida
 function actualizarCuentaRegresiva() {
     if (!proximaHoraMoment) return;
 
     const ahora = moment();
-    const diff = proximaHoraMoment.diff(ahora);
+    const diff  = proximaHoraMoment.diff(ahora);
 
     if (diff <= 0) {
-        document.getElementById('cuenta-regresiva').textContent =
-            '¡Es hora de salir!';
+        document.getElementById('cuenta-regresiva').textContent = '¡Es hora de salir!';
         cargarHorarios();
         return;
     }
 
-    const horas = Math.floor(diff / 3600000);
-    const minutos = Math.floor((diff % 3600000) / 60000);
+    const horas    = Math.floor(diff / 3600000);
+    const minutos  = Math.floor((diff % 3600000) / 60000);
     const segundos = Math.floor((diff % 60000) / 1000);
     let texto = '';
 
-    if (horas > 0) {
-        texto += horas + 'h ';
-    }
+    if (horas > 0) texto += horas + 'h ';
     texto += minutos + 'min ' + segundos + 's';
+
     document.getElementById('cuenta-regresiva').textContent = texto;
 }
 
 cargarHorarios();
 setInterval(actualizarCuentaRegresiva, 1000);
 
-// estado y capacidad del micro
-let estadoSeleccionado = null;
+// Estado y capacidad del micro
+let estadoSeleccionado    = null;
 let capacidadSeleccionada = null;
 
 document.querySelectorAll('.btn-estado').forEach(btn => {
@@ -135,7 +173,6 @@ document.querySelectorAll('.btn-estado').forEach(btn => {
 });
 
 document.querySelectorAll('.btn-capacidad').forEach(btn => {
-
     btn.addEventListener('click', () => {
         document.querySelectorAll('.btn-capacidad')
             .forEach(b => b.classList.remove('activo'));
@@ -143,6 +180,17 @@ document.querySelectorAll('.btn-capacidad').forEach(btn => {
         capacidadSeleccionada = btn.dataset.cap;
     });
 });
+
+// Resetea los botones de estado y capacidad para el siguiente viaje
+function resetearSeleccionEstado() {
+    document.querySelectorAll('.btn-estado')
+        .forEach(b => b.classList.remove('activo'));
+    document.querySelectorAll('.btn-capacidad')
+        .forEach(b => b.classList.remove('activo'));
+    estadoSeleccionado    = null;
+    capacidadSeleccionada = null;
+    document.getElementById('ultima-actualizacion').textContent = '';
+}
 
 document.getElementById('btn-guardar-estado')
 .addEventListener('click', () => {
@@ -158,7 +206,6 @@ document.getElementById('btn-guardar-estado')
     }
 
     const datos = new FormData();
-
     datos.append('estado', estadoSeleccionado);
     datos.append('capacidad', capacidadSeleccionada);
 
@@ -171,9 +218,18 @@ document.getElementById('btn-guardar-estado')
         if (resp.success) {
 
             const ahora = moment().format('HH:mm');
-
             document.getElementById('ultima-actualizacion').textContent =
                 'Última actualización: ' + ahora;
+
+            // Si el conductor llegó al destino, el viaje quedó completado
+            // Se resetean los botones y se recargan los horarios para mostrar el siguiente viaje
+            if (estadoSeleccionado === 'llegando') {
+                resetearSeleccionEstado();
+                cargarHorarios();
+            } else {
+                // Para cualquier otro estado, recargar horarios para reflejar "En proceso"
+                cargarHorarios();
+            }
 
             Swal.fire({
                 icon: 'success',
@@ -185,18 +241,16 @@ document.getElementById('btn-guardar-estado')
                 width: '320px'
             });
 
-        }else{
-
+        } else {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
+                title: 'No disponible',
                 text: resp.message,
                 confirmButtonColor: '#0d2346',
                 width: '320px'
             });
         }
     })
-
     .catch(error => {
         console.error('Error guardando estado:', error);
         Swal.fire({
@@ -231,7 +285,7 @@ const sedes = [
 const mapa = L.map('mapa-conductor')
 .setView([13.4820, -88.1780], 14);
 
-// para el estilo del mapa
+// Para el estilo del mapa
 L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
@@ -241,23 +295,19 @@ L.tileLayer(
 
 // Marcar las sedes fijas en el mapa
 sedes.forEach(sede => {
-
     L.marker([sede.lat, sede.lng])
-
         .addTo(mapa)
-
         .bindPopup(`<b>${sede.nombre}</b>`);
 });
 
 // GPS
-let gpsActivo = false;
-let watchId = null;
+let gpsActivo         = false;
+let watchId           = null;
 let marcadorConductor = null;
-let primeraUbicacion = true;
+let primeraUbicacion  = true;
 
 document.getElementById('btn-gps')
 .addEventListener('click', () => {
-
     if (!gpsActivo) {
         activarGPS();
     } else {
@@ -279,6 +329,7 @@ function activarGPS() {
     watchId = navigator.geolocation.watchPosition(
         pos => {
             const { latitude, longitude } = pos.coords;
+
             // Crear marcador del conductor
             if (!marcadorConductor) {
                 marcadorConductor = L.marker(
@@ -312,7 +363,6 @@ function activarGPS() {
 
             // Enviar ubicación al servidor
             const datos = new FormData();
-
             datos.append('lat', latitude);
             datos.append('lng', longitude);
 
@@ -325,16 +375,12 @@ function activarGPS() {
                 console.log('Ubicación enviada');
             })
             .catch(error => {
-
-                console.error(
-                    'Error enviando ubicación:',
-                    error
-                );
+                console.error('Error enviando ubicación:', error);
             });
+
             document.getElementById('gps-estado').textContent =
                 'GPS activo — ubicación compartida';
         },
-
         err => {
             console.error('Error GPS:', err);
             Swal.fire({
@@ -354,10 +400,8 @@ function activarGPS() {
     gpsActivo = true;
 
     const btn = document.getElementById('btn-gps');
-
     btn.classList.add('activo');
-    btn.innerHTML =
-        '<i class="ri-gps-fill"></i> Desactivar GPS';
+    btn.innerHTML = '<i class="ri-gps-fill"></i> Desactivar GPS';
 }
 
 function desactivarGPS() {
@@ -372,22 +416,19 @@ function desactivarGPS() {
     }
 
     primeraUbicacion = true;
-    gpsActivo = false;
+    gpsActivo        = false;
 
     const btn = document.getElementById('btn-gps');
-
     btn.classList.remove('activo');
-    btn.innerHTML =
-        '<i class="ri-gps-line"></i> Activar GPS';
-    document.getElementById('gps-estado').textContent =
-        'GPS inactivo';
+    btn.innerHTML = '<i class="ri-gps-line"></i> Activar GPS';
+
+    document.getElementById('gps-estado').textContent = 'GPS inactivo';
 }
 
 // Para el scroll manual y el enlace activo en el menú
 document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('section[id]');
-    const navLinks =
-        document.querySelectorAll('.conductor-nav-link');
+    const navLinks = document.querySelectorAll('.conductor-nav-link');
 
     window.addEventListener('scroll', () => {
         let current = '';
@@ -395,13 +436,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const scrollPosition = window.scrollY + 140;
 
         sections.forEach(section => {
-            const sectionTop = section.offsetTop;
+            const sectionTop    = section.offsetTop;
             const sectionHeight = section.offsetHeight;
 
             if (
                 scrollPosition >= sectionTop &&
                 scrollPosition < sectionTop + sectionHeight
-            ){
+            ) {
                 current = section.getAttribute('id');
             }
         });
@@ -410,16 +451,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (
             (window.innerHeight + window.scrollY)
             >= document.body.offsetHeight - 5
-        ){
+        ) {
             current = 'seccion-mapa';
         }
 
         navLinks.forEach(link => {
             link.classList.remove('active');
-
-            if (
-                link.getAttribute('href') === `#${current}`
-            ){
+            if (link.getAttribute('href') === `#${current}`) {
                 link.classList.add('active');
             }
         });

@@ -21,34 +21,38 @@ $dias = [
     7 => 'Domingo'
 ];
 
-$dia_hoy = $dias[date('N')];
+$dia_hoy    = $dias[date('N')];
+$fecha_hoy  = date('Y-m-d');
 $usuario_id = $_SESSION['usuario_id'];
+
+// Se agrega LEFT JOIN con viajes para obtener el estado_recorrido real del día
+// Si el viaje no existe aún en la tabla viajes, estado_recorrido llega como NULL
 $sql = "
 SELECT
-    ch.hora_salida AS hora_salida,
-    so.nombre AS origen,
-    sd.nombre AS destino
+    ch.hora_salida                  AS hora_salida,
+    so.nombre                       AS origen,
+    sd.nombre                       AS destino,
+    COALESCE(v.estado_recorrido, '') AS estado_recorrido
 FROM conductores c
 INNER JOIN asignaciones_conductor ac
-    ON ac.id_conductor = c.id
+    ON ac.id_conductor = c.id AND ac.activo = 1
 INNER JOIN cronograma_horarios ch
-    ON ch.id = ac.id_cronograma
+    ON ch.id = ac.id_cronograma AND ch.dia_semana = ? AND ch.estado = 1
 INNER JOIN sedes so
     ON so.id = ch.id_sede_origen
 INNER JOIN sedes sd
     ON sd.id = ch.id_sede_destino
+LEFT JOIN viajes v
+    ON v.id_asignacion = ac.id AND v.fecha = ?
 WHERE c.usuario_id = ?
-AND ch.dia_semana = ?
-AND ch.estado = 1
-AND ac.activo = 1
 ORDER BY ch.hora_salida ASC
 ";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("is", $usuario_id, $dia_hoy);
+$stmt->bind_param("ssi", $dia_hoy, $fecha_hoy, $usuario_id);
 $stmt->execute();
 $resultado = $stmt->get_result();
-$horarios = [];
+$horarios  = [];
 
 while ($fila = $resultado->fetch_assoc()) {
     $horarios[] = $fila;

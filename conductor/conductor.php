@@ -123,11 +123,11 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                 </button>
                 <button class="btn-estado" data-estado="en_camino">
                     <i class="ri-road-map-line"></i>
-                    <span>En tráfico</span>
+                    <span>En camino</span>
                 </button>
                 <button class="btn-estado" data-estado="llegando">
                     <i class="ri-flag-line"></i>
-                    <span>Llegando</span>
+                    <span>En sede destino</span>
                 </button>
             </div>
             <div class="capacidad-grupo">
