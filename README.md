@@ -93,17 +93,17 @@ http://localhost/Transport-UNIVO/
 
 ### Administrador
 
-- **Usuario:** U20260001
+- **Usuario:** a20260001
 - **Contraseña:** adminpass
 
 ### Conductor
 
-- **Usuario:** U20260003
+- **Usuario:** c0001
 - **Contraseña:** conductorpass
 
 ### Pasajero
 
-- **Usuario:** U20260002
+- **Usuario:** U20260003
 - **Contraseña:** pasajeropass
 
 ---

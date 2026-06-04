@@ -37,31 +37,54 @@ if (!$conductor) {
 
 $cond_id = $conductor['id'];
 
-// Buscar la unidad asignada (por ahora toma la primera activa)
-$stmt = $conn->prepare("SELECT id FROM unidades WHERE estado = 1 LIMIT 1");
+$hoy_dia_semana = [
+    1 => 'Lunes',
+    2 => 'Martes',
+    3 => 'Miércoles',
+    4 => 'Jueves',
+    5 => 'Viernes',
+    6 => 'Sábado',
+    7 => 'Domingo'
+][date('N')];
+
+$stmt = $conn->prepare("
+    SELECT ac.id AS id_asignacion, ch.hora_salida
+    FROM conductores c
+    INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id
+    INNER JOIN cronograma_horarios ch ON ch.id = ac.id_cronograma
+    WHERE c.id = ? AND ac.activo = 1 AND ch.dia_semana = ? AND ch.estado = 1
+    ORDER BY ABS(TIME_TO_SEC(ch.hora_salida) - TIME_TO_SEC(CURRENT_TIME())) ASC
+    LIMIT 1
+");
+$stmt->bind_param('is', $cond_id, $hoy_dia_semana);
 $stmt->execute();
-$unidad = $stmt->get_result()->fetch_assoc();
+$crono = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-if (!$unidad) {
-    echo json_encode(['success' => false, 'message' => 'No hay unidades disponibles.']);
+if (!$crono) {
+    echo json_encode(['success' => false, 'message' => 'No tienes viajes programados para hoy en este momento.']);
     exit();
 }
 
-$unidad_id = $unidad['id'];
+$id_asignacion = $crono['id_asignacion'];
+$fecha = date('Y-m-d');
+$hora_salida_programada = $crono['hora_salida'];
+$estado_unidad_db = ($capacidad === 'disponible') ? 'vacio' : $capacidad;
 
-// Insertar o actualizar el estado
+// Insertar o actualizar el estado del viaje
 $stmt = $conn->prepare("
-    INSERT INTO estado_unidad (conductor_id, unidad_id, estado, capacidad)
-    VALUES (?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE estado = VALUES(estado), capacidad = VALUES(capacidad), actualizado_en = CURRENT_TIMESTAMP
+    INSERT INTO viajes (id_asignacion, fecha, hora_salida_programada, estado_recorrido, estado_unidad)
+    VALUES (?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+        estado_recorrido = VALUES(estado_recorrido), 
+        estado_unidad = VALUES(estado_unidad)
 ");
-$stmt->bind_param('iiss', $cond_id, $unidad_id, $estado, $capacidad);
+$stmt->bind_param('issss', $id_asignacion, $fecha, $hora_salida_programada, $estado, $estado_unidad_db);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Estado actualizado correctamente.']);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Error al guardar.']);
+    echo json_encode(['success' => false, 'message' => 'Error al guardar el estado.']);
 }
 
 $stmt->close();

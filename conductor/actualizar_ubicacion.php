@@ -35,7 +35,7 @@ if (!$conductor) {
 $cond_id = $conductor['id'];
 
 // Insertar nueva ubicación y guarda el historial (no se actualiza, se inserta un nuevo registro cada vez de momento)
-$stmt = $conn->prepare("INSERT INTO ubicaciones (conductor_id, latitud, longitud) VALUES (?, ?, ?)");
+$stmt = $conn->prepare("INSERT INTO ubicaciones (id_conductor, latitud, longitud) VALUES (?, ?, ?)");
 $stmt->bind_param('idd', $cond_id, $lat, $lng);
 $ok = $stmt->execute();
 $stmt->close();

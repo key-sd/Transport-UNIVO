@@ -1,0 +1,480 @@
+/* pasajero.css - Estilos premium para la interfaz de pasajeros de Transport-UNIVO */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background: linear-gradient(180deg, #f0f4f8 0%, #e8eef5 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    color: #1e293b;
+}
+
+/* Header y Barra de Navegación */
+.cabecera-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px #0d234614;
+}
+
+.pasajero-header {
+    background: linear-gradient(130deg, #0d2346 0%, #1a3d6e 60%, #0d2346 100%);
+    border-bottom: 1px solid #f5c51818;
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-izq {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-logo {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.header-saludo {
+    color: #f5c518;
+    font-size: 10px;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
+
+.header-nombre {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+
+.header-der {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-fecha-hora {
+    text-align: right;
+}
+
+.header-hora {
+    color: #f5c518;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: -0.5px;
+}
+
+.header-fecha {
+    color: #ffffff55;
+    font-size: 10px;
+    margin: 2px 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-logout {
+    color: #ffffff60;
+    font-size: 20px;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid #ffffff14;
+}
+
+.btn-logout:hover {
+    color: #f5c518;
+    border-color: #f5c51840;
+    background: #f5c51808;
+}
+
+/* Layout Principal */
+.pasajero-main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* Cards Premium */
+.card-pasajero {
+    background: #ffffff;
+    border: 1px solid #e9eef5;
+    border-radius: 20px;
+    padding: 1.4rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px #0d234610, 0 4px 12px #0d234608;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-pasajero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px #0d234618, 0 1px 4px #0d234612;
+}
+
+.card-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0d2346;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #f1f5f9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-titulo i {
+    color: #f5c518;
+    font-size: 17px;
+}
+
+/* Sección de Filtros */
+.filtro-rutas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-select-premium {
+    font-family: 'Outfit', sans-serif;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    background-color: #f8fafc;
+    transition: all 0.25s;
+    outline: none;
+}
+
+.form-select-premium:focus {
+    border-color: #0d2346;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px #0d234615;
+}
+
+.btn-buscar-rutas {
+    width: 100%;
+    background: #0d2346;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px #0d234620;
+}
+
+.btn-buscar-rutas:hover {
+    background: #1e3d6e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px #0d234635;
+}
+
+/* Mapa Leaflet */
+#mapa-pasajero {
+    height: 360px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    margin-top: 4px;
+}
+
+.info-mapa-inactivo {
+    height: 300px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px dashed #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    text-align: center;
+    padding: 2rem;
+}
+
+.info-mapa-inactivo i {
+    font-size: 40px;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+/* Horarios del Pasajero */
+.cargando {
+    color: #94a3b8;
+    font-size: 13px;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.spin {
+    display: inline-block;
+    animation: girar 1s linear infinite;
+}
+
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.viaje-item {
+    background: #f8fafc;
+    border: 1px solid #e9eef5;
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.viaje-item:hover {
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+}
+
+.viaje-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.viaje-hora {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0d2346;
+}
+
+.viaje-ruta {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.viaje-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.viaje-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.badge-en_sede { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+.badge-proximo_salir { background: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
+.badge-en_camino { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+.badge-llegando { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.badge-completado { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-pendiente { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+.badge-capacidad {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
+.badge-cap-vacio { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.badge-cap-medio_lleno { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
+.badge-cap-lleno { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+.viaje-item-body {
+    border-top: 1px solid #f1f5f9;
+    padding-top: 8px;
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.info-snippet {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.info-snippet i {
+    font-size: 15px;
+    color: #94a3b8;
+}
+
+/* Panel de ETA (Tiempo Estimado) */
+.eta-card {
+    background: linear-gradient(135deg, #0d2346 0%, #1e3d6e 100%);
+    color: #ffffff;
+    border: none;
+}
+
+.eta-card .card-titulo {
+    color: #f5c518;
+    border-bottom-color: #ffffff15;
+}
+
+.eta-info {
+    text-align: center;
+    padding: 0.8rem 0;
+}
+
+.eta-tiempo {
+    font-size: 54px;
+    font-weight: 800;
+    color: #f5c518;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+.eta-desc {
+    font-size: 13px;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+.eta-ruta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 12px;
+    opacity: 0.7;
+    background: #ffffff10;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* Contenedor de Alertas */
+.alert-toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast-premium {
+    background: #0d2346;
+    color: #ffffff;
+    border-left: 5px solid #f5c518;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 12px #0d234625;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: slideInRight 0.3s ease;
+}
+
+.toast-premium i {
+    font-size: 20px;
+    color: #f5c518;
+    margin-top: 1px;
+}
+
+.toast-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: #f5c518;
+    margin-bottom: 2px;
+}
+
+.toast-message {
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Estilo Responsive Desktop */
+@media (min-width: 768px) {
+    .pasajero-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 1100px;
+        gap: 1.5rem;
+        padding: 2rem 1.5rem;
+    }
+
+    .card-pasajero:first-child,
+    .eta-card {
+        grid-column: 1 / 3;
+    }
+
+    .card-mapa {
+        grid-column: 1 / 2;
+    }
+
+    .card-horarios {
+        grid-column: 2 / 3;
+    }
+
+    #mapa-pasajero {
+        height: 480px;
+    }
+    
+    .info-mapa-inactivo {
+        height: 380px;
+    }
+
+    .filtro-rutas {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .filtro-campo {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .btn-buscar-rutas {
+        width: auto;
+        height: 41px;
+        padding: 0 24px;
+    }
+}
