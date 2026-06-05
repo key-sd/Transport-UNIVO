@@ -511,3 +511,86 @@ body {
     .proxima-hora { font-size: 48px; }
     .estado-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* Manejo de diseño de alertas */
+.swal2-container {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+.swal2-popup {
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+}
+
+.swal2-title {
+    color: #0d2346 !important;
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+}
+
+.swal2-html-container {
+    color: #475569 !important;
+    font-size: 0.95rem !important;
+}
+
+.swal2-actions {
+    gap: 12px !important;
+    margin-top: 1.25rem !important;
+}
+
+.swal2-actions button.swal2-styled {
+    margin: 0 !important;
+    padding: 10px 24px !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.swal2-actions button.swal2-confirm {
+    background-color: #0d2346 !important;
+    color: #ffffff !important;
+    border: 1px solid #0d2346 !important;
+}
+
+.swal2-actions button.swal2-confirm:hover {
+    background-color: #1a3d6e !important;
+    border-color: #1a3d6e !important;
+}
+
+.swal2-actions button.swal2-confirm:focus {
+    box-shadow: 0 0 0 3px rgba(13, 35, 70, 0.25) !important;
+}
+
+.swal2-actions button.swal2-cancel {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.swal2-actions button.swal2-cancel:hover {
+    background-color: #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+.swal2-actions button.swal2-cancel:focus {
+    box-shadow: 0 0 0 3px rgba(203, 213, 225, 0.5) !important;
+}
+
+.swal2-actions button.swal2-deny {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    border: 1px solid #ef4444 !important;
+}
+
+.swal2-actions button.swal2-deny:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+.swal2-actions button.swal2-deny:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+}
