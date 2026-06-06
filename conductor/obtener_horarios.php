@@ -1,6 +1,5 @@
 <?php
 session_start();
-date_default_timezone_set('America/El_Salvador'); //Agregué esto para asegurar que las fechas y horas se manejen en la zona horaria correcta
 
 header('Content-Type: application/json; charset=utf-8');
 
