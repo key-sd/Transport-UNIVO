@@ -52,9 +52,9 @@ foreach ($dias as $dia) {
         /* validar rango */
         $t    = strtotime($hora_salida);
         $tmin = strtotime('06:00');
-        $tmax = strtotime('18:00');
+        $tmax = strtotime('23:59');
         if ($t === false || $t < $tmin || $t > $tmax) {
-            $err_msgs[] = "La hora {$hora_salida} está fuera del rango permitido (6:00 AM – 6:00 PM).";
+            $err_msgs[] = "La hora {$hora_salida} está fuera del rango permitido (6:00 AM – 11:59 PM).";
             $omitidos++;
             continue;
         }

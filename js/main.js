@@ -438,7 +438,7 @@ function diaId(dia) {
 function calcularTurno(horaStr) {
     const [h, m] = horaStr.split(':').map(Number);
     const mins = h * 60 + m;
-    if (mins < 6 * 60 || mins > 18 * 60) return null;
+    if (mins < 6 * 60 || mins > 23 * 60) return null; //valida rango permitido
     return mins < 12 * 60 ? 'Matutino' : 'Vespertino';
 }
 
@@ -604,7 +604,7 @@ function resetearContenedorHoras() {
                 <i class="ri-time-line text-secondary"></i>
             </span>
             <input type="time" name="horas[]" class="form-control border-start-0"
-                   min="06:00" max="18:00" required>
+                   min="06:00" max="23:59" required>
         </div>`;
 }
 
@@ -667,7 +667,7 @@ if (btnAgregarHora) {
                 <i class="ri-time-line text-secondary"></i>
             </span>
             <input type="time" name="horas[]" class="form-control border-start-0"
-                   min="06:00" max="18:00" required>
+                   min="06:00" max="23:59" required>
             <button type="button" class="btn-quitar-hora" onclick="this.closest('.hora-item').remove()">
                 <i class="ri-close-line"></i>
             </button>`;
@@ -696,7 +696,7 @@ if (btnGuardarCronograma) {
 
         for (const h of horas) {
             if (calcularTurno(h) === null) {
-                mostrarAlerta(alertaModalCronograma, 'error', `La hora ${h} está fuera del rango permitido (06:00 AM – 18:00 PM) en formato 24h.`);
+                mostrarAlerta(alertaModalCronograma, 'error', `La hora ${h} está fuera del rango permitido (06:00 AM – 23:59 PM) en formato 24h.`);
                 return;
             }
         }
@@ -832,7 +832,7 @@ function renderAcordeonDias(diasData, origen, destino, editable) {
                         <i class="ri-time-line text-secondary"></i>
                     </span>
                     <input type="time" class="form-control border-start-0"
-                           id="nuevaHora-${sid}" min="06:00" max="18:00">
+                           id="nuevaHora-${sid}" min="06:00" max="23:59">
                 </div>
                 <button class="btn-agregar-hora-dia"
                         onclick="agregarHoraADia('${dia}','${sid}','${origen}','${destino}')">
@@ -954,7 +954,7 @@ function seccionNuevoDia(diasFaltantes, origen, destino) {
                     <i class="ri-time-line text-secondary"></i>
                 </span>
                 <input type="time" id="horaSelectNuevoDia" class="form-control border-start-0"
-                       min="06:00" max="18:00">
+                       min="06:00" max="23:59">
             </div>
             <button class="btn-agregar-hora-dia" onclick="agregarNuevoDia('${origen}','${destino}')">
                 <i class="ri-add-line me-1"></i>Agregar día
@@ -972,7 +972,7 @@ function agregarHoraADia(dia, sid, origen, destino) {
 
     if (!hora) { mostrarAlerta(alertaModalCronograma, 'error', 'Ingresa una hora antes de agregar.'); return; }
     if (calcularTurno(hora) === null) {
-        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 18:00 PM) en formato 24h.`);
+        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 23:59 PM) en formato 24h.`);
         return;
     }
 
@@ -1032,7 +1032,7 @@ function agregarNuevoDia(origen, destino) {
     if (!dia)  { mostrarAlerta(alertaModalCronograma, 'error', 'Selecciona el día.'); return; }
     if (!hora) { mostrarAlerta(alertaModalCronograma, 'error', 'Ingresa la hora de salida.'); return; }
     if (calcularTurno(hora) === null) {
-        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 18:00 PM) en formato 24h.`);
+        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 23:59 PM) en formato 24h.`);
         return;
     }
 
