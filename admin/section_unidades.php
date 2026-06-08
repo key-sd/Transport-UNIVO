@@ -23,7 +23,7 @@ include("../includes/conexion.php");
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 
     <link rel="stylesheet" href="../css/admin.css">
-    <link rel="icon" href="../img/logo.png">
+    <link rel="icon" href="../img/logo-app.png">
 </head>
 <body>
 

@@ -9,9 +9,6 @@
         <p class="navbar-fecha mb-0" id="fecha-hoy"></p>
     </div>
     <div class="navbar-acciones">
-        <div class="navbar-icono-btn">
-            <i class="ri-notification-3-line"></i>
-        </div>
         <div class="navbar-divisor"></div>
         <div class="navbar-usuario">
             <div class="navbar-avatar">

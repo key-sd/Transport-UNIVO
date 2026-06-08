@@ -42,14 +42,14 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 
     <link rel="stylesheet" href="../css/conductor.css">
-    <link rel="icon" href="../img/logo.png">
+    <link rel="icon" href="../img/logo-app.png">
 </head>
 <body>
     <!-- HEADER -->
     <div class="cabecera-sticky">
         <header class="conductor-header">
             <div class="header-izq">
-                <img src="../img/logo.png" alt="Logo" class="header-logo">
+                <img src="../img/logo-app.png" alt="Logo" class="header-logo">
                 <div>
                     <p class="header-saludo">Bienvenido</p>
                     <p class="header-nombre"><?php echo htmlspecialchars($nombre_display); ?></p>

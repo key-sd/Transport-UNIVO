@@ -6,7 +6,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
 <aside class="sidebar d-none d-lg-flex flex-column">
     <div class="sidebar-logo">
         <div class="sidebar-logo-icono">
-            <i class="ri-bus-2-fill"></i>
+            <img src="../img/logo-app.png" alt="Logo" class="logo-univo">
         </div>
         <div>
             <p class="sidebar-nombre">TransporteU</p>
@@ -44,7 +44,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
     <div class="offcanvas-header" style="border-bottom:1px solid #ffffff18; padding:1.25rem;">
         <div class="d-flex align-items-center gap-2">
             <div class="sidebar-logo-icono">
-                <i class="ri-bus-2-fill"></i>
+                <img src="../img/logo-app.png" alt="Logo" class="logo-univo">
             </div>
             <div>
                 <p class="sidebar-nombre mb-0">TransporteU</p>
@@ -81,12 +81,5 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
                 <span>Asignaciones</span>
             </a>
         </nav>
-
-        <div style="padding:1rem 0.75rem; border-top:1px solid #ffffff18;">
-            <a href="../includes/logout.php" class="sidebar-item sidebar-logout">
-                <i class="ri-logout-box-r-line"></i>
-                <span>Cerrar sesión</span>
-            </a>
-        </div>
     </div>
 </div>

@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- CSS propio -->
     <link rel="stylesheet" href="css/login.css">
-    <link rel="icon" type="image/x-icon" href="img/logo.png">
+    <link rel="icon" type="image/x-icon" href="img/logo-app.png">
 </head>
 <body>
 
@@ -109,7 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="overlay"></div>
 
         <div class="lado-texto">
-            <img src="img/logo.png" alt="Logo UNIVO" class="logo-univo mb-4">
             <p class="bienvenida-sub">Bienvenido/a</p>
             <h1 class="bienvenida-titulo">Sistema de Transporte<br>UNIVO</h1>
             <p class="bienvenida-desc">Informate del transporte universitario.</p>
@@ -129,8 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="login-card animate__animated animate__fadeInRight">
 
             <div class="text-center mb-4">
-                <div class="bus-icon d-flex align-items-center justify-content-center mx-auto mb-3">
-                    <i class="ri-bus-2-fill" style="font-size: 28px;"></i>
+                <div class="d-flex align-items-center justify-content-center mx-auto">
+                    <i><img src="img/logo-app.png" alt="Logo Transport" class="logo-univo"></i>
                 </div>
                 <h2 class="login-titulo fw-semibold">Iniciar Sesión</h2>
                 <p class="login-subtitulo mb-0">Acceso exclusivo para comunidad universitaria</p>

@@ -58,8 +58,7 @@ body {
 }
 
 .logo-univo {
-    width: 80px;
-    filter: brightness(0) invert(1);
+    width: 100px;
 }
 
 .bienvenida-sub {
@@ -125,7 +124,7 @@ body {
     background: #c0d8ff;
     border: 1px solid #be8f0280;
     border-radius: 20px;
-    padding: 2.5rem 2rem;
+    padding: 1.2rem 2rem 2.5rem 2rem;
     box-shadow: 0 20px 60px #00000066;
 }
 
