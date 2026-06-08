@@ -23,7 +23,7 @@ include("../includes/conexion.php");
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="../css/admin.css">
-  <link rel="icon" href="../img/logo.png">
+  <link rel="icon" href="../img/logo-app.png">
 </head>
 
 <body>

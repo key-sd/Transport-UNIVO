@@ -37,10 +37,9 @@ body {
 }
 
 .header-logo {
-    width: 36px;
-    height: 36px;
+    width: 55px;
+    height: 55px;
     object-fit: contain;
-    filter: brightness(0) invert(1);
 }
 
 .header-saludo {
