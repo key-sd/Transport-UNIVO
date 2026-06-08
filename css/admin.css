@@ -218,7 +218,7 @@ body {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -1274,15 +1274,16 @@ body {
 
 /*Diseño responsive*/
 @media (max-width: 1024px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid   { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 991.98px) {
     .sidebar { display: none !important; }
+    .stats-grid   { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-    .stats-grid    { grid-template-columns: 1fr 1fr; }
+    .stats-grid   { grid-template-columns: 1fr; }
     .dashboard-grid { grid-template-columns: 1fr; }
     .navbar-fecha  { font-size: 12px; }
 }

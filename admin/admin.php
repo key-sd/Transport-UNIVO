@@ -13,6 +13,11 @@ include("../includes/conexion.php");
 $q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'conductor'");
 $total_conductores = mysqli_fetch_assoc($q)['total'];
 
+$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM sedes");
+$total_sedes = mysqli_fetch_assoc($q)['total'];
+
+$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM unidades");
+$total_unidades = mysqli_fetch_assoc($q)['total'];
 
 ?>
 <!DOCTYPE html>
@@ -85,7 +90,7 @@ $total_conductores = mysqli_fetch_assoc($q)['total'];
                             <i class="ri-map-2-line" style="color:#1862a8;"></i>
                         </div>
                     </div>
-                    <p class="stat-numero">--</p>
+                    <p class="stat-numero"><?php echo $total_sedes; ?></p>
                     <p class="stat-nota">en operación</p>
                 </div>
 
@@ -96,7 +101,7 @@ $total_conductores = mysqli_fetch_assoc($q)['total'];
                             <i class="ri-bus-line" style="color:#16a34a;"></i>
                         </div>
                     </div>
-                    <p class="stat-numero">--</p>
+                    <p class="stat-numero"><?php echo $total_unidades; ?></p>
                     <p class="stat-nota">en el sistema</p>
                 </div>
 
