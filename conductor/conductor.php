@@ -4,6 +4,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
     header("Location: /Transport-UNIVO/login.php");
     exit();
 }
+date_default_timezone_set('America/El_Salvador');
 include("../includes/conexion.php");
 // Datos del conductor desde sesión
 $nombre_conductor = $_SESSION['usuario'] ?? 'Conductor';

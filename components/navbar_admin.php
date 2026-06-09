@@ -1,3 +1,4 @@
+
 <header class="navbar-admin">
     <div class="navbar-izquierda">
         <!-- botón hamburguesa — solo en móvil -->

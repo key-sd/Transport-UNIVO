@@ -6,6 +6,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
   exit();
 }
 
+date_default_timezone_set('America/El_Salvador');
 include("../includes/conexion.php");
 ?>
 <!DOCTYPE html>

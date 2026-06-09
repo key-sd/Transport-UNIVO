@@ -3,6 +3,7 @@ require_once '../includes/sesion.php';
 require_once '../includes/conexion.php';
 solo_admin();
 
+date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
 // trae todas las unidades ordenadas: activas primero, luego inactivas, ambas por nombre

@@ -11,7 +11,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
+date_default_timezone_set('America/El_Salvador');
 /**
  * Llama esta función en páginas que solo puede ver el admin.
  * Ejemplo de uso al inicio del archivo:

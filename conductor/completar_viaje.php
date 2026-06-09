@@ -6,6 +6,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
     exit();
 }
 
+date_default_timezone_set('America/El_Salvador');
 include("../includes/conexion.php");
 
 header('Content-Type: application/json; charset=utf-8');
