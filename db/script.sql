@@ -168,12 +168,12 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 (1,2,'Martes','15:15','Vespertino'),
 (1,2,'Martes','16:40','Vespertino'),
 -- Miércoles
-(1,2,'Miercoles','06:40','Matutino'),
-(1,2,'Miercoles','08:00','Matutino'),
-(1,2,'Miercoles','11:10','Matutino'),
-(1,2,'Miercoles','12:50','Vespertino'),
-(1,2,'Miercoles','16:00','Vespertino'),
-(1,2,'Miercoles','16:45','Vespertino'),
+(1,2,'Miércoles','06:40','Matutino'),
+(1,2,'Miércoles','08:00','Matutino'),
+(1,2,'Miércoles','11:10','Matutino'),
+(1,2,'Miércoles','12:50','Vespertino'),
+(1,2,'Miércoles','16:00','Vespertino'),
+(1,2,'Miércoles','16:45','Vespertino'),
 -- Jueves
 (1,2,'Jueves','06:40','Matutino'),
 (1,2,'Jueves','08:00','Matutino'),
@@ -204,12 +204,12 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 (2,1,'Martes',  '15:30','Vespertino'),(2,1,'Martes','16:10','Vespertino'),
 (2,1,'Martes',  '16:20','Vespertino'),
 -- Miércoles
-(2,1,'Miercoles','06:15','Matutino'),(2,1,'Miercoles','07:00','Matutino'),
-(2,1,'Miercoles','08:00','Matutino'),(2,1,'Miercoles','09:25','Matutino'),
-(2,1,'Miercoles','10:40','Matutino'),(2,1,'Miercoles','12:10','Vespertino'),
-(2,1,'Miercoles','12:20','Vespertino'),(2,1,'Miercoles','14:40','Vespertino'),
-(2,1,'Miercoles','15:30','Vespertino'),(2,1,'Miercoles','16:10','Vespertino'),
-(2,1,'Miercoles','16:20','Vespertino'),
+(2,1,'Miércoles','06:15','Matutino'),(2,1,'Miércoles','07:00','Matutino'),
+(2,1,'Miércoles','08:00','Matutino'),(2,1,'Miércoles','09:25','Matutino'),
+(2,1,'Miércoles','10:40','Matutino'),(2,1,'Miércoles','12:10','Vespertino'),
+(2,1,'Miércoles','12:20','Vespertino'),(2,1,'Miércoles','14:40','Vespertino'),
+(2,1,'Miércoles','15:30','Vespertino'),(2,1,'Miércoles','16:10','Vespertino'),
+(2,1,'Miércoles','16:20','Vespertino'),
 -- Jueves
 (2,1,'Jueves',  '06:15','Matutino'),(2,1,'Jueves',  '07:00','Matutino'),
 (2,1,'Jueves',  '08:00','Matutino'),(2,1,'Jueves',  '09:25','Matutino'),
@@ -234,8 +234,8 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
 (1,3,'Martes','07:15','Matutino'),
 (1,3,'Martes','12:20','Vespertino'),
-(1,3,'Miercoles','07:15','Matutino'),
-(1,3,'Miercoles','12:20','Vespertino'),
+(1,3,'Miércoles','07:15','Matutino'),
+(1,3,'Miércoles','12:20','Vespertino'),
 (1,3,'Jueves','07:15','Matutino'),
 (1,3,'Jueves','12:20','Vespertino');
 
@@ -243,8 +243,8 @@ INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_seman
 INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
 (3,1,'Martes','11:20','Matutino'),
 (3,1,'Martes','16:20','Vespertino'),
-(3,1,'Miercoles','11:20','Matutino'),
-(3,1,'Miercoles','16:20','Vespertino'),
+(3,1,'Miércoles','11:20','Matutino'),
+(3,1,'Miércoles','16:20','Vespertino'),
 (3,1,'Jueves','11:20','Matutino'),
 (3,1,'Jueves','16:20','Vespertino');
 

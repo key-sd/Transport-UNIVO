@@ -87,12 +87,9 @@ function cambiarEstado(id, estadoActual, archivo, entidad, callback, textos) {
         title: `¿${accionTexto.charAt(0).toUpperCase() + accionTexto.slice(1)} ${entidad}?`,
         text: esDesactivar ? textoDesactivar : textoActivar,
         icon: esDesactivar ? 'warning' : 'question',
-        iconColor: esDesactivar ? '#ef4444' : '#16a34a',
         showCancelButton: true,
         confirmButtonText: `Sí, ${accionTexto}`,
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: esDesactivar ? '#ef4444' : '#16a34a',
-        cancelButtonColor: '#64748b',
         width: '380px',
         padding: '1.5rem',
         customClass: {
@@ -101,7 +98,6 @@ function cambiarEstado(id, estadoActual, archivo, entidad, callback, textos) {
             htmlContainer: 'fs-6 text-muted',
             confirmButton: 'btn btn-sm px-4 rounded-3',
             cancelButton:  'btn btn-sm px-4 rounded-3',
-            icon:          'swal-icono-chico'
         }
     }).then(result => {
         if (!result.isConfirmed) return;
@@ -133,9 +129,7 @@ if (txtFechaHoy && typeof moment !== 'undefined') {
     txtFechaHoy.textContent = diasES[hoy.day()] + ', ' + hoy.date() + ' de ' + mesesES[hoy.month()] + ' de ' + hoy.year();
 }
 
-// ══════════════════════════════════════════════════════════════
 // PARA LA SECCIÓN DE CONDUCTORES
-// ══════════════════════════════════════════════════════════════
 const elModalConductor   = document.getElementById('modalConductor');
 const modalBS            = elModalConductor ? new bootstrap.Modal(elModalConductor) : null;
 const btnAbrir           = document.getElementById('btnAbrirModal');
@@ -408,10 +402,7 @@ function editarConductor(id) {
     if (modalBS) modalBS.show();
 }
 
-// ══════════════════════════════════════════════════════════════
 // SECCIÓN: GESTIÓN DE CRONOGRAMA DE HORARIOS
-// ══════════════════════════════════════════════════════════════
-
 const elModalCronograma     = document.getElementById('modalCronograma');
 const modalCronogramaBS     = elModalCronograma ? new bootstrap.Modal(elModalCronograma) : null;
 const btnAbrirCronograma    = document.getElementById('btnAbrirModalCronograma');
@@ -423,7 +414,7 @@ const contenedorTarjetasCronograma = document.getElementById('contenedorTarjetas
 const buscadorMobileCronograma     = document.getElementById('buscadorMobileCronograma');
 
 let cronogramas         = [];
-let modoModalCronograma = 'crear'; // 'crear' | 'ver' | 'editar'
+let modoModalCronograma = 'crear';
 let rutaEditando        = null;
 
 const ORDEN_DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
@@ -1103,7 +1094,7 @@ function eliminarHoraDia(horarioId) {
     });
 }
 
-// ── utilidades del acordeón ───────────────────────────────────
+// utilidades del acordeón
 function actualizarContadorDia(sid) {
     const matutinos   = document.querySelectorAll(`#lista-matutino-${sid} .hora-chip`).length;
     const vespertinos = document.querySelectorAll(`#lista-vespertino-${sid} .hora-chip`).length;
@@ -1122,9 +1113,7 @@ function ordenarChips(lista) {
     chips.forEach(c => lista.appendChild(c));
 }
 
-// ══════════════════════════════════════════════════════════════
 // PARA LA SECCIÓN DE UNIDADES
-// ══════════════════════════════════════════════════════════════
 const elModalUnidad              = document.getElementById('modalUnidad');
 const modalUnidadBS              = elModalUnidad ? new bootstrap.Modal(elModalUnidad) : null;
 const btnAbrirUnidad             = document.getElementById('btnAbrirModalUnidad');
@@ -1369,11 +1358,7 @@ function editarUnidad(id) {
     if (modalUnidadBS) modalUnidadBS.show();
 }
 
-// ══════════════════════════════════════════════════════════════
 // SECCIÓN: GESTIÓN DE ASIGNACIONES
-// Flujo: admin selecciona ruta(s) → ve horarios disponibles →
-//        elige conductor + unidad → guarda
-// ══════════════════════════════════════════════════════════════
 
 const ORDEN_DIAS_ASIG = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const ABREV_DIAS      = { Lunes:'Lun', Martes:'Mar', 'Miércoles':'Mié', Jueves:'Jue',
@@ -1409,9 +1394,7 @@ let catalogoCache      = null;   // cache de listar_catalogos.php
 let conductorDetalleId = null;
 let asigReasignarId    = null;
 
-// ══════════════════════════════════════════════════════════════
 // CARGA INICIAL
-// ══════════════════════════════════════════════════════════════
 if (cuerpoTablaAsig) {
     document.readyState === 'loading'
         ? document.addEventListener('DOMContentLoaded', cargarAsignaciones)
@@ -1537,11 +1520,8 @@ function renderTarjetasAsig(lista) {
     });
 });
 
-// ══════════════════════════════════════════════════════════════
 // MODAL NUEVA ASIGNACIÓN
 // Flujo: 1) Seleccionar ruta(s)  2) Elegir horarios  3) Conductor + Unidad
-// ══════════════════════════════════════════════════════════════
-
 if (btnNuevaAsignacion) {
     btnNuevaAsignacion.addEventListener('click', () => {
         resetearModalNuevaAsig();
@@ -1634,7 +1614,7 @@ function poblarSelectsModal(data) {
     }
 }
 
-// ── Cuando cambia origen o destino → regenerar grilla de horarios ──
+// Cuando cambia origen o destino → regenerar grilla de horarios 
 ['asig_origen','asig_destino'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', actualizarGrillaHorarios);
@@ -1744,7 +1724,7 @@ if (btnDeselTodos) {
     });
 }
 
-// ── Guardar nueva asignación ──
+//Guardar nueva asignación
 if (btnGuardarAsig) {
     btnGuardarAsig.addEventListener('click', guardarNuevaAsignacion);
 }
@@ -1795,10 +1775,7 @@ function guardarNuevaAsignacion() {
         });
 }
 
-// ══════════════════════════════════════════════════════════════
 // MODAL DETALLE CONDUCTOR
-// ══════════════════════════════════════════════════════════════
-
 function abrirDetalleConductor(id, nombre, estado) {
     conductorDetalleId = id;
 
@@ -1875,10 +1852,7 @@ function recargarAsignacionesDetalle() {
         .then(data => renderAsignacionesDetalle(data.asignaciones || []));
 }
 
-// ══════════════════════════════════════════════════════════════
 // MODAL REASIGNAR
-// ══════════════════════════════════════════════════════════════
-
 function abrirModalReasignar(asigId, unidadActualId) {
     asigReasignarId = asigId;
 
@@ -1961,10 +1935,7 @@ if (btnGuardarReasignacion) {
     });
 }
 
-// ══════════════════════════════════════════════════════════════
 // UTILIDADES
-// ══════════════════════════════════════════════════════════════
-
 function formatHora12(horaStr) {
     if (!horaStr) return '—';
     const [h, m] = horaStr.split(':').map(Number);

@@ -70,7 +70,7 @@ http://localhost/phpmyadmin/
 - Crear una nueva base de datos con el siguiente nombre:
 
 ```txt
-transport_univo
+db_transport_univo
 ```
 
 - Importar desde el repositorio Transport-UNIVO el script de la base de datos:

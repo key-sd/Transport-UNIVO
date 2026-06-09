@@ -639,3 +639,8 @@ body {
 .swal2-actions button.swal2-deny:focus {
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
 }
+
+.swal2-icon.swal2-warning {
+    border-color: #dc2626 !important;
+    color: #dc2626 !important;
+}
