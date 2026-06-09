@@ -1,7 +1,6 @@
 <?php
 session_start();
-date_default_timezone_set('America/El_Salvador'); //Agregué esto para asegurar que las fechas y horas se manejen en la zona horaria correcta
-
+date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
@@ -26,14 +25,16 @@ $dia_hoy    = $dias[date('N')];
 $fecha_hoy  = date('Y-m-d');
 $usuario_id = $_SESSION['usuario_id'];
 
-// Se agrega LEFT JOIN con viajes para obtener el estado_recorrido real del día
-// Si el viaje no existe aún en la tabla viajes, estado_recorrido llega como NULL
+// NOTA: se usa NULL cuando no hay registro en viajes (COALESCE devuelve NULL, no '').
+// El JS interpreta NULL/vacío como "pendiente" y cualquier valor de estado_recorrido
+// como el estado real del viaje (en_sede, proximo_salir, en_camino, llegando, completado).
 $sql = "
 SELECT
-    ch.hora_salida                  AS hora_salida,
-    so.nombre                       AS origen,
-    sd.nombre                       AS destino,
-    COALESCE(v.estado_recorrido, '') AS estado_recorrido
+    ac.id                                AS id_asignacion,
+    ch.hora_salida                       AS hora_salida,
+    so.nombre                            AS origen,
+    sd.nombre                            AS destino,
+    v.estado_recorrido                   AS estado_recorrido
 FROM conductores c
 INNER JOIN asignaciones_conductor ac
     ON ac.id_conductor = c.id AND ac.activo = 1
@@ -56,6 +57,9 @@ $resultado = $stmt->get_result();
 $horarios  = [];
 
 while ($fila = $resultado->fetch_assoc()) {
+    // estado_recorrido llega como NULL si no hay registro en viajes.
+    // Lo normalizamos a string vacío para que el JS pueda comparar fácilmente.
+    $fila['estado_recorrido'] = $fila['estado_recorrido'] ?? '';
     $horarios[] = $fila;
 }
 

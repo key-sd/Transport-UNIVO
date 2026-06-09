@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+date_default_timezone_set('America/El_Salvador');
 $_SESSION = [];
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();

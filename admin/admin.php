@@ -8,6 +8,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
 }
 
 include("../includes/conexion.php");
+date_default_timezone_set('America/El_Salvador');
 
 // total de conductores — tabla usuarios y roles ya existen
 $q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'conductor'");

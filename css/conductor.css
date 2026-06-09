@@ -433,6 +433,52 @@ body {
     margin: 10px 0 0;
 }
 
+/* Mensaje de bloqueo de edición de estado */
+.msg-bloqueo-estado {
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+    text-align: center;
+    margin: 10px 0 0;
+    min-height: 18px;
+    line-height: 1.4;
+    transition: opacity 0.3s ease;
+}
+
+/* Botón guardar deshabilitado */
+.btn-guardar-estado:disabled {
+    cursor: not-allowed;
+    transition: opacity 0.3s ease, transform 0.2s;
+}
+.btn-guardar-estado:disabled:hover {
+    background: #f5c518;
+    transform: none;
+    box-shadow: 0 2px 8px #f5c51830;
+}
+
+/* ── Estado bloqueado (antes de que el JS habilite) ── */
+.btn-estado:disabled,
+.btn-estado[disabled] {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.btn-capacidad:disabled,
+.btn-capacidad[disabled] {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.btn-guardar-estado:disabled,
+.btn-guardar-estado[disabled] {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: 0 2px 8px #f5c51830 !important;
+}
+
 /* Mapa */
 .card-mapa .card-titulo { justify-content: space-between; }
 

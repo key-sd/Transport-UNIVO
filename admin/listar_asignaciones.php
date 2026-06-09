@@ -12,6 +12,7 @@ solo_admin();
 ini_set('display_errors', 0);
 error_reporting(0);
 
+date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
 $id_conductor = intval($_GET['id_conductor'] ?? 0);
