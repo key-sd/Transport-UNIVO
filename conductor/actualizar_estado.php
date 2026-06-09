@@ -13,8 +13,9 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
 include("../includes/conexion.php");
 header('Content-Type: application/json; charset=utf-8');
 
-$estado    = $_POST['estado']    ?? '';
-$capacidad = $_POST['capacidad'] ?? '';
+$estado        = $_POST['estado']        ?? '';
+$capacidad     = $_POST['capacidad']     ?? '';
+$id_asignacion = $_POST['id_asignacion'] ?? null;
 
 $estados_validos  = ['en_sede', 'proximo_salir', 'en_camino', 'llegando'];
 $capacidad_valida = ['disponible', 'medio_lleno', 'lleno'];
@@ -51,53 +52,98 @@ $fecha = date('Y-m-d');
 // PASO 1: ¿hay un viaje activo hoy? (iniciado pero no completado)
 // Si lo hay → el conductor lo está operando, permitir actualizar SIN validar tiempo.
 // ══════════════════════════════════════════════════════════════════════════════
-$stmt = $conn->prepare("
-    SELECT
-        ac.id       AS id_asignacion,
-        ch.hora_salida,
-        v.estado_recorrido
-    FROM conductores c
-    INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
-    INNER JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
-                                        AND ch.dia_semana = ? AND ch.estado = 1
-    INNER JOIN viajes v                  ON v.id_asignacion = ac.id AND v.fecha = ?
-    WHERE c.id = ?
-      AND v.estado_recorrido NOT IN ('completado')
-    ORDER BY ch.hora_salida ASC
-    LIMIT 1
-");
-$stmt->bind_param('ssi', $hoy_dia_semana, $fecha, $cond_id);
-$stmt->execute();
-$viajeActivo = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$viajeActivo = null;
+if ($id_asignacion) {
+    // PASO 1 con id_asignacion específica
+    $stmt = $conn->prepare("
+        SELECT
+            ac.id       AS id_asignacion,
+            ch.hora_salida,
+            v.estado_recorrido
+        FROM conductores c
+        INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
+        INNER JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
+                                            AND ch.dia_semana = ? AND ch.estado = 1
+        INNER JOIN viajes v                  ON v.id_asignacion = ac.id AND v.fecha = ?
+        WHERE c.id = ? AND ac.id = ?
+          AND v.estado_recorrido NOT IN ('completado')
+        LIMIT 1
+    ");
+    $stmt->bind_param('ssii', $hoy_dia_semana, $fecha, $cond_id, $id_asignacion);
+    $stmt->execute();
+    $viajeActivo = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+} else {
+    // Fallback: PASO 1 original (el primer viaje activo del día)
+    $stmt = $conn->prepare("
+        SELECT
+            ac.id       AS id_asignacion,
+            ch.hora_salida,
+            v.estado_recorrido
+        FROM conductores c
+        INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
+        INNER JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
+                                            AND ch.dia_semana = ? AND ch.estado = 1
+        INNER JOIN viajes v                  ON v.id_asignacion = ac.id AND v.fecha = ?
+        WHERE c.id = ?
+          AND v.estado_recorrido NOT IN ('completado')
+        ORDER BY ch.hora_salida ASC
+        LIMIT 1
+    ");
+    $stmt->bind_param('ssi', $hoy_dia_semana, $fecha, $cond_id);
+    $stmt->execute();
+    $viajeActivo = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+}
 
 if ($viajeActivo) {
     $crono = $viajeActivo;
 
 } else {
     // ══════════════════════════════════════════════════════════════════════════
-    // PASO 2: sin viaje activo → buscar el primer viaje PENDIENTE del día.
-    // La query solo trae hora_salida — el cálculo de minutos se hace en PHP
-    // para usar el timezone correcto y NO depender de CURRENT_TIME() de MySQL.
+    // PASO 2: sin viaje activo → buscar el viaje PENDIENTE.
     // ══════════════════════════════════════════════════════════════════════════
-    $stmt = $conn->prepare("
-        SELECT
-            ac.id       AS id_asignacion,
-            ch.hora_salida
-        FROM conductores c
-        INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
-        INNER JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
-                                            AND ch.dia_semana = ? AND ch.estado = 1
-        LEFT  JOIN viajes v                  ON v.id_asignacion = ac.id AND v.fecha = ?
-        WHERE c.id = ?
-          AND v.id IS NULL
-        ORDER BY ch.hora_salida ASC
-        LIMIT 1
-    ");
-    $stmt->bind_param('ssi', $hoy_dia_semana, $fecha, $cond_id);
-    $stmt->execute();
-    $proximoPendiente = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
+    $proximoPendiente = null;
+    if ($id_asignacion) {
+        // Buscar esta asignación pendiente específica
+        $stmt = $conn->prepare("
+            SELECT
+                ac.id       AS id_asignacion,
+                ch.hora_salida
+            FROM conductores c
+            INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
+            INNER JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
+                                                AND ch.dia_semana = ? AND ch.estado = 1
+            LEFT  JOIN viajes v                  ON v.id_asignacion = ac.id AND v.fecha = ?
+            WHERE c.id = ? AND ac.id = ?
+              AND v.id IS NULL
+            LIMIT 1
+        ");
+        $stmt->bind_param('ssii', $hoy_dia_semana, $fecha, $cond_id, $id_asignacion);
+        $stmt->execute();
+        $proximoPendiente = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+    } else {
+        // Fallback: PASO 2 original (el primer viaje pendiente del día)
+        $stmt = $conn->prepare("
+            SELECT
+                ac.id       AS id_asignacion,
+                ch.hora_salida
+            FROM conductores c
+            INNER JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
+            INNER JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
+                                                AND ch.dia_semana = ? AND ch.estado = 1
+            LEFT  JOIN viajes v                  ON v.id_asignacion = ac.id AND v.fecha = ?
+            WHERE c.id = ?
+              AND v.id IS NULL
+            ORDER BY ch.hora_salida ASC
+            LIMIT 1
+        ");
+        $stmt->bind_param('ssi', $hoy_dia_semana, $fecha, $cond_id);
+        $stmt->execute();
+        $proximoPendiente = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+    }
 
     if (!$proximoPendiente) {
         echo json_encode([
@@ -128,8 +174,7 @@ if ($viajeActivo) {
 
         echo json_encode([
             'success' => false,
-            'message' => "Tu próxima salida es en {$tiempo_texto}. "
-                       . "Solo puedes actualizar el estado 20 minutos antes de salir."
+            'message' => 'No puedes editar el estado en este momento.'
         ]);
         exit();
     }

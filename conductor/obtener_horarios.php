@@ -30,6 +30,7 @@ $usuario_id = $_SESSION['usuario_id'];
 // como el estado real del viaje (en_sede, proximo_salir, en_camino, llegando, completado).
 $sql = "
 SELECT
+    ac.id                                AS id_asignacion,
     ch.hora_salida                       AS hora_salida,
     so.nombre                            AS origen,
     sd.nombre                            AS destino,

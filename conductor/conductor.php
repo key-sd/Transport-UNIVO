@@ -114,19 +114,19 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                 <span>Estado del microbús</span>
             </div>
             <div class="estado-grid">
-                <button class="btn-estado" data-estado="en_sede">
+                <button class="btn-estado" data-estado="en_sede" disabled>
                     <i class="ri-map-pin-line"></i>
                     <span>En sede</span>
                 </button>
-                <button class="btn-estado" data-estado="proximo_salir">
+                <button class="btn-estado" data-estado="proximo_salir" disabled>
                     <i class="ri-bus-2-line"></i>
                     <span>Próximo a salir</span>
                 </button>
-                <button class="btn-estado" data-estado="en_camino">
+                <button class="btn-estado" data-estado="en_camino" disabled>
                     <i class="ri-road-map-line"></i>
                     <span>En camino</span>
                 </button>
-                <button class="btn-estado" data-estado="llegando">
+                <button class="btn-estado" data-estado="llegando" disabled>
                     <i class="ri-flag-line"></i>
                     <span>En sede destino</span>
                 </button>
@@ -134,20 +134,21 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
             <div class="capacidad-grupo">
                 <p class="capacidad-label">Capacidad actual</p>
                 <div class="capacidad-opciones">
-                    <button class="btn-capacidad" data-cap="disponible">
+                    <button class="btn-capacidad" data-cap="disponible" disabled>
                         <i class="ri-checkbox-blank-circle-line"></i> Disponible
                     </button>
-                    <button class="btn-capacidad" data-cap="medio_lleno">
+                    <button class="btn-capacidad" data-cap="medio_lleno" disabled>
                         <i class="ri-checkbox-blank-circle-fill" style="color:#f5c518"></i> Medio lleno
                     </button>
-                    <button class="btn-capacidad" data-cap="lleno">
+                    <button class="btn-capacidad" data-cap="lleno" disabled>
                         <i class="ri-checkbox-blank-circle-fill" style="color:#ef4444"></i> Lleno
                     </button>
                 </div>
             </div>
-            <button class="btn-guardar-estado" id="btn-guardar-estado">
+            <button class="btn-guardar-estado" id="btn-guardar-estado" disabled>
                 <i class="ri-save-line me-2"></i>Guardar estado
             </button>
+            <p class="msg-bloqueo-estado" id="msg-bloqueo-estado"></p>
             <p class="ultima-actualizacion" id="ultima-actualizacion"></p>
         </section>
         <!-- TARJETA: MAPA -->
