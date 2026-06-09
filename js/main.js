@@ -1382,9 +1382,22 @@ const btnGuardarAsig         = document.getElementById('btnGuardarAsig');
 const modalDetalleConductorEl  = document.getElementById('modalDetalleConductor');
 const modalDetalleConductorBS  = modalDetalleConductorEl ? new bootstrap.Modal(modalDetalleConductorEl) : null;
 const alertaDetalle            = document.getElementById('alertaDetalle');
+const btnsVistaDetalle         = document.querySelectorAll('.btn-vista-detalle');
+const vistaTablaDetalle        = document.getElementById('vistaTablaDetalle');
+const vistaRutaDetalle         = document.getElementById('vistaRutaDetalle');
+const gruposRutaDia            = document.getElementById('gruposRutaDia');
+
+if (btnsVistaDetalle.length) {
+    btnsVistaDetalle.forEach(btn => {
+        btn.addEventListener('click', () => cambiarVistaDetalle(btn.dataset.vista || 'tabla'));
+    });
+}
 
 // Modal reasignar
 const modalReasignarEl         = document.getElementById('modalReasignar');
+if (modalReasignarEl && modalDetalleConductorEl?.contains(modalReasignarEl)) {
+    document.body.appendChild(modalReasignarEl);
+}
 const modalReasignarBS         = modalReasignarEl ? new bootstrap.Modal(modalReasignarEl) : null;
 const btnGuardarReasignacion   = document.getElementById('btnGuardarReasignacion');
 
@@ -1393,6 +1406,16 @@ let asignaciones       = [];
 let catalogoCache      = null;   // cache de listar_catalogos.php
 let conductorDetalleId = null;
 let asigReasignarId    = null;
+let asignacionesDetalleActuales = [];
+let restaurarDetalleTrasReasignar = false;
+
+if (modalReasignarEl) {
+    modalReasignarEl.addEventListener('hidden.bs.modal', () => {
+        if (!restaurarDetalleTrasReasignar) return;
+        restaurarDetalleTrasReasignar = false;
+        if (modalDetalleConductorBS && conductorDetalleId) modalDetalleConductorBS.show();
+    });
+}
 
 // CARGA INICIAL
 if (cuerpoTablaAsig) {
@@ -1778,6 +1801,7 @@ function guardarNuevaAsignacion() {
 // MODAL DETALLE CONDUCTOR
 function abrirDetalleConductor(id, nombre, estado) {
     conductorDetalleId = id;
+    cambiarVistaDetalle('tabla');
 
     const avatar = document.getElementById('detalleAvatar');
     const nomEl  = document.getElementById('detalleNombre');
@@ -1807,10 +1831,12 @@ function abrirDetalleConductor(id, nombre, estado) {
 }
 
 function renderAsignacionesDetalle(asigs) {
+    asignacionesDetalleActuales = Array.isArray(asigs) ? asigs : [];
     const cuerpo = document.getElementById('cuerpoTablaAsignacionesDetalle');
+    renderAsignacionesPorRuta(asignacionesDetalleActuales);
     if (!cuerpo) return;
 
-    if (!asigs.length) {
+    if (!asignacionesDetalleActuales.length) {
         cuerpo.innerHTML = `
             <tr><td colspan="6" class="tabla-empty">
                 <i class="ri-calendar-close-line"></i> Sin asignaciones activas.
@@ -1818,7 +1844,7 @@ function renderAsignacionesDetalle(asigs) {
         return;
     }
 
-    cuerpo.innerHTML = asigs.map(a => `
+    cuerpo.innerHTML = asignacionesDetalleActuales.map(a => `
         <tr class="animate__animated animate__fadeIn">
             <td>
                 <span class="fw-medium text-dark">${escHtml(a.sede_origen)}</span>
@@ -1845,6 +1871,76 @@ function renderAsignacionesDetalle(asigs) {
     ).join('');
 }
 
+function cambiarVistaDetalle(vista) {
+    const esRuta = vista === 'ruta';
+
+    if (vistaTablaDetalle) vistaTablaDetalle.classList.toggle('d-none', esRuta);
+    if (vistaRutaDetalle)  vistaRutaDetalle.classList.toggle('d-none', !esRuta);
+
+    btnsVistaDetalle.forEach(btn => {
+        btn.classList.toggle('activo-vista', (btn.dataset.vista || 'tabla') === vista);
+    });
+
+    if (esRuta) renderAsignacionesPorRuta(asignacionesDetalleActuales);
+}
+
+function renderAsignacionesPorRuta(asigs) {
+    if (!gruposRutaDia) return;
+
+    if (!asignacionesDetalleActuales.length) {
+        gruposRutaDia.innerHTML = `<div class="tabla-empty"><i class="ri-calendar-close-line"></i> Sin asignaciones activas.</div>`;
+        return;
+    }
+
+    const grupos = asigs.reduce((acc, a) => {
+        const rutaKey = `${a.sede_origen}|${a.sede_destino}`;
+        if (!acc[rutaKey]) {
+            acc[rutaKey] = {
+                origen: a.sede_origen,
+                destino: a.sede_destino,
+                dias: {}
+            };
+        }
+        if (!acc[rutaKey].dias[a.dia_semana]) acc[rutaKey].dias[a.dia_semana] = [];
+        acc[rutaKey].dias[a.dia_semana].push(a);
+        return acc;
+    }, {});
+
+    gruposRutaDia.innerHTML = Object.values(grupos).map(grupo => {
+        const diasHtml = ORDEN_DIAS_ASIG
+            .filter(dia => grupo.dias[dia]?.length)
+            .map(dia => {
+                const chips = grupo.dias[dia]
+                    .sort((a, b) => String(a.hora_salida).localeCompare(String(b.hora_salida)))
+                    .map(a => `
+                        <div class="asig-horario-chip">
+                            <div class="asig-chip-hora">${formatHora12(a.hora_salida)}</div>
+                            <div class="asig-chip-unidad">${escHtml(a.unidad)}</div>
+                            <button class="asig-chip-btn-editar"
+                                    onclick="abrirModalReasignar(${a.asig_id}, ${a.unidad_id})"
+                                    title="Reasignar conductor o unidad">
+                                <i class="ri-edit-2-line"></i>
+                            </button>
+                        </div>`).join('');
+
+                return `
+                    <div class="mb-3">
+                        <div class="asig-grupo-dia-label">${escHtml(dia)}</div>
+                        <div class="d-flex flex-wrap gap-2">${chips}</div>
+                    </div>`;
+            }).join('');
+
+        return `
+            <div class="asig-grupo-ruta mb-3 animate__animated animate__fadeIn">
+                <div class="asig-grupo-ruta-header">
+                    <span>${escHtml(grupo.origen)}</span>
+                    <i class="ri-arrow-right-line mx-2"></i>
+                    <span>${escHtml(grupo.destino)}</span>
+                </div>
+                <div class="asig-grupo-ruta-body">${diasHtml}</div>
+            </div>`;
+    }).join('');
+}
 function recargarAsignacionesDetalle() {
     if (!conductorDetalleId) return;
     fetch(`listar_asignaciones.php?id_conductor=${conductorDetalleId}`)
@@ -1893,7 +1989,16 @@ function abrirModalReasignar(asigId, unidadActualId) {
         });
     }
 
-    if (modalReasignarBS) modalReasignarBS.show();
+    if (modalReasignarBS) {
+        restaurarDetalleTrasReasignar = Boolean(modalDetalleConductorEl?.classList.contains('show'));
+
+        if (restaurarDetalleTrasReasignar && modalDetalleConductorBS) {
+            modalDetalleConductorEl.addEventListener('hidden.bs.modal', () => modalReasignarBS.show(), { once: true });
+            modalDetalleConductorBS.hide();
+        } else {
+            modalReasignarBS.show();
+        }
+    }
 }
 
 if (btnGuardarReasignacion) {
@@ -1978,3 +2083,5 @@ function mostrarAlertaGlobal(tipo, mensaje) {
         setTimeout(() => { alertaGlobal.classList.add('d-none'); alertaGlobal.classList.remove('animate__fadeOut'); }, 500);
     }, 4000);
 }
+
+
