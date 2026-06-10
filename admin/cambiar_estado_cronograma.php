@@ -14,7 +14,7 @@ if (!$id) {
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE cronogramas SET estado = ? WHERE id = ?");
+$stmt = $conexion->prepare("UPDATE cronogramas SET estado = ? WHERE id = ?");
 $stmt->bind_param('ii', $estado, $id);
 $stmt->execute();
 $stmt->close();
