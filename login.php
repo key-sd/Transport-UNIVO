@@ -14,11 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     /* ── Prepared statement — sin inyección SQL ── */
-    $sql  = "SELECT u.id, u.codigo, u.password_hash, r.nombre AS rol
-             FROM usuarios u
-             INNER JOIN roles r ON u.rol_id = r.id
-             WHERE u.codigo = ?
-             LIMIT 1";
+    $sql  = "SELECT u.id, u.codigo, u.password_hash, u.estado, r.nombre AS rol
+            FROM usuarios u
+            INNER JOIN roles r ON u.rol_id = r.id
+            WHERE u.codigo = ?  
+            LIMIT 1";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('s', $codigo);
@@ -29,6 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $datos = $resultado->fetch_assoc();
 
+        /*si el usuario está desactivado*/
+        if ((int)$datos['estado'] === 0) {
+            $_SESSION['error'] = "Tu usuario ha sido desactivado. Contacta al administrador.";
+            header("Location: login.php");
+            exit();
+        }
         /* ── Verificar contraseña con bcrypt ── */
         if (password_verify($password, $datos['password_hash'])) {
 

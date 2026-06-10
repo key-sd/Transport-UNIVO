@@ -85,18 +85,19 @@ $sql = "
         c.id            AS conductor_id,
         c.nombre,
         c.apellido,
-        c.estado        AS conductor_estado,
+        us.estado        AS conductor_estado,
         so.nombre       AS sede_origen,
         sd.nombre       AS sede_destino,
-        ch.dia_semana,
+        ch.dia_semana,  
         u.nombre        AS unidad_nombre,
         u.placa
     FROM conductores c
+    INNER JOIN usuarios us ON us.id = c.usuario_id
     LEFT JOIN asignaciones_conductor ac ON ac.id_conductor = c.id AND ac.activo = 1
-    LEFT JOIN cronograma_horarios ch    ON ch.id = ac.id_cronograma
-    LEFT JOIN sedes so                  ON so.id = ch.id_sede_origen
-    LEFT JOIN sedes sd                  ON sd.id = ch.id_sede_destino
-    LEFT JOIN unidades u                ON u.id  = ac.id_unidad
+    LEFT JOIN cronograma_horarios ch ON ch.id = ac.id_cronograma
+    LEFT JOIN sedes so ON so.id = ch.id_sede_origen
+    LEFT JOIN sedes sd ON sd.id = ch.id_sede_destino
+    LEFT JOIN unidades u ON u.id  = ac.id_unidad
     ORDER BY c.id,
              FIELD(ch.dia_semana,'Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo')
 ";

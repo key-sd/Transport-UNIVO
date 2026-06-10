@@ -8,10 +8,10 @@ header('Content-Type: application/json; charset=utf-8');
 
 // trae todos los conductores con su código asignado, para mostrarlos en la tabla del admin
 // los activos aparecen primero, luego los inactivos, ambos grupos ordenados alfabéticamente
-$sql = "SELECT c.id, c.nombre, c.apellido, c.telefono, c.estado, u.codigo
+$sql = "SELECT c.id, c.nombre, c.apellido, c.telefono, u.estado, u.codigo
         FROM conductores c
         INNER JOIN usuarios u ON u.id = c.usuario_id
-        ORDER BY c.estado DESC, c.nombre ASC, c.apellido ASC";
+        ORDER BY u.estado DESC, c.nombre ASC, c.apellido ASC";
 
 $resultado = $conn->query($sql);
 

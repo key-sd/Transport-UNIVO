@@ -22,7 +22,13 @@ if ($id <= 0 || ($estado !== 0 && $estado !== 1)) {
 }
 
 // Preparar la actualización en la tabla conductores
-$stmt = $conn->prepare("UPDATE conductores SET estado = ? WHERE id = ?");
+$stmt = $conn->prepare("
+    UPDATE usuarios u
+    INNER JOIN conductores c
+        ON c.usuario_id = u.id
+    SET u.estado = ?
+    WHERE c.id = ?
+");
 $stmt->bind_param('ii', $estado, $id);
 
 if ($stmt->execute()) {

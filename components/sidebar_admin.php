@@ -20,7 +20,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
         </a>
         <p class="sidebar-seccion">Usuarios</p>
         <a href="section_conductor.php" class="sidebar-item <?php echo $pagina_actual == 'section_conductor.php' ? 'activo' : ''; ?>">
-            <i class="ri-steering-2-line"></i>
+            <i class="ri-user-2-line"></i>
             <span>Conductores</span>
         </a>
         <p class="sidebar-seccion">Operaciones</p>
@@ -64,7 +64,7 @@ $pagina_actual = basename($_SERVER['PHP_SELF']);
             </a>
             <p class="sidebar-seccion">Usuarios</p>
             <a href="section_conductor.php" class="sidebar-item <?php echo $pagina_actual == 'section_conductor.php' ? 'activo' : ''; ?>">
-                <i class="ri-steering-2-line"></i>
+                <i class="ri-user-2-line"></i>
                 <span>Conductores</span>
             </a>
             <p class="sidebar-seccion">Operaciones</p>

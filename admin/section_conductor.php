@@ -42,7 +42,7 @@ include("../includes/conexion.php");
             <div class="d-flex justify-content-between align-items-center mb-4 animate__animated animate__fadeInDown">
                 <div>
                     <h4 class="fw-semibold mb-0" style="color:#0d2346;">
-                        <i class="ri-steering-2-line me-2" style="color:#f5c518;"></i>Gestión de Conductores
+                        <i class="ri-user-2-line me-2" style="color:#f5c518;"></i>Gestión de Conductores
                     </h4>
                     <p class="text-muted small mb-0">Administra los conductores registrados en el sistema</p>
                 </div>
@@ -74,7 +74,7 @@ include("../includes/conexion.php");
                                 <th>ID</th>
                                 <th>Conductor</th>
                                 <th>Teléfono</th>
-                                <th>Código universitario</th>
+                                <th>Código</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -110,7 +110,7 @@ include("../includes/conexion.php");
                         <div class="modal-custom-header">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="modal-icono">
-                                    <i class="ri-steering-2-line"></i>
+                                    <i class="ri-user-2-line"></i>
                                 </div>
                                 <h5 class="mb-0 fw-semibold text-white" id="modalTitle">Nuevo Conductor</h5>
                             </div>
@@ -167,7 +167,7 @@ include("../includes/conexion.php");
 
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <label class="form-label fw-medium">Código universitario *</label>
+                                        <label class="form-label fw-medium">Código *</label>
                                         <div class="input-group campo-input-group">
                                             <span class="input-group-text border-end-0">
                                                 <i class="ri-id-card-line text-secondary"></i>
@@ -183,6 +183,9 @@ include("../includes/conexion.php");
                                                 <i class="ri-lock-line text-secondary"></i>
                                             </span>
                                             <input type="password" id="password" name="password" class="form-control border-start-0" placeholder="Mín. 8 caracteres" required autocomplete="new-password">
+                                            <button type="button" class="input-group-text border-start-0" id="btnVerPass">
+                                                <i class="ri-eye-line" id="iconoOjo"></i>
+                                            </button>
                                         </div>
                                         <small id="hintPassword" class="text-muted ms-1"></small>
                                     </div>
@@ -193,6 +196,9 @@ include("../includes/conexion.php");
                                                 <i class="ri-lock-line text-secondary"></i>
                                             </span>
                                             <input type="password" id="confirmar_password" name="confirmar_password" class="form-control border-start-0" placeholder="Repetir" required>
+                                            <button type="button" class="input-group-text border-start-0" id="btnVerConfirmar">
+                                                <i class="ri-eye-line" id="iconoOjoConfirmar"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

@@ -16,6 +16,7 @@ CREATE TABLE `usuarios` (
   `codigo` VARCHAR(20) NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
   `rol_id` INT NOT NULL,
+  `estado` TINYINT(1) DEFAULT 1, -- 1 = Activo, 0 = Inactivo
   UNIQUE KEY `uq_codigo` (`codigo`),
   CONSTRAINT `fk_usuarios_rol`
     FOREIGN KEY (`rol_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT
@@ -28,7 +29,6 @@ CREATE TABLE `conductores` (
   `nombre` VARCHAR(50) NOT NULL,
   `apellido` VARCHAR(50) NOT NULL,
   `telefono` VARCHAR(20) NOT NULL,
-  `estado` TINYINT(1) DEFAULT 1, -- 1 = Activo, 0 = Inactivo
   UNIQUE KEY `uq_conductor_usuario` (`usuario_id`),
   CONSTRAINT `fk_conductor_usuario`
     FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
@@ -76,7 +76,6 @@ CREATE TABLE `asignaciones_conductor` (
   `fecha_inicio` DATE NOT NULL,
   `fecha_fin` DATE DEFAULT NULL,
   `activo` TINYINT(1) DEFAULT 1,
-  UNIQUE KEY `uq_conductor_bloque` (`id_cronograma`, `id_conductor`, `fecha_inicio`),
   CONSTRAINT `fk_ac_cronograma` FOREIGN KEY (`id_cronograma`) REFERENCES `cronograma_horarios` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_ac_conductor` FOREIGN KEY (`id_conductor`) REFERENCES `conductores` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_ac_unidad` FOREIGN KEY (`id_unidad`) REFERENCES `unidades` (`id`) ON DELETE RESTRICT
@@ -122,8 +121,6 @@ CREATE TABLE `ubicaciones` (
   CONSTRAINT `fk_ubicacion_conductor` FOREIGN KEY (`id_conductor`) REFERENCES `conductores` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- TABLA PARA ALMACENAR EL ESTADO DE LAS UNIDADES EN TIEMPO REAL DESDE LA INTERFAZ DEL CONDUCTOR :D
-
 -- VALORES INSERTADOS
 -- Insertar roles
 INSERT INTO `roles` (`nombre`) VALUES
@@ -133,28 +130,28 @@ INSERT INTO `roles` (`nombre`) VALUES
 -- Insertar usuarios
 INSERT INTO `usuarios` (`codigo`, `password_hash`, `rol_id`) VALUES 
 ('a20260001','$2y$10$vqyXr8as1lK//K.JQF3Q2uxC9h4ivZl4Ijj.FfJfcyw.aCIqDA1Pi', 1), 
-('u20260002','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2),
-('c0001','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG', 3),
-('c0002','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG', 3),
-('c0003','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG',3);
-
--- Conductores reales del horario
-INSERT INTO `conductores` (`usuario_id`,`nombre`,`apellido`,`telefono`) VALUES
-(3,'Salvador','Aleman',  '7777-0001'),
-(4,'Oscar',   'Hernandez','7777-0002'),
-(5,'Manuel',  'Ramos',   '7777-0003');
-
--- Vehículos reales
-INSERT INTO `unidades` (`nombre`,`placa`,`capacidad_maxima`) VALUES
-('Coaster Hyundai','HYU-001',20),
-('Coaster Nissan', 'NIS-001',20);
-
+('u20260002','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2);
 -- Insertar sedes
 INSERT INTO `sedes` (`nombre`) VALUES
 ('Sede Central'),
 ('Ciudad Universitaria'),
 ('Campus Agronomia y Veterinaria');
 
+
+-- Insertar usuarios
+INSERT INTO `usuarios` (`codigo`, `password_hash`, `rol_id`) VALUES 
+('c0001','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG', 3),
+('c0002','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG', 3),
+('c0003','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG',3);
+-- Conductores reales del horario
+INSERT INTO `conductores` (`usuario_id`,`nombre`,`apellido`,`telefono`) VALUES
+(3,'Salvador','Aleman',  '7777-0001'),
+(4,'Oscar',   'Hernandez','7777-0002'),
+(5,'Manuel',  'Ramos',   '7777-0003');
+-- Vehículos reales
+INSERT INTO `unidades` (`nombre`,`placa`,`capacidad_maxima`) VALUES
+('Coaster Hyundai','HYU-001',20),
+('Coaster Nissan', 'NIS-001',20);
 --  cronograma de horarios — Martes, Miércoles y Jueves completos
 --  Rutas: 1=SC→CU  2=CU→SC  3=SC→Agro  4=Agro→SC
 

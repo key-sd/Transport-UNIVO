@@ -1025,7 +1025,7 @@ body {
 /* achica el ícono del SweetAlert */
 .swal-icono-chico { width: 48px !important; height: 48px !important; margin-bottom: 0.5rem !important; }
 .swal-icono-chico .swal2-icon-content { font-size: 24px !important; }
-
+.swal-sobre-modal {z-index: 9999 !important;}
 /*botones generales */
 .btn-agregar {
     background: linear-gradient(90deg, #0d2346 0%, #1862a8 100%);

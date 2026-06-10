@@ -115,14 +115,8 @@ include("../includes/conexion.php");
                 <div class="row g-2 mb-3">
                   <div class="col-6">
                     <label class="form-label" style="font-size:12px; color:#64748b; margin-bottom:4px;">Sede origen</label>
-                    <select id="asig_origen" class="form-select form-select-sm">
-                      <option value="">— Origen —</option>
-                    </select>
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label" style="font-size:12px; color:#64748b; margin-bottom:4px;">Sede destino</label>
-                    <select id="asig_destino" class="form-select form-select-sm">
-                      <option value="">— Destino —</option>
+                    <select id="asig_ruta">
+                      <option value="">— Seleccionar ruta —</option>
                     </select>
                   </div>
                 </div>
