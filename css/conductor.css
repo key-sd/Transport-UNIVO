@@ -2,6 +2,11 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 150px;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     background: linear-gradient(180deg, #f0f4f8 0%, #e8eef5 100%);
@@ -151,6 +156,11 @@ body {
 }
 
 /* Cards */
+/*esto sirve para que las secciones se desplacen correctamente*/
+.card-conductor[id] {
+    scroll-margin-top: 150px;
+}
+
 .card-conductor {
     background: #ffffff;
     border: 1px solid #e9eef5;

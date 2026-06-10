@@ -60,13 +60,27 @@ while ($s = mysqli_fetch_assoc($sedes_query)) {
                 </a>
             </div>
         </header>
+        <nav class="pasajero-nav">
+            <a href="#seccion-rutas" class="pasajero-nav-link">
+                <i class="ri-route-line"></i><span>Rutas</span>
+            </a>
+            <a href="#seccion-eta" class="pasajero-nav-link">
+                <i class="ri-timer-flash-line"></i><span>Llegada</span>
+            </a>
+            <a href="#seccion-mapa" class="pasajero-nav-link">
+                <i class="ri-map-pin-range-line"></i><span>Mapa</span>
+            </a>
+            <a href="#seccion-horarios" class="pasajero-nav-link">
+                <i class="ri-calendar-todo-line"></i><span>Horarios</span>
+            </a>
+        </nav>
     </div>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="pasajero-main">
 
         <!-- FILTRADO DE RUTAS -->
-        <section class="card-pasajero animate__animated animate__fadeInDown">
+        <section id="seccion-rutas" class="card-pasajero animate__animated animate__fadeInDown">
             <div class="card-titulo">
                 <i class="ri-search-eye-line"></i>
                 <span>Filtrar Rutas de Transporte</span>
@@ -97,7 +111,7 @@ while ($s = mysqli_fetch_assoc($sedes_query)) {
         </section>
 
         <!--TIEMPO ESTIMADO DE LLEGADA-->
-        <section class="card-pasajero eta-card animate__animated animate__fadeInLeft">
+        <section id="seccion-eta" class="card-pasajero eta-card animate__animated animate__fadeInLeft">
             <div class="card-titulo">
                 <i class="ri-time-flash-line"></i>
                 <span>Tiempo Estimado de Llegada del Transporte</span>
@@ -112,7 +126,7 @@ while ($s = mysqli_fetch_assoc($sedes_query)) {
         </section>
 
         <!-- TARJETA 3: MAPA DE UBICACIÓN EN TIEMPO REAL -->
-        <section class="card-pasajero card-mapa animate__animated animate__fadeInUp">
+        <section id="seccion-mapa" class="card-pasajero card-mapa animate__animated animate__fadeInUp">
             <div class="card-titulo">
                 <i class="ri-map-pin-range-line"></i>
                 <span>Monitoreo en Tiempo Real</span>
@@ -122,7 +136,7 @@ while ($s = mysqli_fetch_assoc($sedes_query)) {
         </section>
 
         <!-- TARJETA 4: CRONOGRAMA DE HORARIOS -->
-        <section class="card-pasajero card-horarios animate__animated animate__fadeInRight">
+        <section id="seccion-horarios" class="card-pasajero card-horarios animate__animated animate__fadeInRight">
             <div class="card-titulo">
                 <i class="ri-calendar-todo-line"></i>
                 <span>Horarios Programados (Hoy)</span>
