@@ -11,7 +11,7 @@ include("../includes/conexion.php");
 date_default_timezone_set('America/El_Salvador');
 
 // total de conductores — tabla usuarios y roles ya existen
-$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'conductor'");
+$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM usuarios u INNER JOIN roles r ON u.rol_id = r.id WHERE r.nombre = 'conductor' AND u.estado = 1 ");
 $total_conductores = mysqli_fetch_assoc($q)['total'];
 
 $q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM sedes");

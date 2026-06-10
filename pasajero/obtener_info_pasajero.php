@@ -49,7 +49,8 @@ FROM cronograma_horarios ch
 INNER JOIN sedes so ON so.id = ch.id_sede_origen
 INNER JOIN sedes sd ON sd.id = ch.id_sede_destino
 LEFT JOIN asignaciones_conductor ac ON ac.id_cronograma = ch.id AND ac.activo = 1
-LEFT JOIN conductores c ON c.id = ac.id_conductor AND c.estado = 1
+LEFT JOIN conductores c ON c.id = ac.id_conductor
+LEFT JOIN usuarios usr ON usr.id = c.usuario_id AND usr.estado = 1
 LEFT JOIN unidades u ON u.id = ac.id_unidad AND u.estado = 1
 LEFT JOIN viajes v ON v.id_asignacion = ac.id AND v.fecha = CURRENT_DATE()
 LEFT JOIN (
@@ -66,7 +67,7 @@ ORDER BY ch.hora_salida ASC
 ";
 
 try {
-    $stmt = $conn->prepare($sql);
+    $stmt = $conexion->prepare($sql);
     $stmt->bind_param("s", $dia_hoy);
     $stmt->execute();
     $resultado = $stmt->get_result();
@@ -111,4 +112,4 @@ try {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 
-$conn->close();
+$conexion->close();

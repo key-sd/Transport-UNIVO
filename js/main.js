@@ -25,19 +25,59 @@ if (slides.length > 0) {
     });
 }
 
-// ojito para ver/ocultar contraseña
+// para las contraseñas en general (el ojo lleva en login también)
 const btnVerPass = document.getElementById('btnVerPass');
 const inputPass  = document.getElementById('password');
 const iconoOjo   = document.getElementById('iconoOjo');
+const inputConfirmar = document.getElementById('confirmar_password');
+const btnVerConfirmar = document.getElementById('btnVerConfirmar');
+const iconoOjoConfirmar = document.getElementById('iconoOjoConfirmar');
 
+// ojito para ver/ocultar contraseña
 if (btnVerPass) {
     btnVerPass.addEventListener('click', function () {
         const esPassword = inputPass.type === 'password';
         inputPass.type   = esPassword ? 'text' : 'password';
-        iconoOjo.classList.toggle('bi-eye',       !esPassword);
-        iconoOjo.classList.toggle('bi-eye-slash',  esPassword);
+        iconoOjo.classList.toggle('ri-eye-line',!esPassword);
+        iconoOjo.classList.toggle('ri-eye-off-line',  esPassword);
     });
 }
+// ojito para ver/ocultar confirmar contraseña
+btnVerConfirmar?.addEventListener('click', () => {
+    const mostrar = inputConfirmar.type === 'password';
+
+    inputConfirmar.type = mostrar ? 'text' : 'password';
+
+    iconoOjoConfirmar.classList.toggle('ri-eye-off-line', mostrar);
+    iconoOjoConfirmar.classList.toggle('ri-eye-line', !mostrar);
+});
+
+// validación en tiempo real de contraseña y confirmación
+function validarPasswords() {
+    const pwd = inputPass?.value || '';
+    const confirm = inputConfirmar?.value || '';
+
+    // contraseña principal cuando tiene 8 caracteres es válida
+    if (pwd === '') {
+        inputPass?.classList.remove('is-valid', 'is-invalid');
+    } else {
+        inputPass?.classList.toggle('is-valid', pwd.length >= 8);
+        inputPass?.classList.toggle('is-invalid', pwd.length < 8);
+    }
+
+    // confirma la contraseña solo si el campo no está vacío
+    if (confirm === '') {
+        inputConfirmar?.classList.remove('is-valid', 'is-invalid');
+    } else {
+        const coincide = pwd === confirm;
+
+        inputConfirmar?.classList.toggle('is-valid', coincide);
+        inputConfirmar?.classList.toggle('is-invalid', !coincide);
+    }
+}
+// escucha en ambos campos para validar en tiempo real
+inputPass?.addEventListener('input', validarPasswords);
+inputConfirmar?.addEventListener('input', validarPasswords);
 
 // limpiar campos al recargar la página del login
 window.onload = function () {
@@ -179,6 +219,18 @@ if (btnAbrir) {
         form.reset();
         ocultarAlerta(alertaModal);
         if (modalBS) modalBS.show();
+        
+        inputPass.type = 'password';
+        inputConfirmar.type = 'password';
+        
+        inputPass.classList.remove('is-valid', 'is-invalid');
+        inputConfirmar.classList.remove('is-valid', 'is-invalid');
+
+        iconoOjo.classList.remove('ri-eye-line');
+        iconoOjo.classList.add('ri-eye-off-line');
+        
+        iconoOjoConfirmar.classList.remove('ri-eye-line');
+        iconoOjoConfirmar.classList.add('ri-eye-off-line');
     });
 }
 
@@ -195,6 +247,21 @@ if (elModalConductor) {
         setHintPassword('');
         form.reset();
         ocultarAlerta(alertaModal);
+
+        inputPass.value = '';
+        inputConfirmar.value = '';
+        
+        inputPass.type = 'password';
+        inputConfirmar.type = 'password';
+        
+        inputPass.classList.remove('is-valid', 'is-invalid');
+        inputConfirmar.classList.remove('is-valid', 'is-invalid');
+        
+        iconoOjo.classList.remove('ri-eye-line');
+        iconoOjo.classList.add('ri-eye-off-line');
+        
+        iconoOjoConfirmar.classList.remove('ri-eye-line');
+        iconoOjoConfirmar.classList.add('ri-eye-off-line');
     });
 }
 
@@ -330,7 +397,6 @@ if (btnGuardar) {
 
         const pwd  = document.getElementById('password')?.value  || '';
         const pwd2 = document.getElementById('confirmar_password')?.value || '';
-
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
         if (modoModal === 'crear') {
@@ -1556,26 +1622,24 @@ if (modalNuevaAsigEl) {
 function resetearModalNuevaAsig() {
     ocultarAlerta(alertaModalAsig);
 
-    // limpiar selects de ruta
-    const selOrigen  = document.getElementById('asig_origen');
-    const selDestino = document.getElementById('asig_destino');
-    if (selOrigen)  selOrigen.value  = '';
-    if (selDestino) selDestino.value = '';
+    const selRuta = document.getElementById('asig_ruta');
+    if (selRuta) selRuta.value = '';
 
-    // limpiar grilla de horarios
     limpiarGrillaHorarios();
 
-    // limpiar conductor/unidad/fechas
-    ['asig_conductor','asig_unidad'].forEach(id => {
+    // mostrar aviso inicial
+    const avisoElegir = document.getElementById('avisoElegirRuta');
+    if (avisoElegir) avisoElegir.style.display = '';
+
+    ['asig_conductor', 'asig_unidad'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
-    ['asig_desde','asig_hasta'].forEach(id => {
+    ['asig_desde', 'asig_hasta'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = '';
     });
 
-    // cargar catálogos si no están en caché
     cargarCatalogos();
 }
 
@@ -1596,71 +1660,53 @@ function cargarCatalogos(forzar = false) {
 }
 
 function poblarSelectsModal(data) {
-    const selOrigen  = document.getElementById('asig_origen');
-    const selDestino = document.getElementById('asig_destino');
-
-    // Obtener rutas únicas desde cronogramas
-    const rutasOrigen  = [...new Set(data.cronogramas.map(c => JSON.stringify({id: c.id_sede_origen,  nombre: c.origen})))].map(s => JSON.parse(s));
-    const rutasDestino = [...new Set(data.cronogramas.map(c => JSON.stringify({id: c.id_sede_destino, nombre: c.destino})))].map(s => JSON.parse(s));
-
-    // dedup por id
-    const uniqOrigen  = [...new Map(rutasOrigen.map(r  => [r.id, r])).values()];
-    const uniqDestino = [...new Map(rutasDestino.map(r => [r.id, r])).values()];
-
-    if (selOrigen) {
-        selOrigen.innerHTML = '<option value="">— Sede origen —</option>' +
-            uniqOrigen.map(s => `<option value="${s.id}">${escHtml(s.nombre)}</option>`).join('');
-    }
-    if (selDestino) {
-        selDestino.innerHTML = '<option value="">— Sede destino —</option>' +
-            uniqDestino.map(s => `<option value="${s.id}">${escHtml(s.nombre)}</option>`).join('');
+    const selRuta = document.getElementById('asig_ruta');
+    if (selRuta) {
+        selRuta.innerHTML =
+            '<option value="">— Seleccionar ruta —</option>' +
+            (data.rutas || []).map(r =>
+                `<option value="${r.id_sede_origen}-${r.id_sede_destino}">${escHtml(r.label)}</option>`
+            ).join('');
     }
 
-    // conductor y unidad
     const selConductor = document.getElementById('asig_conductor');
-    const selUnidad    = document.getElementById('asig_unidad');
-
     if (selConductor) {
-        selConductor.innerHTML = '<option value="">— Seleccionar conductor —</option>' +
+        selConductor.innerHTML =
+            '<option value="">— Seleccionar conductor —</option>' +
             (data.conductores || []).map(c =>
                 `<option value="${c.id}">${escHtml(c.nombre_completo)}</option>`
             ).join('');
     }
+    const selUnidad = document.getElementById('asig_unidad');
     if (selUnidad) {
-        selUnidad.innerHTML = '<option value="">— Seleccionar unidad —</option>' +
+        selUnidad.innerHTML =
+            '<option value="">— Seleccionar unidad —</option>' +
             (data.unidades || []).map(u =>
                 `<option value="${u.id}">${escHtml(u.etiqueta)}</option>`
             ).join('');
     }
 }
-
-// ── Cuando cambia origen o destino → regenerar grilla de horarios ──
-['asig_origen','asig_destino'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', actualizarGrillaHorarios);
-});
+// Cuando cambia la ruta → regenerar grilla de horarios ──
+const selRuta = document.getElementById('asig_ruta');
+if (selRuta) selRuta.addEventListener('change', actualizarGrillaHorarios);
 
 function actualizarGrillaHorarios() {
-    const origen  = parseInt(document.getElementById('asig_origen')?.value  || 0);
-    const destino = parseInt(document.getElementById('asig_destino')?.value || 0);
+    const val = document.getElementById('asig_ruta')?.value; // "idOrigen-idDestino"
 
-    // ocultar aviso "elige ruta" en cuanto el usuario empieza a seleccionar
     const avisoElegir = document.getElementById('avisoElegirRuta');
-    if (avisoElegir && (origen || destino)) avisoElegir.style.display = 'none';
+    if (avisoElegir) avisoElegir.style.display = val ? 'none' : '';
 
     limpiarGrillaHorarios();
-    if (!origen || !destino || origen === destino) {
-        if (origen && destino && origen === destino) {
-            mostrarAlerta(alertaModalAsig, 'error', 'El origen y destino no pueden ser iguales.');
-        }
-        return;
-    }
-
     ocultarAlerta(alertaModalAsig);
 
-    if (!catalogoCache) { return; }
+    if (!val) return;
 
-    // filtrar cronogramas de esta ruta
+    const [origenStr, destinoStr] = val.split('-');
+    const origen  = parseInt(origenStr);
+    const destino = parseInt(destinoStr);
+
+    if (!catalogoCache) return;
+
     const horariosFiltrados = catalogoCache.cronogramas.filter(c =>
         c.id_sede_origen === origen && c.id_sede_destino === destino
     );
@@ -1752,30 +1798,27 @@ if (btnGuardarAsig) {
 function guardarNuevaAsignacion() {
     ocultarAlerta(alertaModalAsig);
 
-    const origen    = document.getElementById('asig_origen')?.value;
-    const destino   = document.getElementById('asig_destino')?.value;
+    const rutaVal   = document.getElementById('asig_ruta')?.value;      // "idOrigen-idDestino"
     const conductor = document.getElementById('asig_conductor')?.value;
     const unidad    = document.getElementById('asig_unidad')?.value;
     const desde     = document.getElementById('asig_desde')?.value;
     const hasta     = document.getElementById('asig_hasta')?.value;
     const checks    = [...document.querySelectorAll('input[name="crono_ids[]"]:checked')];
 
-    // validaciones
-    if (!origen || !destino) { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona la ruta (origen y destino).'); return; }
-    if (origen === destino)  { mostrarAlerta(alertaModalAsig, 'error', 'El origen y destino no pueden ser iguales.'); return; }
-    if (!checks.length)      { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona al menos un horario.'); return; }
-    if (!conductor)          { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona un conductor.'); return; }
-    if (!unidad)             { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona una unidad.'); return; }
-    if (!desde)              { mostrarAlerta(alertaModalAsig, 'error', 'Ingresa la fecha de inicio de vigencia.'); return; }
+    if (!rutaVal)       { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona una ruta.'); return; }
+    if (!checks.length) { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona al menos un horario.'); return; }
+    if (!conductor)     { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona un conductor.'); return; }
+    if (!unidad)        { mostrarAlerta(alertaModalAsig, 'error', 'Selecciona una unidad.'); return; }
+    if (!desde)         { mostrarAlerta(alertaModalAsig, 'error', 'Ingresa la fecha de inicio de vigencia.'); return; }
     if (hasta && hasta < desde) { mostrarAlerta(alertaModalAsig, 'error', 'La fecha fin no puede ser anterior al inicio.'); return; }
 
     btnGuardarAsig.disabled  = true;
     btnGuardarAsig.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando…';
 
     const fd = new FormData();
-    fd.append('id_conductor',  conductor);
-    fd.append('id_unidad',     unidad);
-    fd.append('fecha_inicio',  desde);
+    fd.append('id_conductor', conductor);
+    fd.append('id_unidad',    unidad);
+    fd.append('fecha_inicio', desde);
     if (hasta) fd.append('fecha_fin', hasta);
     fd.append('cronogramas', JSON.stringify(checks.map(c => parseInt(c.value))));
 
@@ -1785,10 +1828,10 @@ function guardarNuevaAsignacion() {
             if (!resp.success) { mostrarAlerta(alertaModalAsig, 'error', resp.message); return; }
             if (modalNuevaAsigBS) modalNuevaAsigBS.hide();
             mostrarAlertaGlobal('exito', resp.message);
-            catalogoCache = null; // invalidar caché para reflejar nuevas asignaciones
+            catalogoCache = null;
             cargarAsignaciones();
         })
-        .catch(err => mostrarAlerta(alertaModalAsig, 'error', 'Error de conexión.'))
+        .catch(() => mostrarAlerta(alertaModalAsig, 'error', 'Error de conexión.'))
         .finally(() => {
             btnGuardarAsig.disabled  = false;
             btnGuardarAsig.innerHTML = '<i class="ri-save-line me-1"></i>Guardar asignaciones';
@@ -1945,19 +1988,34 @@ if (btnGuardarReasignacion) {
         if (hasta) fd.append('fecha_fin', hasta);
 
         fetch('editar_asignacion.php', { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(resp => {
-                if (!resp.success) { Swal.fire({ title: 'Error', text: resp.message, icon: 'error', heightAuto: false }); return; }
-                if (modalReasignarBS) modalReasignarBS.hide();
-                mostrarAlertaGlobal('exito', resp.message);
-                recargarAsignacionesDetalle();
-                cargarAsignaciones();
-            })
-            .catch(() => Swal.fire({ title: 'Error', text: 'Error de conexión.', icon: 'error', heightAuto: false }))
-            .finally(() => {
-                btnGuardarReasignacion.disabled  = false;
-                btnGuardarReasignacion.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambio';
-            });
+        .then(r => r.json())
+        .then(resp => {
+            if (!resp.success) {
+                Swal.fire({
+                    title: 'Error',
+                    text: resp.message,
+                    icon: 'error',
+                    heightAuto: false,
+                    customClass: { container: 'swal-sobre-modal' }
+                });
+                return;
+            }
+            if (modalReasignarBS) modalReasignarBS.hide();
+            mostrarAlertaGlobal('exito', resp.message);
+            recargarAsignacionesDetalle();
+            cargarAsignaciones();
+        })
+        .catch(() => Swal.fire({
+            title: 'Error',
+            text: 'Error de conexión.',
+            icon: 'error',
+            heightAuto: false,
+            customClass: { container: 'swal-sobre-modal' }
+        }))
+        .finally(() => {
+            btnGuardarReasignacion.disabled  = false;
+            btnGuardarReasignacion.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambio';
+    });
     });
 }
 

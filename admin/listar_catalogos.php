@@ -50,7 +50,10 @@ while ($f = $res->fetch_assoc()) {
 $conductores = [];
 $res = $conn->query(
     "SELECT c.id, CONCAT(c.nombre,' ',c.apellido) AS nombre_completo
-     FROM conductores c WHERE c.estado = 1 ORDER BY c.nombre, c.apellido"
+     FROM conductores c
+     INNER JOIN usuarios u ON u.id = c.usuario_id
+     WHERE u.estado = 1
+     ORDER BY c.nombre, c.apellido"
 );
 while ($f = $res->fetch_assoc()) $conductores[] = $f;
 
@@ -61,6 +64,11 @@ $res = $conn->query(
      FROM unidades WHERE estado = 1 ORDER BY nombre"
 );
 while ($f = $res->fetch_assoc()) $unidades[] = $f;
+
+if ($conn->errno) {
+    echo json_encode(['error' => $conn->error]);
+    exit;
+}
 
 /* Rutas únicas (para el selector de ruta) */
 $rutas = [];
