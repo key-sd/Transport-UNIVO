@@ -1,9 +1,9 @@
-// pasajero.js - Control dinámico de la interfaz del pasajero
+// pasajero.js - Control dinamico de la interfaz del pasajero
 
 const sedesCoords = {
     1: { nombre: 'Sede Central', lat: 13.482012750212768, lng: -88.18369862029535 },
     2: { nombre: 'Campus Ciudad Universitaria', lat: 13.509544916895331, lng: -88.23213992427416 },
-    3: { nombre: 'Campus Agronomía y Veterinaria', lat: 13.430735664341332, lng: -88.06646258443071 }
+    3: { nombre: 'Campus Agronomia y Veterinaria', lat: 13.430735664341332, lng: -88.06646258443071 }
 };
 
 let todosLosSchedules = [];
@@ -13,13 +13,19 @@ let markerSedes = [];
 let pollingInterval = null;
 let filtroOrigen = '';
 let filtroDestino = '';
-
+const NOTIFICACIONES_VERSION = '2026-06-10-cancelado-v2';
+if (localStorage.getItem('notificaciones_version') !== NOTIFICACIONES_VERSION) {
+    localStorage.setItem('notificaciones_version', NOTIFICACIONES_VERSION);
+    localStorage.removeItem('notificados_hoy');
+    localStorage.removeItem('cancelados_notificados_hoy');
+    localStorage.removeItem('fecha_notificados');
+}
 // Reloj en tiempo real
 function iniciarReloj() {
     const actualizarReloj = () => {
         const ahora = moment();
         document.getElementById('reloj').textContent = ahora.format('HH:mm');
-        const diasES = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const diasES = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
         const mesesES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
         document.getElementById('fecha-hoy').textContent = `${diasES[ahora.day()]}, ${ahora.date()} de ${mesesES[ahora.month()]} de ${ahora.year()}`;
     };
@@ -36,7 +42,7 @@ function inicializarMapa() {
     mapa = L.map('mapa-pasajero').setView([13.4820, -88.1780], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
+        attribution: 'OpenStreetMap'
     }).addTo(mapa);
 
     // Colocar marcadores de las sedes
@@ -66,6 +72,9 @@ function cargarInformacion() {
         .catch(err => console.error("Error al obtener datos:", err));
 }
 
+function normalizarEstadoRecorrido(estado) {
+    return String(estado || 'pendiente').trim().toLowerCase();
+}
 // Dibujar el Cronograma/Horarios
 function renderizarSchedules() {
     const contenedor = document.getElementById('contenedor-horarios');
@@ -80,17 +89,18 @@ function renderizarSchedules() {
     }
 
     if (schedulesFiltrados.length === 0) {
-        contenedor.innerHTML = `<div class="cargando text-muted"><i class="ri-calendar-close-line" style="font-size:24px;"></i><p class="mt-2">No hay horarios programados para esta selección hoy.</p></div>`;
+        contenedor.innerHTML = `<div class="cargando text-muted"><i class="ri-calendar-close-line" style="font-size:24px;"></i><p class="mt-2">No hay horarios programados para esta seleccion hoy.</p></div>`;
         return;
     }
 
     const mapEstadoRecorrido = {
         'pendiente': { texto: 'Pendiente', clase: 'badge-pendiente' },
         'en_sede': { texto: 'En sede', clase: 'badge-en_sede' },
-        'proximo_salir': { texto: 'Próximo a salir', clase: 'badge-proximo_salir' },
+        'proximo_salir': { texto: 'Proximo a salir', clase: 'badge-proximo_salir' },
         'en_camino': { texto: 'En camino', clase: 'badge-en_camino' },
         'llegando': { texto: 'Llegando', clase: 'badge-llegando' },
-        'completado': { texto: 'Completado', clase: 'badge-completado' }
+        'completado': { texto: 'Completado', clase: 'badge-completado' },
+        'cancelado': { texto: 'Cancelado', clase: 'badge-cancelado' }
     };
 
     const mapCapacidad = {
@@ -101,7 +111,8 @@ function renderizarSchedules() {
     };
 
     const html = schedulesFiltrados.map(s => {
-        const est = mapEstadoRecorrido[s.estado_recorrido] || { texto: s.estado_recorrido, clase: 'badge-pendiente' };
+        const estadoNormal = normalizarEstadoRecorrido(s.estado_recorrido);
+        const est = mapEstadoRecorrido[estadoNormal] || { texto: s.estado_recorrido, clase: 'badge-pendiente' };
         const cap = mapCapacidad[s.capacidad] || { texto: s.capacidad, clase: 'badge-pendiente' };
         const horaFormato = moment(s.hora_salida, 'HH:mm:ss').format('HH:mm');
 
@@ -124,7 +135,7 @@ function renderizarSchedules() {
         }
 
         return `
-            <div class="viaje-item" data-id="${s.id_cronograma}">
+            <div class="viaje-item ${estadoNormal === 'cancelado' ? 'viaje-cancelado' : ''}" data-id="${s.id_cronograma}">
                 <div class="viaje-item-header">
                     <div>
                         <span class="viaje-hora me-2">${horaFormato}</span>
@@ -132,7 +143,7 @@ function renderizarSchedules() {
                     </div>
                     <div class="viaje-badges">
                         <span class="viaje-badge ${est.clase}">${est.texto}</span>
-                        ${s.estado_recorrido !== 'pendiente' && s.estado_recorrido !== 'completado' ? `
+                        ${estadoNormal !== 'pendiente' && estadoNormal !== 'completado' && estadoNormal !== 'cancelado' ? `
                             <span class="viaje-badge ${cap.clase}">${cap.texto}</span>
                         ` : ''}
                     </div>
@@ -159,24 +170,21 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
 
 // Actualizar Mapa y Tarjeta de ETA en Tiempo Real
 function actualizarTiempoRealYTrayecto() {
-    // Si hay filtros aplicados, buscaremos si hay algún viaje activo para la ruta seleccionada
     let viajeActivo = null;
 
+    const esViajeActivo = (s) => {
+        const estado = normalizarEstadoRecorrido(s.estado_recorrido);
+        return estado !== 'pendiente' && estado !== 'completado' && estado !== 'cancelado';
+    };
+
     if (filtroOrigen && filtroDestino) {
-        viajeActivo = todosLosSchedules.find(s => 
-            s.origen_id == filtroOrigen && 
-            s.destino_id == filtroDestino && 
-            s.estado_recorrido !== 'pendiente' && 
-            s.estado_recorrido !== 'completado' &&
-            s.gps !== null
+        viajeActivo = todosLosSchedules.find(s =>
+            s.origen_id == filtroOrigen &&
+            s.destino_id == filtroDestino &&
+            esViajeActivo(s)
         );
     } else {
-        // Si no hay filtro, tomamos el primer viaje activo en el sistema
-        viajeActivo = todosLosSchedules.find(s => 
-            s.estado_recorrido !== 'pendiente' && 
-            s.estado_recorrido !== 'completado' &&
-            s.gps !== null
-        );
+        viajeActivo = todosLosSchedules.find(esViajeActivo);
     }
 
     const etaTiempo = document.getElementById('eta-tiempo');
@@ -189,8 +197,37 @@ function actualizarTiempoRealYTrayecto() {
         mapa.invalidateSize();
     }
 
-    if (viajeActivo && viajeActivo.gps) {
-        // Actualizar o crear marcador de la unidad en el mapa
+    if (!viajeActivo) {
+        if (markerBus && mapa) {
+            mapa.removeLayer(markerBus);
+            markerBus = null;
+        }
+
+        if (etaTiempo) etaTiempo.textContent = '-- min';
+        if (etaDesc) etaDesc.textContent = 'No hay unidades activas en esta ruta en este momento.';
+        if (etaRuta) etaRuta.style.display = 'none';
+        return;
+    }
+
+    const estadoActivo = normalizarEstadoRecorrido(viajeActivo.estado_recorrido);
+    let etaTexto = '-- min';
+    let descTexto = 'Estado del transporte actualizado.';
+
+    if (estadoActivo === 'en_sede') {
+        etaTexto = 'En sede';
+        descTexto = 'El transporte esta en la sede de origen.';
+    } else if (estadoActivo === 'proximo_salir') {
+        etaTexto = 'Por salir';
+        descTexto = 'El transporte esta listo para salir.';
+    } else if (estadoActivo === 'llegando') {
+        etaTexto = '< 2 min';
+        descTexto = 'El transporte esta llegando a la sede de destino.';
+    } else if (estadoActivo === 'en_camino') {
+        etaTexto = 'En camino';
+        descTexto = 'El transporte esta en ruta. Activa el mapa cuando haya ubicacion disponible.';
+    }
+
+    if (viajeActivo.gps) {
         const { lat, lng } = viajeActivo.gps;
 
         if (!markerBus) {
@@ -218,91 +255,74 @@ function actualizarTiempoRealYTrayecto() {
             markerBus.getPopup().setContent(`<b>${viajeActivo.unidad ? viajeActivo.unidad.nombre : 'Transporte'}</b><br>Estado: ${viajeActivo.estado_recorrido}`);
         }
 
-        // Auto centrar mapa en el bus
         mapa.setView([lat, lng], 14);
 
-        // Calcular ETA
         const destCoords = sedesCoords[viajeActivo.destino_id];
-        let etaTexto = '-- min';
-        let descTexto = 'Calculando estimado de llegada...';
-
-        if (destCoords) {
+        if (destCoords && estadoActivo === 'en_camino') {
             const dist = calcularDistancia(lat, lng, destCoords.lat, destCoords.lng);
-            
-            if (viajeActivo.estado_recorrido === 'llegando') {
-                etaTexto = '< 2 min';
-                descTexto = 'El transporte está llegando a la sede de destino.';
-            } else if (viajeActivo.estado_recorrido === 'proximo_salir') {
-                etaTexto = 'Por salir';
-                descTexto = 'El transporte se encuentra en la sede de origen listo para partir.';
-            } else if (viajeActivo.estado_recorrido === 'en_sede') {
-                etaTexto = 'En sede';
-                descTexto = 'El transporte está estacionado en la sede.';
-            } else {
-                // Velocidad promedio de 30 km/h en ciudad
-                const tiempoHoras = dist / 30;
-                const tiempoMinutos = Math.round(tiempoHoras * 60);
-                
-                etaTexto = `${tiempoMinutos < 2 ? 2 : tiempoMinutos} min`;
-                descTexto = `Tiempo estimado hacia ${viajeActivo.destino} (a ${dist.toFixed(1)} km).`;
-            }
-        }
+            const tiempoHoras = dist / 30;
+            const tiempoMinutos = Math.round(tiempoHoras * 60);
 
-        if (etaTiempo) etaTiempo.textContent = etaTexto;
-        if (etaDesc) etaDesc.textContent = descTexto;
-        if (etaRuta) {
-            etaRuta.style.display = 'inline-flex';
-            etaRuta.innerHTML = `<i class="ri-route-line"></i> ${viajeActivo.origen} a ${viajeActivo.destino}`;
+            etaTexto = `${tiempoMinutos < 2 ? 2 : tiempoMinutos} min`;
+            descTexto = `Tiempo estimado hacia ${viajeActivo.destino} (a ${dist.toFixed(1)} km).`;
         }
+    } else if (markerBus && mapa) {
+        mapa.removeLayer(markerBus);
+        markerBus = null;
+    }
 
-    } else {
-        // No hay bus activo
-        if (markerBus && mapa) {
-            mapa.removeLayer(markerBus);
-            markerBus = null;
-        }
-
-        if (etaTiempo) etaTiempo.textContent = '-- min';
-        if (etaDesc) etaDesc.textContent = 'No hay unidades activas en esta ruta en este momento.';
-        if (etaRuta) etaRuta.style.display = 'none';
+    if (etaTiempo) etaTiempo.textContent = etaTexto;
+    if (etaDesc) etaDesc.textContent = descTexto;
+    if (etaRuta) {
+        etaRuta.style.display = 'inline-flex';
+        etaRuta.innerHTML = `<i class="ri-route-line"></i> ${viajeActivo.origen} a ${viajeActivo.destino}`;
     }
 }
 
-// Alertas de Salida 10 minutos antes
+// Alertas de Salida 10 minutos antes y cancelaciones
 function verificarNotificacionesSalida() {
     const ahora = moment();
-    
-    // Obtener los IDs de viajes ya notificados hoy
+
     let notificadosHoy = JSON.parse(localStorage.getItem('notificados_hoy') || '[]');
+    let canceladosNotificadosHoy = JSON.parse(localStorage.getItem('cancelados_notificados_hoy') || '[]');
     let fechaGuardada = localStorage.getItem('fecha_notificados');
-    
-    // Si cambió el día, limpiar el historial de notificaciones
+
     const hoyStr = ahora.format('YYYY-MM-DD');
     if (fechaGuardada !== hoyStr) {
         notificadosHoy = [];
+        canceladosNotificadosHoy = [];
         localStorage.setItem('fecha_notificados', hoyStr);
         localStorage.setItem('notificados_hoy', JSON.stringify([]));
+        localStorage.setItem('cancelados_notificados_hoy', JSON.stringify([]));
     }
 
     todosLosSchedules.forEach(s => {
-        // Si ya fue notificado hoy, omitir
-        if (notificadosHoy.includes(s.id_cronograma)) return;
-
-        // Si hay un filtro aplicado y el viaje actual no coincide, o no tiene asignación, omitir
         if (filtroOrigen && filtroDestino) {
             if (s.origen_id != filtroOrigen || s.destino_id != filtroDestino) return;
         }
 
+        const estadoNormal = normalizarEstadoRecorrido(s.estado_recorrido);
+        const claveViaje = `${s.id_cronograma}-${s.hora_salida}`;
+        const claveCancelado = `cancelado-${claveViaje}`;
+
+        if (estadoNormal === 'cancelado') {
+            if (!canceladosNotificadosHoy.includes(claveCancelado)) {
+                mostrarAlertaCancelacion(s);
+                canceladosNotificadosHoy.push(claveCancelado);
+                localStorage.setItem('cancelados_notificados_hoy', JSON.stringify(canceladosNotificadosHoy));
+            }
+            return;
+        }
+
+        if (estadoNormal === 'completado') return;
+        if (notificadosHoy.includes(claveViaje)) return;
+
         const horaSalida = moment(s.hora_salida, 'HH:mm:ss');
-        // Calcular minutos de diferencia
         const diffMinutos = horaSalida.diff(ahora, 'minutes', true);
 
-        // Notificar si faltan entre 0 y 10 minutos para salir
         if (diffMinutos > 0 && diffMinutos <= 10) {
             mostrarAlertaSalida(s);
-            
-            // Registrar como notificado
-            notificadosHoy.push(s.id_cronograma);
+            notificadosHoy.push(claveViaje);
             localStorage.setItem('notificados_hoy', JSON.stringify(notificadosHoy));
         }
     });
@@ -310,7 +330,7 @@ function verificarNotificacionesSalida() {
 
 function mostrarAlertaSalida(viaje) {
     const horaFmt = moment(viaje.hora_salida, 'HH:mm:ss').format('HH:mm');
-    const msg = `El transporte de ${viaje.origen} hacia ${viaje.destino} saldrá en unos minutos (a las ${horaFmt}). ¡Prepárate para abordar!`;
+    const msg = `El transporte de ${viaje.origen} hacia ${viaje.destino} saldrá a las ${horaFmt}. Prepárate para abordar.`;
 
     // Toast en pantalla
     const container = document.getElementById('toast-container');
@@ -320,29 +340,56 @@ function mostrarAlertaSalida(viaje) {
         toast.innerHTML = `
             <i class="ri-notification-3-fill"></i>
             <div>
-                <div class="toast-title">Próxima Salida</div>
+                <div class="toast-title">Proxima Salida</div>
                 <div class="toast-message">${msg}</div>
             </div>
         `;
         container.appendChild(toast);
         
-        // Auto eliminar después de 7 segundos
+        // Auto eliminar despues de 7 segundos
         setTimeout(() => {
             toast.classList.replace('animate__slideInRight', 'animate__fadeOutRight');
             setTimeout(() => toast.remove(), 500);
         }, 7000);
     }
-
-    // Notificación nativa de navegador si está permitida
-    if (Notification.permission === "granted") {
-        new Notification("Transport-UNIVO: Próxima Salida", {
-            body: msg,
-            icon: '../img/logo.png'
-        });
-    }
+    notificarNativo('Transport-UNIVO: Proxima Salida', msg);
 }
 
-// Solicitar permisos de notificación nativa
+function mostrarAlertaCancelacion(viaje) {
+    const horaFmt = moment(viaje.hora_salida, 'HH:mm:ss').format('HH:mm');
+    const msg = `El transporte de ${viaje.origen} hacia ${viaje.destino} de las ${horaFmt} fue cancelado.`;
+
+    const container = document.getElementById('toast-container');
+    if (container) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-premium toast-alerta animate__animated animate__slideInRight';
+        toast.innerHTML = `
+            <i class="ri-error-warning-fill"></i>
+            <div>
+                <div class="toast-title">Viaje cancelado</div>
+                <div class="toast-message">${msg}</div>
+            </div>
+        `;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.replace('animate__slideInRight', 'animate__fadeOutRight');
+            setTimeout(() => toast.remove(), 500);
+        }, 9000);
+    }
+
+    notificarNativo('Transport-UNIVO: Viaje cancelado', msg);
+}
+
+function notificarNativo(titulo, mensaje) {
+    if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+    new Notification(titulo, {
+        body: mensaje,
+        icon: '../img/logo-app.png'
+    });
+}
+// Solicitar permisos de notificacion nativa
 function solicitarPermisosNotificacion() {
     if ("Notification" in window) {
         if (Notification.permission !== "granted" && Notification.permission !== "denied") {
@@ -380,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (origenVal === destinoVal) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Ruta inválida',
+                    title: 'Ruta invalida',
                     text: 'La sede de origen no puede ser igual a la sede de destino.',
                     confirmButtonColor: '#0d2346',
                     width: '320px'

@@ -163,6 +163,7 @@ body {
     background: #ffffff1a;
     border-color: #ffffff33;
     color: #5b79aa;
+    border-radius: 0 6px 6px 0;
 }
 
 .campo-input-group .form-control::placeholder {
@@ -183,13 +184,9 @@ body {
 /* ojito ver/ocultar contraseña */
 #btnVerPass {
     cursor: pointer;
-    background: #ffffff1a;
+    background: #E8F0FE;
     border-color: #ffffff33;
     color: #0d1246;
-}
-
-#btnVerPass:hover {
-    color: #f5c518;
 }
 
 /* botón de iniciar sesión */

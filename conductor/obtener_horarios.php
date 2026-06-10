@@ -26,7 +26,7 @@ $fecha_hoy  = date('Y-m-d');
 $usuario_id = $_SESSION['usuario_id'];
 
 // NOTA: se usa NULL cuando no hay registro en viajes (COALESCE devuelve NULL, no '').
-// El JS interpreta NULL/vacío como "pendiente" y cualquier valor de estado_recorrido
+// El JS interpreta NULL/vacÃ­o como "pendiente" y cualquier valor de estado_recorrido
 // como el estado real del viaje (en_sede, proximo_salir, en_camino, llegando, completado).
 $sql = "
 SELECT
@@ -34,7 +34,8 @@ SELECT
     ch.hora_salida                       AS hora_salida,
     so.nombre                            AS origen,
     sd.nombre                            AS destino,
-    v.estado_recorrido                   AS estado_recorrido
+    v.estado_recorrido                   AS estado_recorrido,
+    v.estado_unidad                      AS estado_unidad
 FROM conductores c
 INNER JOIN asignaciones_conductor ac
     ON ac.id_conductor = c.id AND ac.activo = 1
@@ -58,8 +59,9 @@ $horarios  = [];
 
 while ($fila = $resultado->fetch_assoc()) {
     // estado_recorrido llega como NULL si no hay registro en viajes.
-    // Lo normalizamos a string vacío para que el JS pueda comparar fácilmente.
+    // Lo normalizamos a string vacÃ­o para que el JS pueda comparar fÃ¡cilmente.
     $fila['estado_recorrido'] = $fila['estado_recorrido'] ?? '';
+    $fila['estado_unidad'] = $fila['estado_unidad'] ?? '';
     $horarios[] = $fila;
 }
 
