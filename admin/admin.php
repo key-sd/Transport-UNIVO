@@ -17,7 +17,7 @@ $total_conductores = mysqli_fetch_assoc($q)['total'];
 $q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM sedes");
 $total_sedes = mysqli_fetch_assoc($q)['total'];
 
-$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM unidades");
+$q = mysqli_query($conexion, "SELECT COUNT(*) as total FROM unidades WHERE estado = 1");
 $total_unidades = mysqli_fetch_assoc($q)['total'];
 
 ?>
@@ -77,7 +77,7 @@ $total_unidades = mysqli_fetch_assoc($q)['total'];
                     <div class="stat-card-top">
                         <p class="stat-label">Conductores</p>
                         <div class="stat-icono" style="background:#0d234615;">
-                            <i class="ri-steering-2-line" style="color:#0d2346;"></i>
+                            <i class="ri-user-2-line" style="color:#0d2346;"></i>
                         </div>
                     </div>
                     <p class="stat-numero"><?php echo $total_conductores; ?></p>

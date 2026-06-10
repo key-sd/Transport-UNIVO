@@ -22,7 +22,7 @@ if ($id <= 0 || !in_array($estado, [0, 1])) {
 }
 
 try {
-    $stmt = $conn->prepare("UPDATE unidades SET estado = ? WHERE id = ?");
+    $stmt = $conexion->prepare("UPDATE unidades SET estado = ? WHERE id = ?");
     $stmt->bind_param('ii', $estado, $id);
     $stmt->execute();
     $stmt->close();

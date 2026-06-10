@@ -1434,18 +1434,15 @@ function editarUnidad(id) {
     ocultarAlerta(alertaModalUnidad);
     if (modalUnidadBS) modalUnidadBS.show();
 }
-
 // ══════════════════════════════════════════════════════════════
 // SECCIÓN: GESTIÓN DE ASIGNACIONES
-// Flujo: admin selecciona ruta(s) → ve horarios disponibles →
-//        elige conductor + unidad → guarda
 // ══════════════════════════════════════════════════════════════
 
 const ORDEN_DIAS_ASIG = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 const ABREV_DIAS      = { Lunes:'Lun', Martes:'Mar', 'Miércoles':'Mié', Jueves:'Jue',
                           Viernes:'Vie', 'Sábado':'Sáb', Domingo:'Dom' };
 
-// ── referencias DOM ──
+// ── Referencias DOM ──
 const btnNuevaAsignacion     = document.getElementById('btnNuevaAsignacion');
 const alertaGlobal           = document.getElementById('alertaGlobal');
 const cuerpoTablaAsig        = document.getElementById('cuerpoTablaAsig');
@@ -1454,41 +1451,54 @@ const buscadorAsig           = document.getElementById('buscadorAsig');
 const buscadorMobileAsig     = document.getElementById('buscadorMobileAsig');
 
 // Modal nueva asignación
-const modalNuevaAsigEl       = document.getElementById('modalNuevaAsig');
-const modalNuevaAsigBS       = modalNuevaAsigEl ? new bootstrap.Modal(modalNuevaAsigEl) : null;
-const alertaModalAsig        = document.getElementById('alertaModalAsig');
-const btnGuardarAsig         = document.getElementById('btnGuardarAsig');
+const modalNuevaAsigEl  = document.getElementById('modalNuevaAsig');
+const modalNuevaAsigBS  = modalNuevaAsigEl ? new bootstrap.Modal(modalNuevaAsigEl) : null;
+const alertaModalAsig   = document.getElementById('alertaModalAsig');
+const btnGuardarAsig    = document.getElementById('btnGuardarAsig');
 
-// Modal detalle conductor
-const modalDetalleConductorEl  = document.getElementById('modalDetalleConductor');
-const modalDetalleConductorBS  = modalDetalleConductorEl ? new bootstrap.Modal(modalDetalleConductorEl) : null;
-const alertaDetalle            = document.getElementById('alertaDetalle');
-const btnsVistaDetalle         = document.querySelectorAll('.btn-vista-detalle');
-const vistaTablaDetalle        = document.getElementById('vistaTablaDetalle');
-const vistaRutaDetalle         = document.getElementById('vistaRutaDetalle');
-const gruposRutaDia            = document.getElementById('gruposRutaDia');
+// Modal detalle/editar conductor
+const modalDetalleConductorEl = document.getElementById('modalDetalleConductor');
+const modalDetalleConductorBS = modalDetalleConductorEl ? new bootstrap.Modal(modalDetalleConductorEl) : null;
+const alertaDetalle           = document.getElementById('alertaDetalle');
+const btnsVistaDetalle        = document.querySelectorAll('.btn-vista-detalle');
+const vistaTablaDetalle       = document.getElementById('vistaTablaDetalle');
+const vistaRutaDetalle        = document.getElementById('vistaRutaDetalle');
+const acordeonAsigRuta        = document.getElementById('acordeonAsigRuta');
 
-// Modal reasignar
-const modalReasignarEl         = document.getElementById('modalReasignar');
-if (modalReasignarEl && modalDetalleConductorEl?.contains(modalReasignarEl)) {
-    document.body.appendChild(modalReasignarEl);
-}
-const modalReasignarBS         = modalReasignarEl ? new bootstrap.Modal(modalReasignarEl) : null;
-const btnGuardarReasignacion   = document.getElementById('btnGuardarReasignacion');
+// Modal reasignar (individual)
+const modalReasignarEl       = document.getElementById('modalReasignar');
+if (modalReasignarEl && !document.body.contains(modalReasignarEl)) document.body.appendChild(modalReasignarEl);
+const modalReasignarBS       = modalReasignarEl ? new bootstrap.Modal(modalReasignarEl) : null;
+const btnGuardarReasignacion = document.getElementById('btnGuardarReasignacion');
 
-// ── estado global ──
-let asignaciones       = [];
-let catalogoCache      = null;   // cache de listar_catalogos.php
-let conductorDetalleId = null;
-let asigReasignarId    = null;
-let asignacionesDetalleActuales = [];
+// Modal revocar bloque
+const modalRevocarBloqueEl  = document.getElementById('modalRevocarBloque');
+const modalRevocarBloqueBS  = modalRevocarBloqueEl ? new bootstrap.Modal(modalRevocarBloqueEl) : null;
+const btnConfirmarRevocar   = document.getElementById('btnConfirmarRevocar');
+
+// Modal reasignar bloque
+const modalReasignarBloqueEl     = document.getElementById('modalReasignarBloque');
+const modalReasignarBloqueBS     = modalReasignarBloqueEl ? new bootstrap.Modal(modalReasignarBloqueEl) : null;
+const btnGuardarReasignarBloque  = document.getElementById('btnGuardarReasignarBloque');
+const alertaReasignarBloque      = document.getElementById('alertaReasignarBloque');
+
+// ── Estado global ──
+let asignaciones                  = [];
+let catalogoCache                 = null;
+let conductorDetalleId            = null;
+let conductorDetalleNombre        = '';
+let asigReasignarId               = null;
+let asignacionesDetalleActuales   = [];
 let restaurarDetalleTrasReasignar = false;
+
+// ── Inicializar botones de vista ──
 if (btnsVistaDetalle.length) {
     btnsVistaDetalle.forEach(btn => {
         btn.addEventListener('click', () => cambiarVistaDetalle(btn.dataset.vista || 'tabla'));
     });
 }
 
+// ── Restaurar modal detalle tras cerrar reasignar individual ──
 if (modalReasignarEl) {
     modalReasignarEl.addEventListener('hidden.bs.modal', () => {
         if (!restaurarDetalleTrasReasignar) return;
@@ -1498,7 +1508,7 @@ if (modalReasignarEl) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// CARGA INICIAL
+// CARGA INICIAL DE LA TABLA
 // ══════════════════════════════════════════════════════════════
 if (cuerpoTablaAsig) {
     document.readyState === 'loading'
@@ -1544,6 +1554,21 @@ function renderTablaAsig(lista) {
         const estadoBadge = c.estado
             ? `<span class="badge-estado badge-activo">Activo</span>`
             : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
+        const tieneAsig   = (c.total_asignaciones || 0) > 0;
+
+        // Botones de acción — solo aparecen si tiene asignaciones activas
+        const btnRevocar = tieneAsig
+            ? `<button class="btn-accion btn-accion-desactivar"
+                       onclick="abrirRevocarBloque(${c.id},'${escHtml(c.nombre)}',${c.total_asignaciones || 0})"
+                       title="Revocar todos los horarios">
+                   <i class="ri-calendar-close-line me-1"></i>Revocar
+               </button>` : '';
+        const btnReasignar = tieneAsig
+            ? `<button class="btn-accion btn-accion-reasignar"
+                       onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')"
+                       title="Reasignar horarios en bloque">
+                   <i class="ri-user-shared-line me-1"></i>Reasignar
+               </button>` : '';
 
         return `
         <tr class="animate__animated animate__fadeIn">
@@ -1557,10 +1582,15 @@ function renderTablaAsig(lista) {
             <td><div class="d-flex flex-wrap gap-1">${diasBadges || '<span class="text-muted small">—</span>'}</div></td>
             <td>${estadoBadge}</td>
             <td>
-                <button class="btn-accion btn-accion-ver"
-                        onclick="abrirDetalleConductor(${c.id}, '${escHtml(c.nombre)}', ${c.estado})">
-                    <i class="ri-eye-line me-1"></i>Ver
-                </button>
+                <div class="d-flex align-items-center gap-1 flex-wrap">
+                    ${btnRevocar}
+                    ${btnReasignar}
+                    <button class="btn-accion btn-accion-ver"
+                            onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
+                            title="Ver y editar asignaciones individualmente">
+                        <i class="ri-edit-line me-1"></i>Editar
+                    </button>
+                </div>
             </td>
         </tr>`;
     }).join('');
@@ -1581,11 +1611,11 @@ function renderTarjetasAsig(lista) {
     }
 
     contenedorTarjetasAsig.innerHTML = lista.map(c => {
-        const diasBadges = (c.dias_abrev || []).map(d =>
-            `<span class="badge-dia">${d}</span>`).join('');
+        const diasBadges  = (c.dias_abrev || []).map(d => `<span class="badge-dia">${d}</span>`).join('');
         const estadoBadge = c.estado
             ? `<span class="badge-estado badge-activo">Activo</span>`
             : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
+        const tieneAsig = (c.total_asignaciones || 0) > 0;
 
         return `
         <div class="asig-card-mobile animate__animated animate__fadeIn">
@@ -1599,17 +1629,28 @@ function renderTarjetasAsig(lista) {
                     <div class="d-flex flex-wrap gap-1 mb-2">
                         ${diasBadges || '<span class="text-muted small">Sin días asignados</span>'}
                     </div>
-                    <button class="btn-accion btn-accion-ver w-100"
-                            onclick="abrirDetalleConductor(${c.id}, '${escHtml(c.nombre)}', ${c.estado})">
-                        <i class="ri-eye-line me-1"></i>Ver detalle
-                    </button>
+                    <div class="d-flex flex-wrap gap-1">
+                        ${tieneAsig ? `
+                        <button class="btn-accion btn-accion-desactivar"
+                                onclick="abrirRevocarBloque(${c.id},'${escHtml(c.nombre)}',${c.total_asignaciones || 0})">
+                            <i class="ri-calendar-close-line me-1"></i>Revocar
+                        </button>
+                        <button class="btn-accion btn-accion-reasignar"
+                                onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')">
+                            <i class="ri-user-shared-line me-1"></i>Reasignar
+                        </button>` : ''}
+                        <button class="btn-accion btn-accion-ver"
+                                onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
+                            <i class="ri-edit-line me-1"></i>Editar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>`;
     }).join('');
 }
 
-// ── buscadores ──
+// ── Buscadores ──
 [buscadorAsig, buscadorMobileAsig].forEach(el => {
     if (!el) return;
     el.addEventListener('input', () => {
@@ -1619,7 +1660,6 @@ function renderTarjetasAsig(lista) {
             (c.dias || []).some(d => d.toLowerCase().includes(q)) ||
             (c.rutas_fmt || []).some(r => r.toLowerCase().includes(q))
         ));
-        // sincronizar ambos buscadores
         if (buscadorAsig)       buscadorAsig.value       = el.value;
         if (buscadorMobileAsig) buscadorMobileAsig.value = el.value;
     });
@@ -1627,7 +1667,6 @@ function renderTarjetasAsig(lista) {
 
 // ══════════════════════════════════════════════════════════════
 // MODAL NUEVA ASIGNACIÓN
-// Flujo: 1) Seleccionar ruta(s)  2) Elegir horarios  3) Conductor + Unidad
 // ══════════════════════════════════════════════════════════════
 
 if (btnNuevaAsignacion) {
@@ -1636,109 +1675,78 @@ if (btnNuevaAsignacion) {
         if (modalNuevaAsigBS) modalNuevaAsigBS.show();
     });
 }
-
 if (modalNuevaAsigEl) {
     modalNuevaAsigEl.addEventListener('hidden.bs.modal', resetearModalNuevaAsig);
 }
 
 function resetearModalNuevaAsig() {
     ocultarAlerta(alertaModalAsig);
-
     const selRuta = document.getElementById('asig_ruta');
     if (selRuta) selRuta.value = '';
-
-    limpiarGrillaHorarios();
-
-    // mostrar aviso inicial
+    limpiarGrillaHorarios(); 
     const avisoElegir = document.getElementById('avisoElegirRuta');
     if (avisoElegir) avisoElegir.style.display = '';
-
-    ['asig_conductor', 'asig_unidad'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-    ['asig_desde', 'asig_hasta'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
-
+    ['asig_conductor','asig_unidad'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['asig_desde','asig_hasta'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     cargarCatalogos();
 }
 
-// ── Carga catálogos (con caché) ──
 function cargarCatalogos(forzar = false) {
-    if (catalogoCache && !forzar) {
-        poblarSelectsModal(catalogoCache);
-        return;
-    }
-
+    if (catalogoCache && !forzar) { poblarSelectsModal(catalogoCache); return; }
     fetch('listar_catalogos.php')
         .then(r => r.json())
-        .then(data => {
-            catalogoCache = data;
-            poblarSelectsModal(data);
-        })
+        .then(data => { catalogoCache = data; poblarSelectsModal(data); })
         .catch(() => console.error('Error al cargar catálogos.'));
 }
 
 function poblarSelectsModal(data) {
     const selRuta = document.getElementById('asig_ruta');
     if (selRuta) {
-        selRuta.innerHTML =
-            '<option value="">— Seleccionar ruta —</option>' +
+        selRuta.innerHTML = '<option value="">— Seleccionar ruta —</option>' +
             (data.rutas || []).map(r =>
                 `<option value="${r.id_sede_origen}-${r.id_sede_destino}">${escHtml(r.label)}</option>`
             ).join('');
     }
-
     const selConductor = document.getElementById('asig_conductor');
     if (selConductor) {
-        selConductor.innerHTML =
-            '<option value="">— Seleccionar conductor —</option>' +
+        selConductor.innerHTML = '<option value="">— Seleccionar conductor —</option>' +
             (data.conductores || []).map(c =>
                 `<option value="${c.id}">${escHtml(c.nombre_completo)}</option>`
             ).join('');
     }
     const selUnidad = document.getElementById('asig_unidad');
     if (selUnidad) {
-        selUnidad.innerHTML =
-            '<option value="">— Seleccionar unidad —</option>' +
+        selUnidad.innerHTML = '<option value="">— Seleccionar —</option>' +
             (data.unidades || []).map(u =>
                 `<option value="${u.id}">${escHtml(u.etiqueta)}</option>`
             ).join('');
     }
 }
-// Cuando cambia la ruta → regenerar grilla de horarios ──
+
 const selRuta = document.getElementById('asig_ruta');
 if (selRuta) selRuta.addEventListener('change', actualizarGrillaHorarios);
 
 function actualizarGrillaHorarios() {
-    const val = document.getElementById('asig_ruta')?.value; // "idOrigen-idDestino"
-
+    const val = document.getElementById('asig_ruta')?.value;
     const avisoElegir = document.getElementById('avisoElegirRuta');
     if (avisoElegir) avisoElegir.style.display = val ? 'none' : '';
-
     limpiarGrillaHorarios();
     ocultarAlerta(alertaModalAsig);
-
     if (!val) return;
 
     const [origenStr, destinoStr] = val.split('-');
     const origen  = parseInt(origenStr);
     const destino = parseInt(destinoStr);
-
     if (!catalogoCache) return;
 
     const horariosFiltrados = catalogoCache.cronogramas.filter(c =>
         c.id_sede_origen === origen && c.id_sede_destino === destino
     );
-
     if (!horariosFiltrados.length) {
         const aviso = document.getElementById('avisoSinHorarios');
         if (aviso) aviso.classList.remove('d-none');
         return;
     }
-
     renderGrillaHorarios(horariosFiltrados);
 }
 
@@ -1755,33 +1763,30 @@ function renderGrillaHorarios(horarios) {
     const grid = document.getElementById('gridHorarios');
     if (!grid) return;
 
-    // Agrupar por día
     const porDia = {};
     ORDEN_DIAS_ASIG.forEach(d => porDia[d] = []);
-    horarios.forEach(h => {
-        if (porDia[h.dia_semana]) porDia[h.dia_semana].push(h);
-    });
+    horarios.forEach(h => { if (porDia[h.dia_semana]) porDia[h.dia_semana].push(h); });
 
     let html = '';
     ORDEN_DIAS_ASIG.forEach(dia => {
         if (!porDia[dia].length) return;
-        html += `<div class="horario-dia-grupo">
-            <div class="horario-dia-label">${dia}</div>
-            <div class="horario-dia-slots">`;
-
+        html += `<div class="horario-dia-grupo"><div class="horario-dia-label">${dia}</div><div class="horario-dia-slots">`;
         porDia[dia].forEach(h => {
             const yaAsignado = h.tiene_asignacion;
             const hora12     = formatHora12(h.hora_salida);
+            // ya-asignado = bloqueado con pointer-events none y no seleccionable
             html += `
-            <label class="horario-slot${yaAsignado ? ' ya-asignado' : ''}" title="${yaAsignado ? 'Ya tiene conductor asignado' : ''}">
+            <label class="horario-slot${yaAsignado ? ' ya-asignado ya-asignado-bloqueado' : ''}"
+                   title="${yaAsignado ? 'Ya tiene conductor asignado' : ''}">
                 <input type="checkbox" name="crono_ids[]" value="${h.id}"
-                       class="horario-slot-check" onchange="actualizarContador()">
+                       class="horario-slot-check"
+                       ${yaAsignado ? 'disabled' : ''}
+                       onchange="actualizarContador()">
                 <span class="horario-slot-hora">${hora12}</span>
                 <span class="horario-slot-turno">${h.turno}</span>
                 ${yaAsignado ? '<span class="horario-slot-badge-asig"><i class="ri-user-line"></i></span>' : ''}
             </label>`;
         });
-
         html += `</div></div>`;
     });
 
@@ -1790,17 +1795,16 @@ function renderGrillaHorarios(horarios) {
 }
 
 function actualizarContador() {
-    const checks   = document.querySelectorAll('input[name="crono_ids[]"]:checked');
-    const counter  = document.getElementById('contadorSeleccionados');
+    const checks  = document.querySelectorAll('input[name="crono_ids[]"]:checked');
+    const counter = document.getElementById('contadorSeleccionados');
     if (counter) counter.textContent = `${checks.length} horario${checks.length !== 1 ? 's' : ''} seleccionado${checks.length !== 1 ? 's' : ''}`;
 }
 
-// ── Selección rápida: "Ping pong" ──
-// Botones para seleccionar todos los horarios del día o turno
 const btnSelTodos = document.getElementById('btnSelTodosHorarios');
 if (btnSelTodos) {
     btnSelTodos.addEventListener('click', () => {
-        document.querySelectorAll('input[name="crono_ids[]"]').forEach(c => c.checked = true);
+        // Solo selecciona los NO bloqueados
+        document.querySelectorAll('input[name="crono_ids[]"]:not([disabled])').forEach(c => c.checked = true);
         actualizarContador();
     });
 }
@@ -1812,15 +1816,11 @@ if (btnDeselTodos) {
     });
 }
 
-// ── Guardar nueva asignación ──
-if (btnGuardarAsig) {
-    btnGuardarAsig.addEventListener('click', guardarNuevaAsignacion);
-}
+if (btnGuardarAsig) btnGuardarAsig.addEventListener('click', guardarNuevaAsignacion);
 
 function guardarNuevaAsignacion() {
     ocultarAlerta(alertaModalAsig);
-
-    const rutaVal   = document.getElementById('asig_ruta')?.value;      // "idOrigen-idDestino"
+    const rutaVal   = document.getElementById('asig_ruta')?.value;
     const conductor = document.getElementById('asig_conductor')?.value;
     const unidad    = document.getElementById('asig_unidad')?.value;
     const desde     = document.getElementById('asig_desde')?.value;
@@ -1861,31 +1861,27 @@ function guardarNuevaAsignacion() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// MODAL DETALLE CONDUCTOR
+// MODAL EDITAR — DETALLE DEL CONDUCTOR (individual)
 // ══════════════════════════════════════════════════════════════
 
 function abrirDetalleConductor(id, nombre, estado) {
-    conductorDetalleId = id;
+    conductorDetalleId     = id;
+    conductorDetalleNombre = nombre;
     cambiarVistaDetalle('tabla');
 
     const avatar = document.getElementById('detalleAvatar');
     const nomEl  = document.getElementById('detalleNombre');
     const badge  = document.getElementById('detalleEstadoBadge');
-
     if (avatar) avatar.textContent = iniciales(nombre);
     if (nomEl)  nomEl.textContent  = nombre;
     if (badge) {
         badge.textContent = estado ? 'Activo' : 'Inactivo';
         badge.className   = `badge-estado ${estado ? 'badge-activo' : 'badge-inactivo'}`;
     }
-
     ocultarAlerta(alertaDetalle);
 
     const cuerpo = document.getElementById('cuerpoTablaAsignacionesDetalle');
-    if (cuerpo) cuerpo.innerHTML = `
-        <tr><td colspan="6" class="tabla-empty">
-            <i class="ri-loader-4-line ri-spin"></i> Cargando…
-        </td></tr>`;
+    if (cuerpo) cuerpo.innerHTML = `<tr><td colspan="6" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando…</td></tr>`;
 
     if (modalDetalleConductorBS) modalDetalleConductorBS.show();
 
@@ -1897,26 +1893,24 @@ function abrirDetalleConductor(id, nombre, estado) {
 
 function renderAsignacionesDetalle(asigs) {
     asignacionesDetalleActuales = Array.isArray(asigs) ? asigs : [];
+
     const cuerpo = document.getElementById('cuerpoTablaAsignacionesDetalle');
-    renderAsignacionesPorRuta(asignacionesDetalleActuales);
     if (!cuerpo) return;
 
     if (!asignacionesDetalleActuales.length) {
-        cuerpo.innerHTML = `
-            <tr><td colspan="6" class="tabla-empty">
-                <i class="ri-calendar-close-line"></i> Sin asignaciones activas.
-            </td></tr>`;
+        cuerpo.innerHTML = `<tr><td colspan="6" class="tabla-empty"><i class="ri-calendar-close-line"></i> Sin asignaciones activas.</td></tr>`;
+        renderAcordeonAsigRuta(asignacionesDetalleActuales);
         return;
     }
 
     cuerpo.innerHTML = asignacionesDetalleActuales.map(a => `
         <tr class="animate__animated animate__fadeIn">
             <td>
-                <span class="fw-medium text-dark">${escHtml(a.sede_origen)}</span>
+                <span class="fw-medium">${escHtml(a.sede_origen)}</span>
                 <i class="ri-arrow-right-line mx-1 text-muted" style="font-size:11px;"></i>
-                <span class="fw-medium text-dark">${escHtml(a.sede_destino)}</span>
+                <span class="fw-medium">${escHtml(a.sede_destino)}</span>
             </td>
-            <td><span class="badge-dia">${(ABREV_DIAS[a.dia_semana] || a.dia_semana)}</span></td>
+            <td><span class="badge-dia">${ABREV_DIAS[a.dia_semana] || a.dia_semana}</span></td>
             <td>${formatHora12(a.hora_salida)}</td>
             <td><span class="badge-turno badge-turno-${a.turno.toLowerCase()}">${a.turno}</span></td>
             <td>
@@ -1927,67 +1921,64 @@ function renderAsignacionesDetalle(asigs) {
             </td>
             <td>
                 <button class="btn-accion btn-accion-ver"
-                        onclick="abrirModalReasignar(${a.asig_id}, ${a.unidad_id})"
-                        title="Reasignar conductor o unidad">
+                        onclick="abrirModalReasignar(${a.asig_id},${a.unidad_id})"
+                        title="Editar esta asignación">
                     <i class="ri-user-follow-line me-1"></i>Reasignar
                 </button>
             </td>
         </tr>`
     ).join('');
+
+    renderAcordeonAsigRuta(asignacionesDetalleActuales);
 }
 
 function cambiarVistaDetalle(vista) {
     const esRuta = vista === 'ruta';
-
     if (vistaTablaDetalle) vistaTablaDetalle.classList.toggle('d-none', esRuta);
     if (vistaRutaDetalle)  vistaRutaDetalle.classList.toggle('d-none', !esRuta);
-
     btnsVistaDetalle.forEach(btn => {
         btn.classList.toggle('activo-vista', (btn.dataset.vista || 'tabla') === vista);
     });
-
-    if (esRuta) renderAsignacionesPorRuta(asignacionesDetalleActuales);
+    if (esRuta) renderAcordeonAsigRuta(asignacionesDetalleActuales);
 }
 
-function renderAsignacionesPorRuta(asigs) {
-    if (!gruposRutaDia) return;
+// ── Acordeón por ruta/día (igual que cronograma, con chips editables) ──
+function renderAcordeonAsigRuta(asigs) {
+    if (!acordeonAsigRuta) return;
 
     if (!asigs.length) {
-        gruposRutaDia.innerHTML = `<div class="tabla-empty"><i class="ri-calendar-close-line"></i> Sin asignaciones activas.</div>`;
+        acordeonAsigRuta.innerHTML = `<div class="tabla-empty"><i class="ri-calendar-close-line"></i> Sin asignaciones activas.</div>`;
         return;
     }
 
+    // Agrupar por ruta y luego por día
     const grupos = asigs.reduce((acc, a) => {
         const rutaKey = `${a.sede_origen}|${a.sede_destino}`;
-        if (!acc[rutaKey]) {
-            acc[rutaKey] = {
-                origen: a.sede_origen,
-                destino: a.sede_destino,
-                dias: {}
-            };
-        }
-        if (!acc[rutaKey].dias[a.dia_semana]) acc[rutaKey].dias[a.dia_semana] = [];
-        acc[rutaKey].dias[a.dia_semana].push(a);
+        if (!acc[rutaKey]) acc[rutaKey] = { origen: a.sede_origen, destino: a.sede_destino, porDia: {} };
+        if (!acc[rutaKey].porDia[a.dia_semana]) acc[rutaKey].porDia[a.dia_semana] = [];
+        acc[rutaKey].porDia[a.dia_semana].push(a);
         return acc;
     }, {});
 
-    gruposRutaDia.innerHTML = Object.values(grupos).map(grupo => {
+    acordeonAsigRuta.innerHTML = Object.entries(grupos).map(([rutaKey, grupo], rutaIdx) => {
+        const sid = 'ruta' + rutaIdx;
+
+        // Generar contenido de días con chips
         const diasHtml = ORDEN_DIAS_ASIG
-            .filter(dia => grupo.dias[dia]?.length)
+            .filter(dia => grupo.porDia[dia]?.length)
             .map(dia => {
-                const chips = grupo.dias[dia]
+                const chips = grupo.porDia[dia]
                     .sort((a, b) => String(a.hora_salida).localeCompare(String(b.hora_salida)))
                     .map(a => `
                         <div class="asig-horario-chip">
                             <div class="asig-chip-hora">${formatHora12(a.hora_salida)}</div>
                             <div class="asig-chip-unidad">${escHtml(a.unidad)}</div>
                             <button class="asig-chip-btn-editar"
-                                    onclick="abrirModalReasignar(${a.asig_id}, ${a.unidad_id})"
-                                    title="Reasignar conductor o unidad">
+                                    onclick="abrirModalReasignar(${a.asig_id},${a.unidad_id})"
+                                    title="Editar esta asignación">
                                 <i class="ri-edit-2-line"></i>
                             </button>
                         </div>`).join('');
-
                 return `
                     <div class="mb-3">
                         <div class="asig-grupo-dia-label">${escHtml(dia)}</div>
@@ -1995,17 +1986,64 @@ function renderAsignacionesPorRuta(asigs) {
                     </div>`;
             }).join('');
 
+        const totalHorarios = asigs.filter(a => `${a.sede_origen}|${a.sede_destino}` === rutaKey).length;
+
         return `
-            <div class="asig-grupo-ruta mb-3 animate__animated animate__fadeIn">
-                <div class="asig-grupo-ruta-header">
-                    <span>${escHtml(grupo.origen)}</span>
-                    <i class="ri-arrow-right-line mx-2"></i>
-                    <span>${escHtml(grupo.destino)}</span>
+        <div class="accordion-item border-0 mb-2">
+            <h2 class="accordion-header" id="headRuta-${sid}">
+                <button class="acordeon-dia-btn acordeon-dia-btn--collapsed" type="button" data-sid="ruta-${sid}">
+                    <i class="ri-route-line me-2" style="color:#f5c518;"></i>
+                    <span class="fw-semibold">${escHtml(grupo.origen)}</span>
+                    <i class="ri-arrow-right-line mx-2" style="font-size:12px;color:#94a3b8;"></i>
+                    <span class="fw-semibold">${escHtml(grupo.destino)}</span>
+                    <span class="ms-2 badge-dia-count">${totalHorarios} horario${totalHorarios !== 1 ? 's' : ''}</span>
+                    <i class="ri-arrow-down-s-line ms-auto acordeon-flecha"></i>
+                </button>
+            </h2>
+            <div id="bodyRuta-${sid}" class="acordeon-cuerpo" style="display:none;">
+                <div class="accordion-body pt-2 pb-3 px-3">
+                    ${diasHtml}
                 </div>
-                <div class="asig-grupo-ruta-body">${diasHtml}</div>
-            </div>`;
+            </div>
+        </div>`;
     }).join('');
+
+    // Inicializar acordeón
+    acordeonAsigRuta.querySelectorAll('.acordeon-dia-btn').forEach((btn, idx) => {
+        const sid    = btn.dataset.sid;
+        const cuerpo = document.getElementById(`body${sid.charAt(0).toUpperCase() + sid.slice(1)}`);
+        // el id en el HTML es bodyRuta-ruta0, reconstruir:
+        const bodyId = 'body' + sid.replace(/^(ruta-)/, 'Ruta-');
+        const cuerpoEl = document.getElementById(bodyId) || document.getElementById('body' + sid);
+        if (!cuerpoEl) return;
+
+        cuerpoEl.style.maxHeight  = '0';
+        cuerpoEl.style.display    = '';
+        cuerpoEl.style.overflow   = 'hidden';
+        cuerpoEl.style.transition = 'max-height 0.3s ease, opacity 0.25s ease';
+        cuerpoEl.style.opacity    = '0';
+
+        if (idx === 0) {
+            cuerpoEl.style.maxHeight = cuerpoEl.scrollHeight + 'px';
+            cuerpoEl.style.opacity   = '1';
+            btn.classList.remove('acordeon-dia-btn--collapsed');
+        }
+
+        btn.addEventListener('click', () => {
+            const abierto = cuerpoEl.style.maxHeight !== '0px' && cuerpoEl.style.maxHeight !== '0';
+            if (abierto) {
+                cuerpoEl.style.maxHeight = '0';
+                cuerpoEl.style.opacity   = '0';
+                btn.classList.add('acordeon-dia-btn--collapsed');
+            } else {
+                cuerpoEl.style.maxHeight = cuerpoEl.scrollHeight + 'px';
+                cuerpoEl.style.opacity   = '1';
+                btn.classList.remove('acordeon-dia-btn--collapsed');
+            }
+        });
+    });
 }
+
 function recargarAsignacionesDetalle() {
     if (!conductorDetalleId) return;
     fetch(`listar_asignaciones.php?id_conductor=${conductorDetalleId}`)
@@ -2014,7 +2052,7 @@ function recargarAsignacionesDetalle() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// MODAL REASIGNAR
+// MODAL REASIGNAR INDIVIDUAL
 // ══════════════════════════════════════════════════════════════
 
 function abrirModalReasignar(asigId, unidadActualId) {
@@ -2059,7 +2097,6 @@ function abrirModalReasignar(asigId, unidadActualId) {
 
     if (modalReasignarBS) {
         restaurarDetalleTrasReasignar = Boolean(modalDetalleConductorEl?.classList.contains('show'));
-
         if (restaurarDetalleTrasReasignar && modalDetalleConductorBS) {
             modalDetalleConductorEl.addEventListener('hidden.bs.modal', () => modalReasignarBS.show(), { once: true });
             modalDetalleConductorBS.hide();
@@ -2072,14 +2109,13 @@ function abrirModalReasignar(asigId, unidadActualId) {
 if (btnGuardarReasignacion) {
     btnGuardarReasignacion.addEventListener('click', () => {
         if (!asigReasignarId) return;
-
         const conductor = document.getElementById('reasig_conductor')?.value;
         const unidad    = document.getElementById('reasig_unidad')?.value;
         const desde     = document.getElementById('reasig_desde')?.value;
         const hasta     = document.getElementById('reasig_hasta')?.value;
 
-        if (!conductor) { Swal.fire({ title: 'Falta conductor', text: 'Selecciona un conductor.', icon: 'warning', heightAuto: false }); return; }
-        if (!unidad)    { Swal.fire({ title: 'Falta unidad',    text: 'Selecciona una unidad.',   icon: 'warning', heightAuto: false }); return; }
+        if (!conductor) { Swal.fire({ title:'Falta conductor', text:'Selecciona un conductor.', icon:'warning', heightAuto:false }); return; }
+        if (!unidad)    { Swal.fire({ title:'Falta unidad',    text:'Selecciona una unidad.',   icon:'warning', heightAuto:false }); return; }
 
         btnGuardarReasignacion.disabled  = true;
         btnGuardarReasignacion.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando…';
@@ -2091,35 +2127,399 @@ if (btnGuardarReasignacion) {
         fd.append('fecha_inicio', desde);
         if (hasta) fd.append('fecha_fin', hasta);
 
-        fetch('editar_asignacion.php', { method: 'POST', body: fd })
+        fetch('editar_asignacion.php', { method:'POST', body:fd })
+            .then(r => r.json())
+            .then(resp => {
+                if (!resp.success) {
+                    Swal.fire({ title:'Error', text:resp.message, icon:'error', heightAuto:false, customClass:{ container:'swal-sobre-modal' } });
+                    return;
+                }
+                if (modalReasignarBS) modalReasignarBS.hide();
+                mostrarAlertaGlobal('exito', resp.message);
+                recargarAsignacionesDetalle();
+                cargarAsignaciones();
+            })
+            .catch(() => Swal.fire({ title:'Error', text:'Error de conexión.', icon:'error', heightAuto:false, customClass:{ container:'swal-sobre-modal' } }))
+            .finally(() => {
+                btnGuardarReasignacion.disabled  = false;
+                btnGuardarReasignacion.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambio';
+            });
+    });
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL REVOCAR BLOQUE
+// ══════════════════════════════════════════════════════════════
+
+function abrirRevocarBloque(conductorId, nombre, totalAsig) {
+    conductorDetalleId     = conductorId;
+    conductorDetalleNombre = nombre;
+
+    const avatarEl = document.getElementById('revocarAvatar');
+    const nomEl    = document.getElementById('revocarNombre');
+    const totalEl  = document.getElementById('revocarTotal');
+    if (avatarEl) avatarEl.textContent = iniciales(nombre);
+    if (nomEl)    nomEl.textContent    = nombre;
+    if (totalEl)  totalEl.textContent  = totalAsig;
+
+    const tbody = document.getElementById('cuerpoRevocar');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i> Cargando…</td></tr>`;
+
+    if (modalRevocarBloqueBS) modalRevocarBloqueBS.show();
+
+    fetch(`listar_asignaciones.php?id_conductor=${conductorId}`)
         .then(r => r.json())
-        .then(resp => {
-            if (!resp.success) {
-                Swal.fire({
-                    title: 'Error',
-                    text: resp.message,
-                    icon: 'error',
-                    heightAuto: false,
-                    customClass: { container: 'swal-sobre-modal' }
-                });
+        .then(data => {
+            const asigs = data.asignaciones || [];
+            if (!asigs.length) {
+                if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="tabla-empty">Sin asignaciones activas.</td></tr>`;
                 return;
             }
-            if (modalReasignarBS) modalReasignarBS.hide();
-            mostrarAlertaGlobal('exito', resp.message);
-            recargarAsignacionesDetalle();
-            cargarAsignaciones();
+            if (tbody) {
+                tbody.innerHTML = asigs.map(a => `
+                    <tr>
+                        <td>
+                            <span class="fw-medium" style="font-size:12px;">${escHtml(a.sede_origen)}</span>
+                            <i class="ri-arrow-right-line mx-1 text-muted" style="font-size:10px;"></i>
+                            <span class="fw-medium" style="font-size:12px;">${escHtml(a.sede_destino)}</span>
+                        </td>
+                        <td><span class="badge-dia">${ABREV_DIAS[a.dia_semana] || a.dia_semana}</span></td>
+                        <td style="font-size:12px;">${formatHora12(a.hora_salida)}</td>
+                        <td style="font-size:12px;">${escHtml(a.unidad)}</td>
+                    </tr>`).join('');
+            }
         })
-        .catch(() => Swal.fire({
-            title: 'Error',
-            text: 'Error de conexión.',
-            icon: 'error',
+        .catch(() => {
+            if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="tabla-empty text-danger">Error al cargar.</td></tr>`;
+        });
+}
+
+if (btnConfirmarRevocar) {
+    btnConfirmarRevocar.addEventListener('click', () => {
+        if (!conductorDetalleId) return;
+
+        Swal.fire({
+            title: '¿Liberar todos los horarios?',
+            html: `<span style="font-size:13px;color:#475569;">Todas las asignaciones de <strong>${escHtml(conductorDetalleNombre)}</strong> quedarán libres. Esta acción no se puede deshacer.</span>`,
+            icon: 'warning',
+            iconColor: '#dc2626',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, liberar todo',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc2626',
             heightAuto: false,
-            customClass: { container: 'swal-sobre-modal' }
-        }))
-        .finally(() => {
-            btnGuardarReasignacion.disabled  = false;
-            btnGuardarReasignacion.innerHTML = '<i class="ri-save-line me-1"></i>Guardar cambio';
+            customClass: { container: 'swal-sobre-modal' },
+        }).then(result => {
+            if (!result.isConfirmed) return;
+
+            btnConfirmarRevocar.disabled  = true;
+            btnConfirmarRevocar.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Liberando…';
+
+            const fd = new FormData();
+            fd.append('accion',       'revocar_bloque');
+            fd.append('conductor_id', conductorDetalleId);
+
+            fetch('revocar_conductor.php', { method:'POST', body:fd })
+                .then(r => r.json())
+                .then(resp => {
+                    if (!resp.success) {
+                        mostrarAlertaGlobal('error', resp.message);
+                        return;
+                    }
+                    if (modalRevocarBloqueBS) modalRevocarBloqueBS.hide();
+                    mostrarAlertaGlobal('exito', resp.message);
+                    catalogoCache = null;
+                    cargarAsignaciones();
+                })
+                .catch(() => mostrarAlertaGlobal('error', 'Error de conexión.'))
+                .finally(() => {
+                    btnConfirmarRevocar.disabled  = false;
+                    btnConfirmarRevocar.innerHTML = '<i class="ri-calendar-close-line"></i> Sí, liberar todos los horarios';
+                });
+        });
     });
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL REASIGNAR BLOQUE (selección múltiple)
+// ══════════════════════════════════════════════════════════════
+
+function abrirReasignarBloque(conductorId, nombre) {
+    conductorDetalleId     = conductorId;
+    conductorDetalleNombre = nombre;
+
+    ocultarAlerta(alertaReasignarBloque);
+
+    const acordeon = document.getElementById('acordeonReasignarBloque');
+    if (acordeon) acordeon.innerHTML = `<div class="text-center p-3 text-muted"><i class="ri-loader-4-line ri-spin me-1"></i> Cargando…</div>`;
+
+    const selCond  = document.getElementById('reasigBloque_conductor');
+    const selUnid  = document.getElementById('reasigBloque_unidad');
+    const inpDesde = document.getElementById('reasigBloque_desde');
+    const inpHasta = document.getElementById('reasigBloque_hasta');
+
+    if (inpDesde) inpDesde.value = new Date().toISOString().split('T')[0];
+    if (inpHasta) inpHasta.value = '';
+
+    const llenarSelects = (data) => {
+        if (selCond) {
+            selCond.innerHTML = '<option value="">— Seleccionar conductor —</option>' +
+                (data.conductores || []).map(c =>
+                    `<option value="${c.id}">${escHtml(c.nombre_completo)}</option>`
+                ).join('');
+        }
+        if (selUnid) {
+            selUnid.innerHTML = '<option value="">— Seleccionar unidad —</option>' +
+                (data.unidades || []).map(u =>
+                    `<option value="${u.id}">${escHtml(u.etiqueta)}</option>`
+                ).join('');
+        }
+    };
+
+    // Cargar catálogos y asignaciones en paralelo
+    const promCatalogos = catalogoCache
+        ? Promise.resolve(catalogoCache)
+        : fetch('listar_catalogos.php').then(r => r.json()).then(d => { catalogoCache = d; return d; });
+
+    const promAsigs = fetch(`listar_asignaciones.php?id_conductor=${conductorId}`).then(r => r.json());
+
+    Promise.all([promCatalogos, promAsigs])
+        .then(([catalogo, asigData]) => {
+            llenarSelects(catalogo);
+            renderAcordeonReasignarBloque(asigData.asignaciones || []);
+        })
+        .catch(() => {
+            if (acordeon) acordeon.innerHTML = `<div class="text-center p-3 text-danger">Error al cargar datos.</div>`;
+        });
+
+    if (modalReasignarBloqueBS) modalReasignarBloqueBS.show();
+}
+
+function renderAcordeonReasignarBloque(asigs) {
+    const acordeon = document.getElementById('acordeonReasignarBloque');
+    const contador = document.getElementById('contadorReasignarBloque');
+    if (!acordeon) return;
+
+    if (!asigs.length) {
+        acordeon.innerHTML = `<div class="tabla-empty"><i class="ri-calendar-close-line"></i> Sin asignaciones activas.</div>`;
+        return;
+    }
+
+    // Agrupar por ruta → día
+    const grupos = asigs.reduce((acc, a) => {
+        const rutaKey = `${a.sede_origen}|${a.sede_destino}`;
+        if (!acc[rutaKey]) acc[rutaKey] = { origen: a.sede_origen, destino: a.sede_destino, porDia: {} };
+        if (!acc[rutaKey].porDia[a.dia_semana]) acc[rutaKey].porDia[a.dia_semana] = [];
+        acc[rutaKey].porDia[a.dia_semana].push(a);
+        return acc;
+    }, {});
+
+    acordeon.innerHTML = Object.entries(grupos).map(([rutaKey, grupo], rutaIdx) => {
+        const sid = 'rb' + rutaIdx;
+
+        const diasHtml = ORDEN_DIAS_ASIG
+            .filter(dia => grupo.porDia[dia]?.length)
+            .map(dia => {
+                const items = grupo.porDia[dia]
+                    .sort((a, b) => String(a.hora_salida).localeCompare(String(b.hora_salida)))
+                    .map(a => `
+                        <label class="reasig-check-item" data-asig-id="${a.asig_id}">
+                            <input type="checkbox" class="reasig-bloque-check"
+                                   value="${a.asig_id}"
+                                   data-dia="${escHtml(a.dia_semana)}"
+                                   data-hora="${escHtml(a.hora_salida)}"
+                                   onchange="actualizarContadorBloque()">
+                            <span class="reasig-check-hora">${formatHora12(a.hora_salida)}</span>
+                            <span class="reasig-check-turno">${a.turno}</span>
+                            <span class="reasig-check-unidad"><i class="ri-bus-line"></i>${escHtml(a.unidad)}</span>
+                        </label>`).join('');
+
+                return `
+                    <div class="mb-3">
+                        <div class="asig-grupo-dia-label">${escHtml(dia)}</div>
+                        <div class="d-flex flex-wrap gap-2">${items}</div>
+                    </div>`;
+            }).join('');
+
+        const totalRuta = asigs.filter(a => `${a.sede_origen}|${a.sede_destino}` === rutaKey).length;
+
+        return `
+        <div class="accordion-item border-0 mb-2">
+            <h2 class="accordion-header">
+                <button class="acordeon-dia-btn acordeon-dia-btn--collapsed" type="button" data-sid="${sid}">
+                    <i class="ri-route-line me-2" style="color:#f5c518;"></i>
+                    <span class="fw-semibold">${escHtml(grupo.origen)}</span>
+                    <i class="ri-arrow-right-line mx-2" style="font-size:12px;color:#94a3b8;"></i>
+                    <span class="fw-semibold">${escHtml(grupo.destino)}</span>
+                    <span class="ms-2 badge-dia-count">${totalRuta} horario${totalRuta !== 1 ? 's' : ''}</span>
+                    <i class="ri-arrow-down-s-line ms-auto acordeon-flecha"></i>
+                </button>
+            </h2>
+            <div id="bodyRb-${sid}" class="acordeon-cuerpo" style="display:none;">
+                <div class="accordion-body pt-2 pb-3 px-3">
+                    ${diasHtml}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Inicializar acordeón
+    acordeon.querySelectorAll('.acordeon-dia-btn').forEach((btn, idx) => {
+        const sid    = btn.dataset.sid;
+        const cuerpo = document.getElementById(`bodyRb-${sid}`);
+        if (!cuerpo) return;
+
+        cuerpo.style.maxHeight  = '0';
+        cuerpo.style.display    = '';
+        cuerpo.style.overflow   = 'hidden';
+        cuerpo.style.transition = 'max-height 0.3s ease, opacity 0.25s ease';
+        cuerpo.style.opacity    = '0';
+
+        if (idx === 0) {
+            cuerpo.style.maxHeight = cuerpo.scrollHeight + 'px';
+            cuerpo.style.opacity   = '1';
+            btn.classList.remove('acordeon-dia-btn--collapsed');
+        }
+
+        btn.addEventListener('click', () => {
+            const abierto = cuerpo.style.maxHeight !== '0px' && cuerpo.style.maxHeight !== '0';
+            if (abierto) {
+                cuerpo.style.maxHeight = '0';
+                cuerpo.style.opacity   = '0';
+                btn.classList.add('acordeon-dia-btn--collapsed');
+            } else {
+                cuerpo.style.maxHeight = cuerpo.scrollHeight + 'px';
+                cuerpo.style.opacity   = '1';
+                btn.classList.remove('acordeon-dia-btn--collapsed');
+            }
+        });
+    });
+
+    actualizarContadorBloque();
+}
+
+function actualizarContadorBloque() {
+    const checks  = document.querySelectorAll('.reasig-bloque-check:checked');
+    const counter = document.getElementById('contadorReasignarBloque');
+    if (counter) counter.textContent = `${checks.length} horario${checks.length !== 1 ? 's' : ''} seleccionado${checks.length !== 1 ? 's' : ''}`;
+}
+
+const btnSelTodosBloque = document.getElementById('btnSelTodosBloque');
+if (btnSelTodosBloque) {
+    btnSelTodosBloque.addEventListener('click', () => {
+        document.querySelectorAll('.reasig-bloque-check').forEach(c => c.checked = true);
+        actualizarContadorBloque();
+    });
+}
+const btnDeselTodosBloque = document.getElementById('btnDeselTodosBloque');
+if (btnDeselTodosBloque) {
+    btnDeselTodosBloque.addEventListener('click', () => {
+        document.querySelectorAll('.reasig-bloque-check').forEach(c => c.checked = false);
+        actualizarContadorBloque();
+    });
+}
+
+if (btnGuardarReasignarBloque) {
+    btnGuardarReasignarBloque.addEventListener('click', () => {
+        ocultarAlerta(alertaReasignarBloque);
+
+        const checks    = [...document.querySelectorAll('.reasig-bloque-check:checked')];
+        const conductor = document.getElementById('reasigBloque_conductor')?.value;
+        const unidad    = document.getElementById('reasigBloque_unidad')?.value;
+        const desde     = document.getElementById('reasigBloque_desde')?.value;
+        const hasta     = document.getElementById('reasigBloque_hasta')?.value;
+
+        if (!checks.length) { mostrarAlerta(alertaReasignarBloque, 'error', 'Selecciona al menos un horario.'); return; }
+        if (!conductor)     { mostrarAlerta(alertaReasignarBloque, 'error', 'Selecciona un conductor.'); return; }
+        if (!unidad)        { mostrarAlerta(alertaReasignarBloque, 'error', 'Selecciona una unidad.'); return; }
+        if (!desde)         { mostrarAlerta(alertaReasignarBloque, 'error', 'Ingresa la fecha de inicio.'); return; }
+        if (hasta && hasta < desde) { mostrarAlerta(alertaReasignarBloque, 'error', 'La fecha fin no puede ser anterior al inicio.'); return; }
+
+        btnGuardarReasignarBloque.disabled  = true;
+        btnGuardarReasignarBloque.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando…';
+
+        const fd = new FormData();
+        fd.append('asig_ids',     JSON.stringify(checks.map(c => parseInt(c.value))));
+        fd.append('id_conductor', conductor);
+        fd.append('id_unidad',    unidad);
+        fd.append('fecha_inicio', desde);
+        if (hasta) fd.append('fecha_fin', hasta);
+
+        fetch('reasignar_bloque.php', { method:'POST', body:fd })
+            .then(r => r.json())
+            .then(resp => {
+                if (!resp.success) { mostrarAlerta(alertaReasignarBloque, 'error', resp.message); return; }
+                if (modalReasignarBloqueBS) modalReasignarBloqueBS.hide();
+                mostrarAlertaGlobal('exito', resp.message);
+                catalogoCache = null;
+                cargarAsignaciones();
+            })
+            .catch(() => mostrarAlerta(alertaReasignarBloque, 'error', 'Error de conexión.'))
+            .finally(() => {
+                btnGuardarReasignarBloque.disabled  = false;
+                btnGuardarReasignarBloque.innerHTML = '<i class="ri-save-line me-1"></i>Reasignar seleccionados';
+            });
+    });
+}
+
+// ══════════════════════════════════════════════════════════════
+// CAMBIAR ESTADO CONDUCTOR — con bloqueo por asignaciones activas
+// ══════════════════════════════════════════════════════════════
+
+function cambiarEstadoConductor(id, estadoActual) {
+    const nuevoEstado  = parseInt(estadoActual) === 1 ? 0 : 1;
+    const esDesactivar = nuevoEstado === 0;
+
+    // Activar → comportamiento normal
+    if (!esDesactivar) {
+        cambiarEstado(
+            id,
+            estadoActual,
+            'cambiar_estado_conductor.php',
+            'conductor',
+            cargarConductores
+        );
+        return;
+    }
+
+    // Desactivar → primero validar asignaciones
+    const datos = new FormData();
+    datos.append('id', id);
+    datos.append('estado', 0);
+    datos.append('solo_validar', 1);
+
+    fetch('cambiar_estado_conductor.php', {
+        method: 'POST',
+        body: datos
+    })
+    .then(r => r.json())
+    .then(resp => {
+
+        if (resp.tiene_asignaciones) {
+            Swal.fire({
+                title: 'Conductor con asignaciones activas',
+                html: `
+                    <div style="font-size:13px;color:#475569;text-align:left;">
+                        <p class="mb-2">${resp.message}</p>
+                    </div>
+                `,
+                icon: 'warning',
+                iconColor: '#f59e0b',
+                heightAuto: false,
+                width: '420px'
+            });
+            return;
+        }
+        cambiarEstado(
+            id,
+            estadoActual,
+            'cambiar_estado_conductor.php',
+            'conductor',
+            cargarConductores
+        );
+    })
+    .catch(() => {
+        mostrarAlertaGlobal('error', 'Error de conexión.');
     });
 }
 
