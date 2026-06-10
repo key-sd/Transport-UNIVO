@@ -66,6 +66,7 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                 </a>
             </div>
         </header>
+        <!-- para el navbar -->
         <nav class="conductor-nav">
             <a href="#seccion-viajes" class="conductor-nav-link active">
                 <i class="ri-route-line"></i> Viajes
