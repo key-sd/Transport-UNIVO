@@ -19,7 +19,7 @@ body {
     color: #1e293b;
 }
 
-/* Header y Barra de Navegación */
+/* Header y Barra de NavegaciÃƒÆ’Ã‚Â³n */
 .cabecera-sticky {
     position: sticky;
     top: 0;
@@ -213,7 +213,7 @@ body {
     font-size: 17px;
 }
 
-/* Sección de Filtros */
+/* SecciÃƒÆ’Ã‚Â³n de Filtros */
 .filtro-rutas {
     display: flex;
     flex-direction: column;
@@ -321,11 +321,31 @@ body {
     border-color: #cbd5e1;
     background-color: #ffffff;
 }
+.viaje-item.viaje-cancelado {
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.viaje-item.viaje-cancelado:hover {
+    background: #ffe4e6;
+    border-color: #fda4af;
+}
+
+.viaje-item.viaje-cancelado .viaje-hora,
+.viaje-item.viaje-cancelado .viaje-ruta {
+    display: inline;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
 
 .viaje-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
     margin-bottom: 8px;
 }
 
@@ -336,15 +356,20 @@ body {
 }
 
 .viaje-ruta {
+    display: inline;
     font-size: 13px;
     font-weight: 600;
     color: #334155;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 .viaje-badges {
     display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 6px;
-    flex-wrap: wrap;
+    min-width: max-content;
 }
 
 .viaje-badge {
@@ -354,6 +379,7 @@ body {
     border-radius: 20px;
     letter-spacing: 0.3px;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .badge-en_sede { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
@@ -361,6 +387,7 @@ body {
 .badge-en_camino { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
 .badge-llegando { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
 .badge-completado { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-cancelado { background: #dc2626; color: #ffffff; border: 1px solid #b91c1c; }
 .badge-pendiente { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
 .badge-capacidad {
@@ -472,6 +499,16 @@ body {
     margin-top: 1px;
 }
 
+
+.toast-premium.toast-alerta {
+    border-left-color: #ef4444;
+    background: #1f2937;
+}
+
+.toast-premium.toast-alerta i,
+.toast-premium.toast-alerta .toast-title {
+    color: #fecaca;
+}
 .toast-title {
     font-weight: 700;
     font-size: 13px;
@@ -540,8 +577,22 @@ body {
     }
 
 }
+/* Responsive */
+@media (max-width: 480px) {
+    /* Ocultar fecha en mÃƒÆ’Ã‚Â³vil, se ve saturado */
+    .header-fecha-hora { display: none; }
 
-/* Manejo de diseño de alertas para evitar conflictos */
+    .conductor-header { padding: 0.8rem 1rem; }
+
+    /* Nav: solo iconos en pantallas muy pequeÃƒÆ’Ã‚Â±as */
+    .conductor-nav { gap: 4px; padding: 8px; }
+    .conductor-nav-link { padding: 8px 10px; font-size: 12px; }
+
+    .proxima-hora { font-size: 48px; }
+    .estado-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Manejo de diseÃƒÆ’Ã‚Â±o de alertas para evitar conflictos */
 .swal2-container {
     font-family: 'Outfit', sans-serif !important;
 }
@@ -640,5 +691,16 @@ body {
 
     .pasajero-nav-link i {
         font-size: 15px;
+    }
+}
+
+@media (max-width: 560px) {
+    .viaje-item-header {
+        grid-template-columns: 1fr;
+    }
+
+    .viaje-badges {
+        align-items: flex-start;
+        flex-direction: row;
     }
 }

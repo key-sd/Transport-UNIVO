@@ -105,7 +105,7 @@ CREATE TABLE `viajes` (
   `fecha` DATE NOT NULL,
   `hora_salida_programada` TIME NOT NULL,
   `hora_salida_real` TIME DEFAULT NULL,
-  `estado_recorrido` ENUM('en_sede','proximo_salir','en_camino','llegando','completado') NOT NULL DEFAULT 'en_sede',
+  `estado_recorrido` ENUM('en_sede','proximo_salir','en_camino','completado','cancelado') NOT NULL DEFAULT 'en_sede',
   `estado_unidad` ENUM('vacio','medio_lleno','lleno') NOT NULL DEFAULT 'vacio',
   UNIQUE KEY `uq_viaje` (`id_asignacion`, `fecha`),
   CONSTRAINT `fk_viaje_asignacion` FOREIGN KEY (`id_asignacion`) REFERENCES `asignaciones_conductor` (`id`) ON DELETE RESTRICT

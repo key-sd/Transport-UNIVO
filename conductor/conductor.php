@@ -19,6 +19,11 @@ if ($conductor_id) {
     $stmt->close();
 }
 $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_conductor['apellido'] : $nombre_conductor;
+
+// Cambia estos numeros por los contactos reales de soporte/transporte.
+$telefono_whatsapp_jefe = '50377770000';
+$telefono_directo_jefe  = '7777-0000';
+$mensaje_whatsapp_jefe  = rawurlencode('Hola, necesito apoyo con una ruta del transporte UNIVO.');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -131,6 +136,10 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
                     <i class="ri-flag-line"></i>
                     <span>En sede destino</span>
                 </button>
+                <button class="btn-estado btn-estado-cancelado" data-estado="cancelado" disabled>
+                    <i class="ri-close-circle-line"></i>
+                    <span>Cancelado</span>
+                </button>
             </div>
             <div class="capacidad-grupo">
                 <p class="capacidad-label">Capacidad actual</p>
@@ -165,6 +174,22 @@ $nombre_display = $datos_conductor ? $datos_conductor['nombre'] . ' ' . $datos_c
             <p class="gps-estado" id="gps-estado">GPS inactivo</p>
         </section>
     </main>
+
+    <div class="contacto-flotante" id="contactoFlotante">
+        <button type="button" class="contacto-toggle" id="btnContactoFlotante" aria-label="Abrir opciones de contacto" aria-expanded="false">
+            <i class="ri-question-answer-line"></i>
+        </button>
+        <div class="contacto-menu" id="menuContactoFlotante" aria-hidden="true">
+            <a class="contacto-opcion contacto-whatsapp" href="https://wa.me/<?php echo $telefono_whatsapp_jefe; ?>?text=<?php echo $mensaje_whatsapp_jefe; ?>" target="_blank" rel="noopener">
+                <i class="ri-whatsapp-line"></i>
+                <span>WhatsApp</span>
+            </a>
+            <a class="contacto-opcion contacto-llamada" href="tel:<?php echo preg_replace('/\\D+/', '', $telefono_directo_jefe); ?>">
+                <i class="ri-phone-line"></i>
+                <span>Llamar</span>
+            </a>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
