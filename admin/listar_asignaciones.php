@@ -162,7 +162,7 @@ foreach ($conductores as &$c) {
 
     $rutas_fmt = [];
     foreach ($c['rutas'] as $r) {
-        [$origen, $destino] = explode('|', $r);
+        list($origen, $destino) = explode('|', $r);
         $fmt = abreviarSede($origen) . ' → ' . abreviarSede($destino);
         if (!in_array($fmt, $rutas_fmt)) $rutas_fmt[] = $fmt;
     }

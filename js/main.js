@@ -517,7 +517,9 @@ function formatHora(horaStr) {
 
 // TABLA PRINCIPAL — carga el cronograma al entrar a la página
 if (cuerpoTablaCronograma) {
-    document.addEventListener('DOMContentLoaded', cargarCronogramas);
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', cargarCronogramas)
+        : cargarCronogramas();
 }
 
 function cargarCronogramas() {
@@ -526,15 +528,31 @@ function cargarCronogramas() {
         <tr><td colspan="4" class="tabla-empty">
             <i class="ri-loader-4-line ri-spin"></i> Cargando cronograma de horarios...
         </td></tr>`;
+    if (contenedorTarjetasCronograma) {
+        contenedorTarjetasCronograma.innerHTML = `
+            <div class="text-center p-4 text-muted">
+                <i class="ri-loader-4-line ri-spin me-1"></i> Cargando cronograma de horarios...
+            </div>`;
+    }
 
     fetch('listar_cronogramas.php')
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        })
         .then(data => { cronogramas = data; renderTablaCronograma(cronogramas); })
         .catch(() => {
             cuerpoTablaCronograma.innerHTML = `
                 <tr><td colspan="4" class="tabla-empty">
                     <i class="ri-error-warning-line"></i> Error al cargar los datos.
                 </td></tr>`;
+            if (contenedorTarjetasCronograma) {
+                contenedorTarjetasCronograma.innerHTML = `
+                    <div class="text-center p-4 text-danger">
+                        <i class="ri-error-warning-line d-block mb-2" style="font-size:2rem;"></i>
+                        Error al cargar los datos.
+                    </div>`;
+            }
         });
 }
 
@@ -1522,15 +1540,31 @@ function cargarAsignaciones() {
         <tr><td colspan="5" class="tabla-empty">
             <i class="ri-loader-4-line ri-spin"></i> Cargando asignaciones…
         </td></tr>`;
+    if (contenedorTarjetasAsig) {
+        contenedorTarjetasAsig.innerHTML = `
+            <div class="text-center p-4 text-muted">
+                <i class="ri-loader-4-line ri-spin me-1"></i> Cargando asignaciones...
+            </div>`;
+    }
 
     fetch('listar_asignaciones.php')
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+        })
         .then(data => { asignaciones = data; renderTablaAsig(asignaciones); })
         .catch(() => {
             cuerpoTablaAsig.innerHTML = `
                 <tr><td colspan="5" class="tabla-empty">
                     <i class="ri-error-warning-line"></i> Error al cargar los datos.
                 </td></tr>`;
+            if (contenedorTarjetasAsig) {
+                contenedorTarjetasAsig.innerHTML = `
+                    <div class="text-center p-4 text-danger">
+                        <i class="ri-error-warning-line d-block mb-2" style="font-size:2rem;"></i>
+                        Error al cargar los datos.
+                    </div>`;
+            }
         });
 }
 
