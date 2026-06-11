@@ -21,6 +21,29 @@ if ($id <= 0 || !in_array($estado, [0, 1])) {
     exit;
 }
 
+/* Si se intenta DESACTIVAR, verificar asignaciones activas */
+if ($estado === 0) {
+    $chk = $conexion->prepare(
+        "SELECT COUNT(*) AS total FROM asignaciones_conductor WHERE id_unidad = ? AND activo = 1"
+    );
+    $chk->bind_param('i', $id);
+    $chk->execute();
+    $chk->bind_result($total);
+    $chk->fetch();
+    $chk->close();
+
+    if ($total > 0) {
+        echo json_encode([
+            'success'            => false,
+            'tiene_asignaciones' => true,
+            'total'              => $total,
+            'message'            => "Esta unidad tiene {$total} asignación(es) activa(s). Debes liberar esos horarios antes de desactivarla.",
+        ]);
+        exit;
+    }
+}
+
+// Actualizar estado 
 try {
     $stmt = $conexion->prepare("UPDATE unidades SET estado = ? WHERE id = ?");
     $stmt->bind_param('ii', $estado, $id);
@@ -29,8 +52,9 @@ try {
 
     $mensaje = $estado === 1 ? 'Unidad activada exitosamente.' : 'Unidad desactivada exitosamente.';
     echo json_encode(['success' => true, 'message' => $mensaje]);
-
+    
 } catch (Exception $e) {
     error_log('[cambiar_estado_unidad] ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Error interno al actualizar el estado.']);
 }
+$conexion->close();
