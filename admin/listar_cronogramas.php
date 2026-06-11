@@ -1,10 +1,31 @@
 <?php
-require_once '../includes/sesion.php';
-require_once '../includes/conexion.php';
-solo_admin();
+if (function_exists('mysqli_report')) {
+    mysqli_report(MYSQLI_REPORT_OFF);
+}
+
+ini_set('display_errors', 0);
+error_reporting(0);
+
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
 
 date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
+
+if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
+    http_response_code(401);
+    echo json_encode([]);
+    exit;
+}
+
+require_once '../includes/conexion.php';
+
+set_exception_handler(function () {
+    http_response_code(500);
+    echo json_encode([]);
+    exit;
+});
 
 /* Devuelve los cronogramas agrupados por ruta (origen → destino). Cada ruta incluye los días que tiene registrados.*/
 $sql = "

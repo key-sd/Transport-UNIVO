@@ -1,15 +1,33 @@
 <?php
-require_once '../includes/sesion.php';
-require_once '../includes/conexion.php';
-solo_admin();
+if (function_exists('mysqli_report')) {
+    mysqli_report(MYSQLI_REPORT_OFF);
+}
 
 ini_set('display_errors', 0);
 error_reporting(0);
 
+if (session_status() === PHP_SESSION_NONE) {
+    @session_start();
+}
+
 date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
-$id_conductor = intval($_GET['id_conductor'] ?? 0);
+if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
+    http_response_code(401);
+    echo json_encode([]);
+    exit;
+}
+
+require_once '../includes/conexion.php';
+
+set_exception_handler(function () {
+    http_response_code(500);
+    echo json_encode([]);
+    exit;
+});
+
+$id_conductor = isset($_GET['id_conductor']) ? intval($_GET['id_conductor']) : 0;
 
 // DETALLE: asignaciones activas de un conductor
 if ($id_conductor > 0) {
@@ -176,12 +194,12 @@ unset($c);
 
 echo json_encode(array_values($conductores));
 
-function abreviarSede(string $nombre = ''): string {
+function abreviarSede($nombre = '') {
     if ($nombre === '') return '—';
     $map = [
         'Sede Central'                   => 'Sede C.',
         'Ciudad Universitaria'           => 'C. Univ.',
         'Campus Agronomía y Veterinaria' => 'Agronomía',
     ];
-    return $map[$nombre] ?? explode(' ', $nombre)[0];
+    return isset($map[$nombre]) ? $map[$nombre] : explode(' ', $nombre)[0];
 }
