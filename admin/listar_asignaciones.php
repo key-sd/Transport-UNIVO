@@ -13,9 +13,16 @@ if (session_status() === PHP_SESSION_NONE) {
 date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
+$debug = isset($_GET['debug']) && $_GET['debug'] === '1';
+
 if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
     http_response_code(401);
-    echo json_encode([]);
+    echo json_encode($debug ? [
+        'success' => false,
+        'stage' => 'auth',
+        'message' => 'Sesion admin no encontrada',
+        'session_keys' => array_keys($_SESSION),
+    ] : []);
     exit;
 }
 
@@ -129,7 +136,15 @@ $sql = "
 ";
 
 $res = $conn->query($sql);
-if (!$res) { http_response_code(500); echo json_encode([]); exit; }
+if (!$res) {
+    http_response_code(500);
+    echo json_encode($debug ? [
+        'success' => false,
+        'stage' => 'query_general',
+        'message' => $conn->error,
+    ] : []);
+    exit;
+}
 
 $orden_dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 $abrev      = ['Lunes'=>'Lun','Martes'=>'Mar','Miércoles'=>'Mié','Jueves'=>'Jue',
@@ -192,7 +207,12 @@ foreach ($conductores as &$c) {
 }
 unset($c);
 
-echo json_encode(array_values($conductores));
+echo json_encode($debug ? [
+    'success' => true,
+    'stage' => 'ok',
+    'count' => count($conductores),
+    'data' => array_values($conductores),
+] : array_values($conductores));
 
 function abreviarSede($nombre = '') {
     if ($nombre === '') return '—';

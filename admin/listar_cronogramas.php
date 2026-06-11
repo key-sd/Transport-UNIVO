@@ -13,9 +13,16 @@ if (session_status() === PHP_SESSION_NONE) {
 date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
+$debug = isset($_GET['debug']) && $_GET['debug'] === '1';
+
 if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
     http_response_code(401);
-    echo json_encode([]);
+    echo json_encode($debug ? [
+        'success' => false,
+        'stage' => 'auth',
+        'message' => 'Sesion admin no encontrada',
+        'session_keys' => array_keys($_SESSION),
+    ] : []);
     exit;
 }
 
@@ -64,7 +71,11 @@ $resultado = $conn->query($sql);
 
 if (!$resultado) {
     http_response_code(500);
-    echo json_encode([]);
+    echo json_encode($debug ? [
+        'success' => false,
+        'stage' => 'query_cronogramas',
+        'message' => $conn->error,
+    ] : []);
     exit;
 }
 
@@ -86,4 +97,9 @@ while ($fila = $resultado->fetch_assoc()) {
     $rutas[$key]['dias'][] = $fila['dia_semana'];
 }
 
-echo json_encode(array_values($rutas));
+echo json_encode($debug ? [
+    'success' => true,
+    'stage' => 'ok',
+    'count' => count($rutas),
+    'data' => array_values($rutas),
+] : array_values($rutas));
