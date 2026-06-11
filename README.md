@@ -29,6 +29,8 @@ Diseñar e implementar una plataforma web que permita gestionar y monitorear el 
 - Remix Icons → Iconografía
 - Animate.css → Animaciones del sistema
 - XAMPP → Entorno de desarrollo local
+- leaflet → Visualización de mapas interactivos y geolocalización.
+- Web Notification → Envío de notificaciones en tiempo real al navegador.
 
 ---
 
@@ -103,7 +105,7 @@ http://localhost/Transport-UNIVO/
 
 ### Pasajero
 
-- **Usuario:** U20260003
+- **Usuario:** u20260002
 - **Contraseña:** pasajeropass
 
 ---
@@ -127,6 +129,9 @@ En caso de dudas con la instalación, contactar a:
 
 ### 🚍 Panel Conductor
 ![Conductor](Evidencias/conductor.png)
+
+### 👤 Panel Pasajero
+![Pasajero](Evidencias/pasajero.png)
 
 
 ---
