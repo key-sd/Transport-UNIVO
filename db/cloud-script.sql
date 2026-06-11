@@ -1,8 +1,3 @@
--- Crear base de datos LOCAL
-CREATE DATABASE `db_transport_univo` 
-DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE db_transport_univo;
-
 -- Tabla de roles
 CREATE TABLE `roles` (
   `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,

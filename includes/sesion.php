@@ -20,7 +20,7 @@ date_default_timezone_set('America/El_Salvador');
  */
 function solo_admin(): void {
     if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-        header('Location: ../login.php');
+        header("Location: /login.php");
         exit;
     }
 }
@@ -30,7 +30,7 @@ function solo_admin(): void {
  */
 function solo_conductor(): void {
     if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
-        header('Location: ../login.php');
+        header("Location: /login.php");;
         exit;
     }
 }
@@ -40,7 +40,7 @@ function solo_conductor(): void {
  */
 function autenticado(): void {
     if (empty($_SESSION['usuario_id'])) {
-        header('Location: ../login.php');
+        header("Location: /login.php");
         exit;
     }
 }

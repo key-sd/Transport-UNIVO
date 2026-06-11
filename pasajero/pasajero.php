@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'pasajero') {
-    header("Location: /Transport-UNIVO/login.php");
+    header("Location: /login.php");
     exit();
 }
 require_once '../includes/conexion.php';

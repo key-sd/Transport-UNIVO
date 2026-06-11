@@ -3,7 +3,7 @@ session_start();
 
 // protección de ruta por rol
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-    header("Location: /Transport-UNIVO/login.php");
+    header("Location: /login.php");
     exit();
 }
 

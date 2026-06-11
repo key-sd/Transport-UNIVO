@@ -47,17 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             switch ($datos['rol']) {
                 case 'admin':
-                    header("Location: /Transport-UNIVO/admin/admin.php");
+                    header("Location: /admin/admin.php");
                     break;
                 case 'conductor':
-                    header("Location: /Transport-UNIVO/conductor/conductor.php");
+                    header("Location: /conductor/conductor.php");
                     break;
                 case 'pasajero':
-                    header("Location: /Transport-UNIVO/pasajero/pasajero.php");
+                    header("Location: /pasajero/pasajero.php");
                     break;
                 default:
                     $_SESSION['error'] = "Rol no reconocido.";
-                    header("Location: login.php");
+                    header("Location: /login.php");
             }
             exit();
 

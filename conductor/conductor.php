@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'conductor') {
-    header("Location: /Transport-UNIVO/login.php");
+    header("Location: /login.php");
     exit();
 }
 date_default_timezone_set('America/El_Salvador');
