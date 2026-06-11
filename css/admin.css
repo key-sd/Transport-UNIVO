@@ -1390,6 +1390,48 @@ body {
     .stats-grid   { grid-template-columns: 1fr; }
     .dashboard-grid { grid-template-columns: 1fr; }
     .navbar-fecha  { font-size: 12px; }
+    .admin-main > .d-flex.justify-content-between {
+        gap: 12px;
+        align-items: flex-start !important;
+    }
+
+    .btn-agregar,
+    .btn-guardar,
+    .btn-cancelar {
+        min-height: 38px;
+        padding: 0.5rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.82rem;
+    }
+
+    .conductor-card-mobile .btn-accion:has(i),
+    .asig-card-mobile .btn-accion:has(i) {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+        font-size: 0;
+        flex: 0 0 34px !important;
+    }
+
+    .conductor-card-mobile .btn-accion:has(i) i,
+    .asig-card-mobile .btn-accion:has(i) i {
+        margin: 0 !important;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .conductor-card-mobile .btn-accion:not(:has(i)) {
+        min-height: 34px;
+        padding: 0 10px;
+        justify-content: center;
+    }
+
+    .asig-card-mobile .d-flex.flex-wrap.gap-1.mt-2 {
+        gap: 8px !important;
+    }
 }
 
 @media (max-width: 480px) {

@@ -1,8 +1,4 @@
 <?php
-/*
-    accion = 'revocar_bloque'    → cierra TODAS las asignaciones activas del conductor
-    accion = 'revocar_una'       → cierra UNA asignación específica
-*/
 require_once '../includes/sesion.php';
 require_once '../includes/conexion.php';
 solo_admin();

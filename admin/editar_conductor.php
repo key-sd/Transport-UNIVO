@@ -11,9 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-/*
-Regoge y limpia la entrada de datos
-*/
 $conductor_id         = intval($_POST['conductor_id']         ?? 0);
 $nombre               = trim($_POST['nombre']                 ?? '');
 $apellido             = trim($_POST['apellido']               ?? '');
@@ -22,9 +19,6 @@ $codigo = trim($_POST['codigo']   ?? '');
 $password             = $_POST['password']                    ?? '';
 $confirmar_pwd        = $_POST['confirmar_password']          ?? '';
 
-/*
-Validaciones
-*/
 $errores = [];
 
 if ($conductor_id <= 0)           $errores[] = 'ID de conductor inválido.';
@@ -45,9 +39,6 @@ if (!empty($errores)) {
     exit;
 }
 
-/* 
-obetener el usuario_id del conductor
-*/
 $stmtGet = $conn->prepare("SELECT usuario_id FROM conductores WHERE id = ? LIMIT 1");
 $stmtGet->bind_param('i', $conductor_id);
 $stmtGet->execute();
@@ -59,10 +50,7 @@ if (empty($usuario_id)) {
     echo json_encode(['success' => false, 'message' => 'Conductor no encontrado.']);
     exit;
 }
-
-/* ════════════════════════════════════════════════
-   4. VERIFICAR QUE EL CÓDIGO NO LO USE OTRO USUARIO
-════════════════════════════════════════════════ */
+// 4. VERIFICAR QUE EL CÓDIGO NO LO USE OTRO USUARIO
 $stmtDup = $conn->prepare(
     "SELECT id FROM usuarios WHERE codigo = ? AND id != ? LIMIT 1"
 );
@@ -80,14 +68,10 @@ if ($stmtDup->num_rows > 0) {
 }
 $stmtDup->close();
 
-/* 
-   consultas de update a las tablas
-*/
+
 $conn->begin_transaction();
 
 try {
-
-    /* ── UPDATE usuarios ── */
     if ($cambiarPassword) {
         $password_hash = password_hash($password, PASSWORD_BCRYPT);
         $stmtU = $conn->prepare(

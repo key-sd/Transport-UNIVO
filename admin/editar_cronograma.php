@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 /*Recibe las acciones de agregar/eliminar pero en eliminar solamente es la hora*/
-
 $accion = trim($_POST['accion'] ?? '');
 
 /* AGREGAR una hora a una ruta+día */

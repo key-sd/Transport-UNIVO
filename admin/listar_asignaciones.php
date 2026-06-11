@@ -1,10 +1,4 @@
 <?php
-/*
-    listar_asignaciones.php
-    ───────────────────────
-    GET (sin param)         → listado general de conductores con sus asignaciones activas
-    GET ?id_conductor=N     → detalle de asignaciones activas de un conductor específico
-*/
 require_once '../includes/sesion.php';
 require_once '../includes/conexion.php';
 solo_admin();
@@ -17,9 +11,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 $id_conductor = intval($_GET['id_conductor'] ?? 0);
 
-// ══════════════════════════════════════════════════════════════
 // DETALLE: asignaciones activas de un conductor
-// ══════════════════════════════════════════════════════════════
 if ($id_conductor > 0) {
 
     $sql = "
@@ -44,7 +36,16 @@ if ($id_conductor > 0) {
         WHERE ac.id_conductor = ?
           AND ac.activo = 1
         ORDER BY
-            FIELD(ch.dia_semana,'Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'),
+            CASE ch.dia_semana
+                WHEN 'Lunes' THEN 1
+                WHEN 'Martes' THEN 2
+                WHEN 'Miércoles' THEN 3
+                WHEN 'Jueves' THEN 4
+                WHEN 'Viernes' THEN 5
+                WHEN 'Sábado' THEN 6
+                WHEN 'Domingo' THEN 7
+                ELSE 8
+            END,
             ch.hora_salida
     ";
 
@@ -77,9 +78,7 @@ if ($id_conductor > 0) {
     exit;
 }
 
-// ══════════════════════════════════════════════════════════════
 // LISTADO GENERAL — un objeto por conductor con resumen
-// ══════════════════════════════════════════════════════════════
 $sql = "
     SELECT
         c.id            AS conductor_id,
@@ -99,7 +98,16 @@ $sql = "
     LEFT JOIN sedes sd ON sd.id = ch.id_sede_destino
     LEFT JOIN unidades u ON u.id  = ac.id_unidad
     ORDER BY c.id,
-             FIELD(ch.dia_semana,'Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo')
+             CASE ch.dia_semana
+                WHEN 'Lunes' THEN 1
+                WHEN 'Martes' THEN 2
+                WHEN 'Miércoles' THEN 3
+                WHEN 'Jueves' THEN 4
+                WHEN 'Viernes' THEN 5
+                WHEN 'Sábado' THEN 6
+                WHEN 'Domingo' THEN 7
+                ELSE 8
+             END
 ";
 
 $res = $conn->query($sql);
@@ -145,8 +153,12 @@ while ($f = $res->fetch_assoc()) {
 }
 
 foreach ($conductores as &$c) {
-    usort($c['dias'], fn($a,$b) => array_search($a, $orden_dias) - array_search($b, $orden_dias));
-    $c['dias_abrev'] = array_map(fn($d) => $abrev[$d] ?? $d, $c['dias']);
+    usort($c['dias'], function ($a, $b) use ($orden_dias) {
+        return array_search($a, $orden_dias) - array_search($b, $orden_dias);
+    });
+    $c['dias_abrev'] = array_map(function ($d) use ($abrev) {
+        return $abrev[$d] ?? $d;
+    }, $c['dias']);
 
     $rutas_fmt = [];
     foreach ($c['rutas'] as $r) {

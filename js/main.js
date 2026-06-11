@@ -2148,10 +2148,7 @@ if (btnGuardarReasignacion) {
     });
 }
 
-// ══════════════════════════════════════════════════════════════
 // MODAL REVOCAR BLOQUE
-// ══════════════════════════════════════════════════════════════
-
 function abrirRevocarBloque(conductorId, nombre, totalAsig) {
     conductorDetalleId     = conductorId;
     conductorDetalleNombre = nombre;

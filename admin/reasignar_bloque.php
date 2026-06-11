@@ -1,9 +1,4 @@
 <?php
-/*
-    Recibe un array de asig_ids[] + nuevo id_conductor + nuevo id_unidad
-    Para cada ID: cierra la asignación actual y crea una nueva con el mismo cronograma
-    pero con el conductor/unidad nuevos. Valida conflictos de día+hora para cada registro.
-*/
 require_once '../includes/sesion.php';
 require_once '../includes/conexion.php';
 solo_admin();

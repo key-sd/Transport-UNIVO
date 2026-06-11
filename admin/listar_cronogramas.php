@@ -7,7 +7,6 @@ date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
 /* Devuelve los cronogramas agrupados por ruta (origen → destino). Cada ruta incluye los días que tiene registrados.*/
-
 $sql = "
     SELECT
         ch.id_sede_origen,
@@ -19,9 +18,25 @@ $sql = "
     FROM cronograma_horarios ch
     INNER JOIN sedes so ON so.id = ch.id_sede_origen
     INNER JOIN sedes sd ON sd.id = ch.id_sede_destino
-    GROUP BY ch.id_sede_origen, ch.id_sede_destino, ch.dia_semana
-    ORDER BY ch.id_sede_origen, ch.id_sede_destino, FIELD(ch.dia_semana,
-        'Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo')
+    GROUP BY
+        ch.id_sede_origen,
+        ch.id_sede_destino,
+        so.nombre,
+        sd.nombre,
+        ch.dia_semana
+    ORDER BY
+        ch.id_sede_origen,
+        ch.id_sede_destino,
+        CASE ch.dia_semana
+            WHEN 'Lunes' THEN 1
+            WHEN 'Martes' THEN 2
+            WHEN 'Miércoles' THEN 3
+            WHEN 'Jueves' THEN 4
+            WHEN 'Viernes' THEN 5
+            WHEN 'Sábado' THEN 6
+            WHEN 'Domingo' THEN 7
+            ELSE 8
+        END
 ";
 
 $resultado = $conn->query($sql);

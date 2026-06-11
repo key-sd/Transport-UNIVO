@@ -1,11 +1,4 @@
 <?php
-/*
-    crear_cronograma.php
-    ────────────────────
-    Recibe origen, destino, uno o varios días y una o varias horas.
-    Por cada combinación día+hora llama a la misma lógica que editar_cronograma.php (accion=agregar).
-    Devuelve un resumen de éxitos y errores.
-*/
 require_once '../includes/sesion.php';
 require_once '../includes/conexion.php';
 solo_admin();
@@ -23,7 +16,7 @@ $destino = intval($_POST['id_sede_destino'] ?? 0);
 $dias    = $_POST['dias']  ?? [];   // array: ['Martes','Jueves',...]
 $horas   = $_POST['horas'] ?? [];   // array: ['06:40','12:30',...]
 
-/* ── Validaciones básicas ── */
+/* Validaciones básicas */
 $errores = [];
 if ($origen  <= 0)           $errores[] = 'El origen es obligatorio.';
 if ($destino <= 0)           $errores[] = 'El destino es obligatorio.';
@@ -100,7 +93,7 @@ foreach ($dias as $dia) {
     }
 }
 
-/* ── Respuesta final ── */
+// Respuesta final
 if ($insertados === 0) {
     $msg = !empty($err_msgs)
         ? implode(' ', array_unique($err_msgs))

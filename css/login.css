@@ -250,3 +250,60 @@ body {
 
     .bienvenida-titulo { font-size: 1.6rem; }
 }
+
+/* Ajustes finales para que Bootstrap/Flowbite no deformen los campos */
+.campo-input-group {
+    border-radius: 10px;
+    box-shadow: 0 1px 0 #ffffff80;
+}
+
+.campo-input-group .input-group-text,
+.campo-input-group .form-control,
+#btnVerPass {
+    min-height: 44px;
+    background: #f8fbff;
+    border-color: #d7e3f5;
+    color: #0d2346;
+}
+
+.campo-input-group .form-control {
+    border-radius: 0 10px 10px 0;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+}
+
+.campo-input-group .form-control::placeholder {
+    color: #6f86ab;
+}
+
+.campo-input-group .form-control:focus {
+    background: #ffffff;
+    border-color: #f5c518;
+    box-shadow: none;
+    color: #0d2346;
+}
+
+.campo-input-group:focus-within .input-group-text,
+.campo-input-group:focus-within #btnVerPass {
+    background: #ffffff;
+    border-color: #f5c518;
+}
+
+#btnVerPass {
+    width: 44px;
+    justify-content: center;
+    border-radius: 0 10px 10px 0;
+}
+
+#btnVerPass:hover {
+    background: #eef5ff;
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 1.2rem 1.25rem 1.75rem;
+        border-radius: 16px;
+    }
+}
