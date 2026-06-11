@@ -1,46 +1,25 @@
 <?php
+ini_set('display_errors', 0);
+error_reporting(0);
+
 if (function_exists('mysqli_report')) {
     mysqli_report(MYSQLI_REPORT_OFF);
 }
 
-ini_set('display_errors', 0);
-error_reporting(0);
-
-if (session_status() === PHP_SESSION_NONE) {
-    @session_start();
-}
-
-date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
+date_default_timezone_set('America/El_Salvador');
 
-$debug = isset($_GET['debug']) && $_GET['debug'] === '1';
-
-if (empty($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-    http_response_code(401);
-    echo json_encode($debug ? [
-        'success' => false,
-        'stage' => 'auth',
-        'message' => 'Sesion admin no encontrada',
-        'session_keys' => array_keys($_SESSION),
-    ] : []);
-    exit;
+require_once __DIR__ . '/../includes/conexion.php';
+if (method_exists($conn, 'set_charset')) {
+    $conn->set_charset('utf8mb4');
 }
 
-require_once '../includes/conexion.php';
-
-set_exception_handler(function () {
-    http_response_code(500);
-    echo json_encode([]);
-    exit;
-});
-
-/* Devuelve los cronogramas agrupados por ruta (origen → destino). Cada ruta incluye los días que tiene registrados.*/
 $sql = "
     SELECT
         ch.id_sede_origen,
         ch.id_sede_destino,
-        so.nombre  AS origen,
-        sd.nombre  AS destino,
+        so.nombre AS origen,
+        sd.nombre AS destino,
         ch.dia_semana,
         MIN(ch.estado) AS estado
     FROM cronograma_horarios ch
@@ -68,38 +47,47 @@ $sql = "
 ";
 
 $resultado = $conn->query($sql);
-
 if (!$resultado) {
-    http_response_code(500);
-    echo json_encode($debug ? [
-        'success' => false,
-        'stage' => 'query_cronogramas',
-        'message' => $conn->error,
-    ] : []);
+    responderJson(array());
     exit;
 }
 
-// Agrupar por ruta (origen+destino)
-$rutas = [];
+$rutas = array();
 while ($fila = $resultado->fetch_assoc()) {
     $key = $fila['id_sede_origen'] . '-' . $fila['id_sede_destino'];
+
     if (!isset($rutas[$key])) {
-        $rutas[$key] = [
-            'ruta_key'        => $key,
-            'id_sede_origen'  => (int) $fila['id_sede_origen'],
+        $rutas[$key] = array(
+            'ruta_key' => $key,
+            'id_sede_origen' => (int) $fila['id_sede_origen'],
             'id_sede_destino' => (int) $fila['id_sede_destino'],
-            'origen'          => $fila['origen'],
-            'destino'         => $fila['destino'],
-            'dias'            => [],
-            'estado'          => (int) $fila['estado'],
-        ];
+            'origen' => $fila['origen'],
+            'destino' => $fila['destino'],
+            'dias' => array(),
+            'estado' => (int) $fila['estado'],
+        );
     }
+
     $rutas[$key]['dias'][] = $fila['dia_semana'];
 }
 
-echo json_encode($debug ? [
-    'success' => true,
-    'stage' => 'ok',
-    'count' => count($rutas),
-    'data' => array_values($rutas),
-] : array_values($rutas));
+responderJson(array_values($rutas));
+
+function responderJson($data)
+{
+    $json = json_encode($data);
+    if ($json !== false) {
+        echo $json;
+        return;
+    }
+
+    array_walk_recursive($data, function (&$value) {
+        if (is_string($value)) {
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+            $value = $converted === false ? '' : $converted;
+        }
+    });
+
+    $json = json_encode($data);
+    echo $json === false ? '[]' : $json;
+}
