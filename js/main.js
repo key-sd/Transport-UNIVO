@@ -1546,7 +1546,7 @@ function renderTablaAsig(lista) {
         return;
     }
 
-    cuerpoTablaAsig.innerHTML = lista.map((c, i) => {
+    cuerpoTablaAsig.innerHTML = lista.map((c) => {
         const diasBadges  = (c.dias_abrev || []).map(d =>
             `<span class="badge-dia">${d}</span>`).join('');
         const rutasBadges = (c.rutas_fmt || []).map(r =>
@@ -1556,19 +1556,26 @@ function renderTablaAsig(lista) {
             : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
         const tieneAsig   = (c.total_asignaciones || 0) > 0;
 
-        // Botones de acción — solo aparecen si tiene asignaciones activas
-        const btnRevocar = tieneAsig
-            ? `<button class="btn-accion btn-accion-desactivar"
-                       onclick="abrirRevocarBloque(${c.id},'${escHtml(c.nombre)}',${c.total_asignaciones || 0})"
-                       title="Revocar todos los horarios">
-                   <i class="ri-calendar-close-line me-1"></i>Revocar
-               </button>` : '';
-        const btnReasignar = tieneAsig
-            ? `<button class="btn-accion btn-accion-reasignar"
-                       onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')"
-                       title="Reasignar horarios en bloque">
-                   <i class="ri-user-shared-line me-1"></i>Reasignar
-               </button>` : '';
+        // ── Solo se muestran acciones si tiene asignaciones activas ──
+        const acciones = tieneAsig
+            ? `<div class="d-flex align-items-center gap-1 flex-wrap">
+                   <button class="btn-accion btn-accion-desactivar"
+                           onclick="abrirRevocarBloque(${c.id},'${escHtml(c.nombre)}',${c.total_asignaciones || 0})"
+                           title="Revocar todos los horarios">
+                       <i class="ri-calendar-close-line me-1"></i>Revocar
+                   </button>
+                   <button class="btn-accion btn-accion-reasignar"
+                           onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')"
+                           title="Reasignar horarios en bloque">
+                       <i class="ri-user-shared-line me-1"></i>Reasignar
+                   </button>
+                   <button class="btn-accion btn-accion-ver"
+                           onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
+                           title="Ver y editar asignaciones individualmente">
+                       <i class="ri-edit-line me-1"></i>Editar
+                   </button>
+               </div>`
+            : `<span class="text-muted small">—</span>`;
 
         return `
         <tr class="animate__animated animate__fadeIn">
@@ -1581,17 +1588,7 @@ function renderTablaAsig(lista) {
             <td><div class="d-flex flex-wrap gap-1">${rutasBadges || '<span class="text-muted small">Sin asignar</span>'}</div></td>
             <td><div class="d-flex flex-wrap gap-1">${diasBadges || '<span class="text-muted small">—</span>'}</div></td>
             <td>${estadoBadge}</td>
-            <td>
-                <div class="d-flex align-items-center gap-1 flex-wrap">
-                    ${btnRevocar}
-                    ${btnReasignar}
-                    <button class="btn-accion btn-accion-ver"
-                            onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
-                            title="Ver y editar asignaciones individualmente">
-                        <i class="ri-edit-line me-1"></i>Editar
-                    </button>
-                </div>
-            </td>
+            <td>${acciones}</td>
         </tr>`;
     }).join('');
 
@@ -1617,6 +1614,24 @@ function renderTarjetasAsig(lista) {
             : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
         const tieneAsig = (c.total_asignaciones || 0) > 0;
 
+        // ── Solo se muestran botones si tiene asignaciones activas ──
+        const botonesAccion = tieneAsig
+            ? `<div class="d-flex flex-wrap gap-1 mt-2">
+                   <button class="btn-accion btn-accion-desactivar"
+                           onclick="abrirRevocarBloque(${c.id},'${escHtml(c.nombre)}',${c.total_asignaciones || 0})">
+                       <i class="ri-calendar-close-line me-1"></i>Revocar
+                   </button>
+                   <button class="btn-accion btn-accion-reasignar"
+                           onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')">
+                       <i class="ri-user-shared-line me-1"></i>Reasignar
+                   </button>
+                   <button class="btn-accion btn-accion-ver"
+                           onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
+                       <i class="ri-edit-line me-1"></i>Editar
+                   </button>
+               </div>`
+            : '';
+
         return `
         <div class="asig-card-mobile animate__animated animate__fadeIn">
             <div class="d-flex align-items-start gap-3">
@@ -1626,24 +1641,10 @@ function renderTarjetasAsig(lista) {
                         <p class="fw-semibold mb-0" style="color:#0d2346;font-size:14px;">${escHtml(c.nombre)}</p>
                         ${estadoBadge}
                     </div>
-                    <div class="d-flex flex-wrap gap-1 mb-2">
+                    <div class="d-flex flex-wrap gap-1">
                         ${diasBadges || '<span class="text-muted small">Sin días asignados</span>'}
                     </div>
-                    <div class="d-flex flex-wrap gap-1">
-                        ${tieneAsig ? `
-                        <button class="btn-accion btn-accion-desactivar"
-                                onclick="abrirRevocarBloque(${c.id},'${escHtml(c.nombre)}',${c.total_asignaciones || 0})">
-                            <i class="ri-calendar-close-line me-1"></i>Revocar
-                        </button>
-                        <button class="btn-accion btn-accion-reasignar"
-                                onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')">
-                            <i class="ri-user-shared-line me-1"></i>Reasignar
-                        </button>` : ''}
-                        <button class="btn-accion btn-accion-ver"
-                                onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
-                            <i class="ri-edit-line me-1"></i>Editar
-                        </button>
-                    </div>
+                    ${botonesAccion}
                 </div>
             </div>
         </div>`;
@@ -2461,10 +2462,7 @@ if (btnGuardarReasignarBloque) {
             });
     });
 }
-
-// ══════════════════════════════════════════════════════════════
 // CAMBIAR ESTADO CONDUCTOR — con bloqueo por asignaciones activas
-// ══════════════════════════════════════════════════════════════
 
 function cambiarEstadoConductor(id, estadoActual) {
     const nuevoEstado  = parseInt(estadoActual) === 1 ? 0 : 1;
@@ -2482,7 +2480,7 @@ function cambiarEstadoConductor(id, estadoActual) {
         return;
     }
 
-    // Desactivar → primero validar asignaciones
+    // Desactivar primero validar asignaciones
     const datos = new FormData();
     datos.append('id', id);
     datos.append('estado', 0);
@@ -2521,6 +2519,76 @@ function cambiarEstadoConductor(id, estadoActual) {
     .catch(() => {
         mostrarAlertaGlobal('error', 'Error de conexión.');
     });
+}
+
+// Cambiar estado de unidad y verifica si tiene asignaciones activas
+function cambiarEstadoUnidad(id, estadoActual) {
+    const nuevoEstado  = parseInt(estadoActual) === 1 ? 0 : 1;
+    const esDesactivar = nuevoEstado === 0;
+
+    // Activar comportamiento normal sin validación extra
+    if (!esDesactivar) {
+        cambiarEstado(
+            id,
+            estadoActual,
+            'cambiar_estado_unidad.php',
+            'unidad',
+            cargarUnidades,
+            {
+                activar: 'Esta unidad volverá a estar disponible para asignaciones.'
+            }
+        );
+        return;
+    }
+    // Desactivar primero validar si tiene asignaciones activas
+    const datos = new FormData();
+    datos.append('id',     id);
+    datos.append('estado', 0);
+
+    fetch('cambiar_estado_unidad.php', { method: 'POST', body: datos })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.tiene_asignaciones) {
+                Swal.fire({
+                    title: 'Unidad con asignaciones activas',
+                    html: `
+                        <div style="font-size:13px;color:#475569;text-align:left;">
+                            <p class="mb-2">${resp.message}</p>
+                            <p class="mb-0" style="color:#94a3b8;">
+                                Ve a <strong>Gestión de Asignaciones</strong> y reasigna
+                                los conductores a otra unidad antes de desactivar esta.
+                            </p>
+                        </div>`,
+                    icon: 'warning',
+                    iconColor: '#f59e0b',
+                    confirmButtonText: 'Ok',
+                    confirmButtonColor: '#0d2346',
+                    heightAuto: false,
+                    width: '420px',
+                    customClass: {
+                        popup:         'rounded-4',
+                        title:         'fs-5 fw-semibold',
+                        confirmButton: 'btn btn-sm px-4 rounded-3',
+                        icon:          'swal-icono-chico'
+                    }
+                });
+                return;
+            }
+
+            // Sin asignaciones activas se confirma y desactiva
+            cambiarEstado(
+                id,
+                estadoActual,
+                'cambiar_estado_unidad.php',
+                'unidad',
+                cargarUnidades,
+                {
+                    desactivar: 'Esta unidad no estará disponible para nuevas asignaciones.',
+                    activar:    'Esta unidad volverá a estar disponible para asignaciones.'
+                }
+            );
+        })
+        .catch(() => mostrarAlertaGlobal('error', 'Error de conexión.'));
 }
 
 // ══════════════════════════════════════════════════════════════
