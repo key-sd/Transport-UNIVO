@@ -125,13 +125,16 @@ INSERT INTO `roles` (`nombre`) VALUES
 -- Insertar usuarios
 INSERT INTO `usuarios` (`codigo`, `password_hash`, `rol_id`) VALUES 
 ('a20260001','$2y$10$vqyXr8as1lK//K.JQF3Q2uxC9h4ivZl4Ijj.FfJfcyw.aCIqDA1Pi', 1), 
-('u20260002','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2);
+('u20260001','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2),
+('u20260002','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2),
+('u20260003','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2),
+('u20260004','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2),
+('u20260005','$2y$10$kmxPL1U7kDc59MM71rr4rO5yQOyJAfxYpaViQglHvXZ9kNrmOcN8G', 2);
 -- Insertar sedes
 INSERT INTO `sedes` (`nombre`) VALUES
 ('Sede Central'),
 ('Ciudad Universitaria'),
 ('Campus Agronomia y Veterinaria');
-
 
 -- Insertar usuarios
 INSERT INTO `usuarios` (`codigo`, `password_hash`, `rol_id`) VALUES 
@@ -140,146 +143,149 @@ INSERT INTO `usuarios` (`codigo`, `password_hash`, `rol_id`) VALUES
 ('c0003','$2y$10$LXz7KvcADrt8rxvU2wk3Ye0Sqd.Se0hhmRD1CAxf6g3tpN5/MwyFG',3);
 -- Conductores reales del horario
 INSERT INTO `conductores` (`usuario_id`,`nombre`,`apellido`,`telefono`) VALUES
-(3,'Salvador','Aleman',  '7777-0001'),
-(4,'Oscar',   'Hernandez','7777-0002'),
-(5,'Manuel',  'Ramos',   '7777-0003');
+(6,'Salvador','Aleman',  '7777-0001'),
+(7,'Oscar',   'Hernandez','7777-0002'),
+(8,'Manuel',  'Ramos',   '7777-0003');
 -- Vehículos reales
 INSERT INTO `unidades` (`nombre`,`placa`,`capacidad_maxima`) VALUES
 ('Coaster Hyundai','HYU-001',20),
 ('Coaster Nissan', 'NIS-001',20);
---  cronograma de horarios — Martes, Miércoles y Jueves completos
---  Rutas: 1=SC→CU  2=CU→SC  3=SC→Agro  4=Agro→SC
 
--- RUTA 1: Sede Central → Ciudad Universitaria 
-INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
--- Martes
-(1,2,'Martes','06:40','Matutino'),
-(1,2,'Martes','08:00','Matutino'),
-(1,2,'Martes','10:00','Matutino'),
-(1,2,'Martes','12:30','Vespertino'),
-(1,2,'Martes','15:15','Vespertino'),
-(1,2,'Martes','16:40','Vespertino'),
--- Miércoles
-(1,2,'Miercoles','06:40','Matutino'),
-(1,2,'Miercoles','08:00','Matutino'),
-(1,2,'Miercoles','11:10','Matutino'),
-(1,2,'Miercoles','12:50','Vespertino'),
-(1,2,'Miercoles','16:00','Vespertino'),
-(1,2,'Miercoles','16:45','Vespertino'),
--- Jueves
-(1,2,'Jueves','06:40','Matutino'),
-(1,2,'Jueves','08:00','Matutino'),
-(1,2,'Jueves','10:00','Matutino'),
-(1,2,'Jueves','12:30','Vespertino'),
-(1,2,'Jueves','15:15','Vespertino'),
-(1,2,'Jueves','16:40','Vespertino'),
--- sabado
-(1,2,'Sabado','06:40','Matutino'),(1,2,'Sabado','07:40','Matutino'),
-(1,2,'Sabado','08:40','Matutino'),(1,2,'Sabado','10:00','Matutino'),
-(1,2,'Sabado','11:10','Matutino'),(1,2,'Sabado','12:50','Vespertino'),
-(1,2,'Sabado','16:45','Vespertino');
-
--- RUTA 2: Ciudad Universitaria → Sede Central 
-INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
--- lunes
-(2,1,'Lunes',   '06:15','Matutino'),(2,1,'Lunes',   '07:00','Matutino'),
-(2,1,'Lunes',   '08:00','Matutino'),(2,1,'Lunes',   '09:25','Matutino'),
-(2,1,'Lunes',   '10:40','Matutino'),(2,1,'Lunes',   '12:10','Vespertino'),
-(2,1,'Lunes',   '12:20','Vespertino'),(2,1,'Lunes', '14:40','Vespertino'),
-(2,1,'Lunes',   '15:30','Vespertino'),(2,1,'Lunes', '16:10','Vespertino'),
-(2,1,'Lunes',   '16:20','Vespertino'),
--- Martes
-(2,1,'Martes',  '06:15','Matutino'),(2,1,'Martes',  '07:00','Matutino'),
-(2,1,'Martes',  '08:00','Matutino'),(2,1,'Martes',  '09:25','Matutino'),
-(2,1,'Martes',  '10:40','Matutino'),(2,1,'Martes',  '12:10','Vespertino'),
-(2,1,'Martes',  '12:20','Vespertino'),(2,1,'Martes','14:40','Vespertino'),
-(2,1,'Martes',  '15:30','Vespertino'),(2,1,'Martes','16:10','Vespertino'),
-(2,1,'Martes',  '16:20','Vespertino'),
--- Miércoles
-(2,1,'Miercoles','06:15','Matutino'),(2,1,'Miercoles','07:00','Matutino'),
-(2,1,'Miercoles','08:00','Matutino'),(2,1,'Miercoles','09:25','Matutino'),
-(2,1,'Miercoles','10:40','Matutino'),(2,1,'Miercoles','12:10','Vespertino'),
-(2,1,'Miercoles','12:20','Vespertino'),(2,1,'Miercoles','14:40','Vespertino'),
-(2,1,'Miercoles','15:30','Vespertino'),(2,1,'Miercoles','16:10','Vespertino'),
-(2,1,'Miercoles','16:20','Vespertino'),
--- Jueves
-(2,1,'Jueves',  '06:15','Matutino'),(2,1,'Jueves',  '07:00','Matutino'),
-(2,1,'Jueves',  '08:00','Matutino'),(2,1,'Jueves',  '09:25','Matutino'),
-(2,1,'Jueves',  '10:40','Matutino'),(2,1,'Jueves',  '12:10','Vespertino'),
-(2,1,'Jueves',  '12:20','Vespertino'),(2,1,'Jueves','14:40','Vespertino'),
-(2,1,'Jueves',  '15:30','Vespertino'),(2,1,'Jueves','16:10','Vespertino'),
-(2,1,'Jueves',  '16:20','Vespertino'),
+INSERT INTO `cronograma_horarios` (`id_sede_origen`, `id_sede_destino`, `dia_semana`, `hora_salida`, `turno`) VALUES
+(2, 1, 'Lunes', '06:15:00', 'Matutino'),
+(2, 1, 'Lunes', '07:00:00', 'Matutino'),
+(2, 1, 'Lunes', '08:00:00', 'Matutino'),
+(2, 1, 'Lunes', '09:25:00', 'Matutino'),
+(2, 1, 'Lunes', '10:40:00', 'Matutino'),
+(2, 1, 'Lunes', '12:10:00', 'Vespertino'),
+(2, 1, 'Lunes', '12:20:00', 'Vespertino'),
+(2, 1, 'Lunes', '14:00:00', 'Vespertino'),
+(2, 1, 'Lunes', '15:30:00', 'Vespertino'),
+(2, 1, 'Lunes', '16:00:00', 'Vespertino'),
+(2, 1, 'Lunes', '16:20:00', 'Vespertino'),
+-- martes
+(2, 1, 'Martes', '06:15:00', 'Matutino'),
+(2, 1, 'Martes', '07:00:00', 'Matutino'),
+(2, 1, 'Martes', '08:00:00', 'Matutino'),
+(2, 1, 'Martes', '09:25:00', 'Matutino'),
+(2, 1, 'Martes', '10:40:00', 'Matutino'),
+(2, 1, 'Martes', '12:10:00', 'Vespertino'),
+(2, 1, 'Martes', '12:20:00', 'Vespertino'),
+(2, 1, 'Martes', '14:00:00', 'Vespertino'),
+(2, 1, 'Martes', '15:30:00', 'Vespertino'),
+(2, 1, 'Martes', '16:00:00', 'Vespertino'),
+(2, 1, 'Martes', '16:20:00', 'Vespertino'),
+-- miercoles
+(2, 1, 'Miercoles', '06:15:00', 'Matutino'),
+(2, 1, 'Miercoles', '07:00:00', 'Matutino'),
+(2, 1, 'Miercoles', '08:00:00', 'Matutino'),
+(2, 1, 'Miercoles', '09:25:00', 'Matutino'),
+(2, 1, 'Miercoles', '10:40:00', 'Matutino'),
+(2, 1, 'Miercoles', '12:10:00', 'Vespertino'),
+(2, 1, 'Miercoles', '12:20:00', 'Vespertino'),
+(2, 1, 'Miercoles', '14:00:00', 'Vespertino'),
+(2, 1, 'Miercoles', '15:30:00', 'Vespertino'),
+(2, 1, 'Miercoles', '16:00:00', 'Vespertino'),
+(2, 1, 'Miercoles', '16:20:00', 'Vespertino'),
+-- jueves
+(2, 1, 'Jueves', '06:15:00', 'Matutino'),
+(2, 1, 'Jueves', '07:00:00', 'Matutino'),
+(2, 1, 'Jueves', '08:00:00', 'Matutino'),
+(2, 1, 'Jueves', '09:25:00', 'Matutino'),
+(2, 1, 'Jueves', '10:40:00', 'Matutino'),
+(2, 1, 'Jueves', '12:10:00', 'Vespertino'),
+(2, 1, 'Jueves', '12:20:00', 'Vespertino'),
+(2, 1, 'Jueves', '14:00:00', 'Vespertino'),
+(2, 1, 'Jueves', '15:30:00', 'Vespertino'),
+(2, 1, 'Jueves', '16:00:00', 'Vespertino'),
+(2, 1, 'Jueves', '16:20:00', 'Vespertino'),
 -- viernes
-(2,1,'Viernes', '06:15','Matutino'),(2,1,'Viernes', '07:00','Matutino'),
-(2,1,'Viernes', '08:00','Matutino'),(2,1,'Viernes', '09:25','Matutino'),
-(2,1,'Viernes', '10:40','Matutino'),(2,1,'Viernes', '12:10','Vespertino'),
-(2,1,'Viernes', '12:20','Vespertino'),(2,1,'Viernes','14:40','Vespertino'),
-(2,1,'Viernes', '15:30','Vespertino'),(2,1,'Viernes','16:10','Vespertino'),
-(2,1,'Viernes', '16:20','Vespertino'),
--- sabado
-(2,1,'Sabado','06:10','Matutino'),(2,1,'Sabado','07:00','Matutino'),
-(2,1,'Sabado','08:00','Matutino'),(2,1,'Sabado','09:25','Matutino'),
-(2,1,'Sabado','10:40','Matutino'),(2,1,'Sabado','12:20','Vespertino'),
-(2,1,'Sabado','16:20','Vespertino');
-
--- RUTA 3: Sede Central → Campus Agronomía 
-INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
-(1,3,'Martes','07:15','Matutino'),
-(1,3,'Martes','12:20','Vespertino'),
-(1,3,'Miercoles','07:15','Matutino'),
-(1,3,'Miercoles','12:20','Vespertino'),
-(1,3,'Jueves','07:15','Matutino'),
-(1,3,'Jueves','12:20','Vespertino');
-
--- RUTA 4: Campus Agronomía → Sede Central 
-INSERT INTO `cronograma_horarios` (`id_sede_origen`,`id_sede_destino`,`dia_semana`,`hora_salida`,`turno`) VALUES
-(3,1,'Martes','11:20','Matutino'),
-(3,1,'Martes','16:20','Vespertino'),
-(3,1,'Miercoles','11:20','Matutino'),
-(3,1,'Miercoles','16:20','Vespertino'),
-(3,1,'Jueves','11:20','Matutino'),
-(3,1,'Jueves','16:20','Vespertino');
-
--- Salvador Alemán con Coaster Nissan (id_unidad=2)
--- Primeras salidas de la mañana
-INSERT INTO `asignaciones_conductor`
-(`id_cronograma`,`id_conductor`,`id_unidad`,`fecha_inicio`) VALUES
--- Martes
-(1,1,2,'2026-06-01'),
-(2,1,2,'2026-06-01'),
--- Miércoles
-(7,1,2,'2026-06-01'),
-(8,1,2,'2026-06-01'),
--- Jueves
-(13,1,2,'2026-06-01'),
-(14,1,2,'2026-06-01'),
+(2, 1, 'Viernes', '06:15:00', 'Matutino'),
+(2, 1, 'Viernes', '07:00:00', 'Matutino'),
+(2, 1, 'Viernes', '08:00:00', 'Matutino'),
+(2, 1, 'Viernes', '09:25:00', 'Matutino'),
+(2, 1, 'Viernes', '10:40:00', 'Matutino'),
+(2, 1, 'Viernes', '12:10:00', 'Vespertino'),
+(2, 1, 'Viernes', '12:20:00', 'Vespertino'),
+(2, 1, 'Viernes', '14:00:00', 'Vespertino'),
+(2, 1, 'Viernes', '15:30:00', 'Vespertino'),
+(2, 1, 'Viernes', '16:00:00', 'Vespertino'),
+(2, 1, 'Viernes', '16:20:00', 'Vespertino'),
 -- Sábado
-(19,1,2,'2026-06-01'),
-(20,1,2,'2026-06-01');
+(2, 1, 'Sabado', '06:10:00', 'Matutino'),
+(2, 1, 'Sabado', '07:00:00', 'Matutino'),
+(2, 1, 'Sabado', '08:00:00', 'Matutino'),
+(2, 1, 'Sabado', '09:25:00', 'Matutino'),
+(2, 1, 'Sabado', '10:40:00', 'Matutino'),
+(2, 1, 'Sabado', '12:20:00', 'Vespertino'),
+(2, 1, 'Sabado', '16:20:00', 'Vespertino');
 
--- Oscar Hernández con Coaster Hyundai (id_unidad=1)
--- Salidas medias y vespertinas
-INSERT INTO `asignaciones_conductor`
-(`id_cronograma`,`id_conductor`,`id_unidad`,`fecha_inicio`) VALUES
-
--- Martes
-(3,2,1,'2026-06-01'),
-(4,2,1,'2026-06-01'),
-(5,2,1,'2026-06-01'),
-(6,2,1,'2026-06-01'),
--- Miércoles
-(9,2,1,'2026-06-01'),
-(10,2,1,'2026-06-01'),
-(11,2,1,'2026-06-01'),
-(12,2,1,'2026-06-01'),
--- Jueves
-(15,2,1,'2026-06-01'),
-(16,2,1,'2026-06-01'),
-(17,2,1,'2026-06-01'),
-(18,2,1,'2026-06-01'),
+-- Sede Central a Ciudad Universitaria (L-V) 
+INSERT INTO `cronograma_horarios` (`id_sede_origen`, `id_sede_destino`, `dia_semana`, `hora_salida`, `turno`) VALUES
+(1, 2, 'Lunes', '06:40:00', 'Matutino'),
+(1, 2, 'Lunes', '07:40:00', 'Matutino'),
+(1, 2, 'Lunes', '08:40:00', 'Matutino'),
+(1, 2, 'Lunes', '10:00:00', 'Matutino'),
+(1, 2, 'Lunes', '11:10:00', 'Matutino'),
+(1, 2, 'Lunes', '12:30:00', 'Vespertino'),
+(1, 2, 'Lunes', '12:50:00', 'Vespertino'),
+(1, 2, 'Lunes', '15:15:00', 'Vespertino'),
+(1, 2, 'Lunes', '16:00:00', 'Vespertino'),
+(1, 2, 'Lunes', '16:40:00', 'Vespertino'),
+(1, 2, 'Lunes', '16:45:00', 'Vespertino'),
+-- martes
+(1, 2, 'Martes', '06:40:00', 'Matutino'),
+(1, 2, 'Martes', '07:40:00', 'Matutino'),
+(1, 2, 'Martes', '08:40:00', 'Matutino'),
+(1, 2, 'Martes', '10:00:00', 'Matutino'),
+(1, 2, 'Martes', '11:10:00', 'Matutino'),
+(1, 2, 'Martes', '12:30:00', 'Vespertino'),
+(1, 2, 'Martes', '12:50:00', 'Vespertino'),
+(1, 2, 'Martes', '15:15:00', 'Vespertino'),
+(1, 2, 'Martes', '16:00:00', 'Vespertino'),
+(1, 2, 'Martes', '16:40:00', 'Vespertino'),
+(1, 2, 'Martes', '16:45:00', 'Vespertino'),
+-- miercoles
+(1, 2, 'Miercoles', '06:40:00', 'Matutino'),
+(1, 2, 'Miercoles', '07:40:00', 'Matutino'),
+(1, 2, 'Miercoles', '08:40:00', 'Matutino'),
+(1, 2, 'Miercoles', '10:00:00', 'Matutino'),
+(1, 2, 'Miercoles', '11:10:00', 'Matutino'),
+(1, 2, 'Miercoles', '12:30:00', 'Vespertino'),
+(1, 2, 'Miercoles', '12:50:00', 'Vespertino'),
+(1, 2, 'Miercoles', '15:15:00', 'Vespertino'),
+(1, 2, 'Miercoles', '16:00:00', 'Vespertino'),
+(1, 2, 'Miercoles', '16:40:00', 'Vespertino'),
+(1, 2, 'Miercoles', '16:45:00', 'Vespertino'),
+-- jueves
+(1, 2, 'Jueves', '06:40:00', 'Matutino'),
+(1, 2, 'Jueves', '07:40:00', 'Matutino'),
+(1, 2, 'Jueves', '08:40:00', 'Matutino'),
+(1, 2, 'Jueves', '10:00:00', 'Matutino'),
+(1, 2, 'Jueves', '11:10:00', 'Matutino'),
+(1, 2, 'Jueves', '12:30:00', 'Vespertino'),
+(1, 2, 'Jueves', '12:50:00', 'Vespertino'),
+(1, 2, 'Jueves', '15:15:00', 'Vespertino'),
+(1, 2, 'Jueves', '16:00:00', 'Vespertino'),
+(1, 2, 'Jueves', '16:40:00', 'Vespertino'),
+(1, 2, 'Jueves', '16:45:00', 'Vespertino'),
+-- viernes 
+(1, 2, 'Viernes', '06:40:00', 'Matutino'),
+(1, 2, 'Viernes', '07:40:00', 'Matutino'),
+(1, 2, 'Viernes', '08:40:00', 'Matutino'),
+(1, 2, 'Viernes', '10:00:00', 'Matutino'),
+(1, 2, 'Viernes', '11:10:00', 'Matutino'),
+(1, 2, 'Viernes', '12:30:00', 'Vespertino'),
+(1, 2, 'Viernes', '12:50:00', 'Vespertino'),
+(1, 2, 'Viernes', '15:15:00', 'Vespertino'),
+(1, 2, 'Viernes', '16:00:00', 'Vespertino'),
+(1, 2, 'Viernes', '16:40:00', 'Vespertino'),
+(1, 2, 'Viernes', '16:45:00', 'Vespertino'),
 -- Sábado
-(21,2,1,'2026-06-01'),
-(22,2,1,'2026-06-01'),
-(23,2,1,'2026-06-01'),
-(24,2,1,'2026-06-01'),
-(25,2,1,'2026-06-01');
+(1, 2, 'Sabado', '06:40:00', 'Matutino'),
+(1, 2, 'Sabado', '07:40:00', 'Matutino'),
+(1, 2, 'Sabado', '08:40:00', 'Matutino'),
+(1, 2, 'Sabado', '10:00:00', 'Matutino'),
+(1, 2, 'Sabado', '11:10:00', 'Matutino'),
+(1, 2, 'Sabado', '12:50:00', 'Vespertino'),
+(1, 2, 'Sabado', '16:45:00', 'Vespertino');
