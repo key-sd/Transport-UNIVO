@@ -176,7 +176,7 @@ include("../includes/conexion.php");
                                         </div>
                                         <small class="text-muted">Este código será el usuario para iniciar sesión.</small>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12">
                                         <label class="form-label fw-medium">Contraseña *</label>
                                         <div class="input-group campo-input-group">
                                             <span class="input-group-text border-end-0">
@@ -189,7 +189,7 @@ include("../includes/conexion.php");
                                         </div>
                                         <small id="hintPassword" class="text-muted ms-1"></small>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12x">
                                         <label class="form-label fw-medium">Confirmar *</label>
                                         <div class="input-group campo-input-group">
                                             <span class="input-group-text border-end-0">
@@ -202,7 +202,6 @@ include("../includes/conexion.php");
                                         </div>
                                     </div>
                                 </div>
-
                             </form>
                         </div>
 
