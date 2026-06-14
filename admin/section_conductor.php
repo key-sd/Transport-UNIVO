@@ -189,7 +189,7 @@ include("../includes/conexion.php");
                                         </div>
                                         <small id="hintPassword" class="text-muted ms-1"></small>
                                     </div>
-                                    <div class="col-12x">
+                                    <div class="col-12">
                                         <label class="form-label fw-medium">Confirmar *</label>
                                         <div class="input-group campo-input-group">
                                             <span class="input-group-text border-end-0">
