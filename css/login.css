@@ -241,9 +241,8 @@ body {
         z-index: 2;
         width: 100%;
         min-height: 100vh;
-        background: linear-gradient(135deg, #0d2346, #0d2346, #1862a8, #f5c518);
-        background-size: 300% 300%;
-        animation: moverDegradado 8s ease infinite;
+        background: transparent;
+        animation: none;
         padding: 2rem 1.25rem;
     }
 
