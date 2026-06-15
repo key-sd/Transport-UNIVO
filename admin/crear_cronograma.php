@@ -29,7 +29,7 @@ if (!empty($errores)) {
     exit;
 }
 
-$dias_validos = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+$dias_validos = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
 
 $insertados = 0;
 $omitidos   = 0;
