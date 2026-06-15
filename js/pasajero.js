@@ -14,6 +14,8 @@ let pollingInterval = null;
 let filtroOrigen = '';
 let filtroDestino = '';
 const NOTIFICACIONES_VERSION = '2026-06-10-cancelado-v2';
+const NOTIF_PREF_KEY = 'notificaciones_dispositivo';
+const NOTIF_PROMPT_KEY = 'notificaciones_prompt_visto';
 if (localStorage.getItem('notificaciones_version') !== NOTIFICACIONES_VERSION) {
     localStorage.setItem('notificaciones_version', NOTIFICACIONES_VERSION);
     localStorage.removeItem('notificados_hoy');
@@ -172,6 +174,41 @@ function marcadorKey(viaje) {
     return String(viaje.id_asignacion || (viaje.conductor && viaje.conductor.id) || viaje.id_cronograma);
 }
 
+function marcadorGpsKey(viaje) {
+    if (viaje.conductor && viaje.conductor.id) return `conductor-${viaje.conductor.id}`;
+    if (viaje.unidad && viaje.unidad.id) return `unidad-${viaje.unidad.id}`;
+    return `asignacion-${viaje.id_asignacion || viaje.id_cronograma}`;
+}
+
+function elegirViajeGpsRepresentativo(actual, candidato) {
+    if (!actual) return candidato;
+
+    const esActivo = (s) => {
+        const estado = normalizarEstadoRecorrido(s.estado_recorrido);
+        return estado !== 'pendiente' && estado !== 'completado' && estado !== 'cancelado';
+    };
+
+    if (esActivo(candidato) && !esActivo(actual)) return candidato;
+    if (!esActivo(candidato) && esActivo(actual)) return actual;
+
+    const ahora = moment();
+    const diffActual = Math.abs(moment(actual.hora_salida, 'HH:mm:ss').diff(ahora, 'minutes', true));
+    const diffCandidato = Math.abs(moment(candidato.hora_salida, 'HH:mm:ss').diff(ahora, 'minutes', true));
+    return diffCandidato < diffActual ? candidato : actual;
+}
+
+function obtenerViajesGpsUnicos(schedules) {
+    const porConductor = new Map();
+
+    schedules.forEach(s => {
+        if (!s.gps) return;
+        const key = marcadorGpsKey(s);
+        porConductor.set(key, elegirViajeGpsRepresentativo(porConductor.get(key), s));
+    });
+
+    return Array.from(porConductor.values());
+}
+
 function crearIconoBus(indice) {
     const colores = ['#f5c518', '#22c55e', '#38bdf8', '#f97316', '#a78bfa'];
     const color = colores[indice % colores.length];
@@ -217,7 +254,7 @@ function actualizarTiempoRealYTrayecto() {
     });
 
     const viajesActivos = schedulesVisibles.filter(esViajeActivo);
-    const viajesConGps = schedulesVisibles.filter(s => s.gps);
+    const viajesConGps = obtenerViajesGpsUnicos(schedulesVisibles);
     const etaTiempo = document.getElementById('eta-tiempo');
     const etaDesc = document.getElementById('eta-desc');
     const etaRuta = document.getElementById('eta-ruta');
@@ -232,7 +269,7 @@ function actualizarTiempoRealYTrayecto() {
     const bounds = [];
 
     viajesConGps.forEach((viaje, index) => {
-        const key = marcadorKey(viaje);
+        const key = marcadorGpsKey(viaje);
         keysActivas.add(key);
         const lat = viaje.gps.lat;
         const lng = viaje.gps.lng;
@@ -283,8 +320,9 @@ function actualizarTiempoRealYTrayecto() {
 
     const estadoPrincipal = normalizarEstadoRecorrido(viajePrincipal.estado_recorrido);
     let etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : '-- min';
+    const textoGps = viajesConGps.length === 1 ? '1 comparte GPS' : `${viajesConGps.length} comparten GPS`;
     let descTexto = viajesActivos.length > 1
-        ? `Hay ${viajesActivos.length} unidades activas. ${viajesConGps.length} comparten GPS.`
+        ? `Hay ${viajesActivos.length} unidades activas. ${textoGps}.`
         : 'Estado del transporte actualizado.';
 
     if (estadoPrincipal === 'en_sede') {
@@ -347,9 +385,12 @@ function verificarNotificacionesSalida() {
         const estadoNormal = normalizarEstadoRecorrido(s.estado_recorrido);
         const claveViaje = `${s.id_cronograma}-${s.hora_salida}`;
         const claveCancelado = `cancelado-${claveViaje}`;
+        const horaSalida = moment(s.hora_salida, 'HH:mm:ss');
+        const diffMinutos = horaSalida.diff(ahora, 'minutes', true);
 
         if (estadoNormal === 'cancelado') {
-            if (!canceladosNotificadosHoy.includes(claveCancelado)) {
+            const cancelacionEnRango = diffMinutos <= 10 && diffMinutos >= -10;
+            if (cancelacionEnRango && !canceladosNotificadosHoy.includes(claveCancelado)) {
                 mostrarAlertaCancelacion(s);
                 canceladosNotificadosHoy.push(claveCancelado);
                 localStorage.setItem('cancelados_notificados_hoy', JSON.stringify(canceladosNotificadosHoy));
@@ -359,9 +400,6 @@ function verificarNotificacionesSalida() {
 
         if (estadoNormal === 'completado') return;
         if (notificadosHoy.includes(claveViaje)) return;
-
-        const horaSalida = moment(s.hora_salida, 'HH:mm:ss');
-        const diffMinutos = horaSalida.diff(ahora, 'minutes', true);
 
         if (diffMinutos > 0 && diffMinutos <= 10) {
             mostrarAlertaSalida(s);
@@ -427,25 +465,75 @@ function mostrarAlertaCancelacion(viaje) {
 function notificarNativo(titulo, mensaje) {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
 
-    new Notification(titulo, {
-        body: mensaje,
-        icon: '../img/logo-app.png'
+    try {
+        new Notification(titulo, {
+            body: mensaje,
+            icon: '../img/logo-app.png',
+            badge: '../img/logo-app.png',
+            tag: titulo + '-' + mensaje.slice(0, 40),
+            renotify: false
+        });
+    } catch (e) {
+        console.warn('No se pudo mostrar la notificacion nativa:', e);
+    }
+}
+
+function notificacionesNativasDisponibles() {
+    return "Notification" in window && (window.isSecureContext || location.hostname === 'localhost');
+}
+
+function solicitarPermisosNotificacion() {
+    if (!notificacionesNativasDisponibles()) {
+        localStorage.setItem(NOTIF_PREF_KEY, 'no_soportado');
+        return Promise.resolve(false);
+    }
+
+    if (Notification.permission === 'granted') {
+        localStorage.setItem(NOTIF_PREF_KEY, 'activo');
+        return Promise.resolve(true);
+    }
+
+    if (Notification.permission === 'denied') {
+        localStorage.setItem(NOTIF_PREF_KEY, 'denegado');
+        return Promise.resolve(false);
+    }
+
+    return Notification.requestPermission().then(permission => {
+        localStorage.setItem(NOTIF_PREF_KEY, permission === 'granted' ? 'activo' : 'denegado');
+        return permission === 'granted';
     });
 }
-// Solicitar permisos de notificacion nativa
-function solicitarPermisosNotificacion() {
-    if ("Notification" in window) {
-        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
-        }
-    }
+
+function ofrecerNotificacionesDispositivo() {
+    if (localStorage.getItem(NOTIF_PROMPT_KEY) === '1') return;
+    if (!notificacionesNativasDisponibles()) return;
+    if (Notification.permission !== 'default') return;
+
+    localStorage.setItem(NOTIF_PROMPT_KEY, '1');
+    Swal.fire({
+        icon: 'info',
+        title: 'Notificaciones del dispositivo',
+        text: 'Puedes recibir avisos aunque estes viendo otra pestana, mientras esta pagina siga abierta.',
+        showCancelButton: true,
+        confirmButtonText: 'Activar',
+        cancelButtonText: 'Ahora no',
+        confirmButtonColor: '#0d2346',
+        width: '320px'
+    }).then(result => {
+        if (!result.isConfirmed) return;
+
+        solicitarPermisosNotificacion().then(ok => {
+            if (!ok) return;
+            notificarNativo('Transport-UNIVO', 'Notificaciones activadas correctamente.');
+        });
+    });
 }
 
 // Configurar los Filtros
 document.addEventListener('DOMContentLoaded', () => {
     iniciarReloj();
     inicializarMapa();
-    solicitarPermisosNotificacion();
+    setTimeout(ofrecerNotificacionesDispositivo, 1200);
 
     const selectOrigen = document.getElementById('filtro-origen');
     const selectDestino = document.getElementById('filtro-destino');
