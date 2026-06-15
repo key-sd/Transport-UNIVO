@@ -495,7 +495,7 @@ let cronogramas         = [];
 let modoModalCronograma = 'crear'; // 'crear' | 'ver' | 'editar'
 let rutaEditando        = null;
 
-const ORDEN_DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const ORDEN_DIAS = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
 
 // ── sanitiza el nombre del día para usarlo como ID en el DOM ──
 // "Miércoles" → "Miercoles", "Sábado" → "Sabado"
@@ -1005,7 +1005,7 @@ function renderAcordeonDias(diasData, origen, destino, editable) {
                 <button class="acordeon-dia-btn acordeon-dia-btn--collapsed" type="button"
                         data-sid="${sid}">
                     <i class="ri-calendar-event-line me-2" style="color:#f5c518;"></i>
-                    <span class="fw-semibold">${NOMBRE_DIAS[dia] || dia}</span>
+                    <span class="fw-semibold">${dia}</span>
                     <span class="ms-2 badge-dia-count">${horarios.length} horario${horarios.length !== 1 ? 's' : ''}</span>
                     <i class="ri-arrow-down-s-line ms-auto acordeon-flecha"></i>
                 </button>
@@ -1536,10 +1536,6 @@ function editarUnidad(id) {
 // ══════════════════════════════════════════════════════════════
 
 const ORDEN_DIAS_ASIG = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
-// Solo para mostrar en pantalla
-const NOMBRE_DIAS = {
-    Lunes: 'Lunes', Martes: 'Martes', Miercoles: 'Miércoles',
-    Jueves: 'Jueves', Viernes: 'Viernes', Sabado: 'Sábado', Domingo: 'Domingo'};
 const ABREV_DIAS      = { Lunes:'Lun', Martes:'Mar', 'Miercoles':'Mié', Jueves:'Jue',
                           Viernes:'Vie', 'Sabado':'Sáb', Domingo:'Dom' };
 
