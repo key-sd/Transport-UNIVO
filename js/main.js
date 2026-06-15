@@ -1,8 +1,5 @@
 // PARA EL LOGIN
 // carrusel de fondo
-// Al inicio de main.js, antes de todo
-const _fetch = window.fetch;
-window.fetch = (url, opts = {}) => _fetch(url, { credentials: 'include', ...opts });
 const slides = document.querySelectorAll('.fondo-slide');
 const dots   = document.querySelectorAll('.dot');
 let actual   = 0;
@@ -498,7 +495,7 @@ let cronogramas         = [];
 let modoModalCronograma = 'crear'; // 'crear' | 'ver' | 'editar'
 let rutaEditando        = null;
 
-const ORDEN_DIAS = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+const ORDEN_DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 
 // ── sanitiza el nombre del día para usarlo como ID en el DOM ──
 // "Miércoles" → "Miercoles", "Sábado" → "Sabado"

@@ -6,13 +6,6 @@ solo_admin();
 date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
-// TEMPORAL
-echo json_encode([
-    'session' => $_SESSION,
-    'rol' => $_SESSION['rol'] ?? 'NO EXISTE'
-]);
-exit;
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
     exit;
@@ -22,12 +15,6 @@ $origen  = intval($_POST['id_sede_origen']  ?? 0);
 $destino = intval($_POST['id_sede_destino'] ?? 0);
 $dias    = $_POST['dias']  ?? [];   // array: ['Martes','Jueves',...]
 $horas   = $_POST['horas'] ?? [];   // array: ['06:40','12:30',...]
-
-// DEBUG TEMPORAL - borrar después
-error_log('DIAS RECIBIDOS: ' . print_r($dias, true));
-error_log('HORAS RECIBIDAS: ' . print_r($horas, true));
-echo json_encode(['debug' => true, 'dias' => $dias, 'horas' => $horas, 'origen' => $origen, 'destino' => $destino]);
-exit;
 
 /* Validaciones básicas */
 $errores = [];
