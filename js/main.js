@@ -865,7 +865,7 @@ if (btnGuardarCronograma) {
         dias.forEach(d  => fd.append('dias[]',  d));
         horas.forEach(h => fd.append('horas[]', h));
 
-        fetch('crear_cronograma.php', { method: 'POST', body: fd })
+        fetch('crear_cronograma.php', { method: 'POST', body: fd, credentials: 'include' })
             .then(r => {
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 return r.text();
