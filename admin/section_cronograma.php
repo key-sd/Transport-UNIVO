@@ -201,9 +201,14 @@ include("../includes/conexion.php");
                                                 <span class="input-group-text border-end-0">
                                                     <i class="ri-time-line text-secondary"></i>
                                                 </span>
-                                                <input type="time" name="horas[]"
-                                                       class="form-control border-start-0"
-                                                       min="06:00" max="23:59" required>
+                                                <input type="text" name="horas[]"
+                                                       class="form-control border-start-0 input-hora"
+                                                       inputmode="numeric"
+                                                       pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                                                       maxlength="5"
+                                                       placeholder="HH:MM"
+                                                       autocomplete="off"
+                                                       required>
                                             </div>
                                         </div>
                                     </div>

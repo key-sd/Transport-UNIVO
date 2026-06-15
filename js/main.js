@@ -505,11 +505,77 @@ function diaId(dia) {
 
 //  helpers de turno y formato de hora para mostrar en el acordeón
 function calcularTurno(horaStr) {
+    if (!/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(horaStr)) return null;
     const [h, m] = horaStr.split(':').map(Number);
     const mins = h * 60 + m;
-    if (mins < 6 * 60 || mins > 23 * 60) return null; //valida rango permitido
+    if (mins < 6 * 60 || mins > (23 * 60 + 59)) return null; //valida rango permitido
     return mins < 12 * 60 ? 'Matutino' : 'Vespertino';
 }
+
+function normalizarHoraInput(valor) {
+    if (valor.includes(':')) {
+        const [horas = '', minutos = ''] = valor.replace(/[^\d:]/g, '').split(':');
+        return `${horas.slice(0, 2)}:${minutos.slice(0, 2)}`;
+    }
+
+    const digitos = valor.replace(/\D/g, '').slice(0, 4);
+    if (digitos.length <= 2) return digitos;
+    return `${digitos.slice(0, 2)}:${digitos.slice(2)}`;
+}
+
+function completarHoraInput(valor) {
+    const limpio = valor.trim();
+    if (!limpio) return '';
+
+    let horas = '';
+    let minutos = '';
+
+    if (limpio.includes(':')) {
+        const partes = limpio.split(':');
+        horas = partes[0] || '';
+        minutos = partes[1] || '';
+    } else {
+        const digitos = limpio.replace(/\D/g, '').slice(0, 4);
+        if (digitos.length <= 2) {
+            horas = digitos;
+            minutos = '00';
+        } else if (digitos.length === 3) {
+            horas = digitos.slice(0, 1);
+            minutos = digitos.slice(1);
+        } else {
+            horas = digitos.slice(0, 2);
+            minutos = digitos.slice(2);
+        }
+    }
+
+    if (!horas) return normalizarHoraInput(valor);
+    const h = Number(horas);
+    const m = Number(minutos || '0');
+    if (!Number.isInteger(h) || !Number.isInteger(m)) return normalizarHoraInput(valor);
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+function activarMascaraHora(input) {
+    if (!input || input.dataset.mascaraHora === 'true') return;
+    input.dataset.mascaraHora = 'true';
+
+    input.addEventListener('input', () => {
+        input.value = normalizarHoraInput(input.value);
+        input.classList.remove('is-invalid');
+    });
+
+    input.addEventListener('blur', () => {
+        input.value = completarHoraInput(input.value);
+        const hora = input.value.trim();
+        input.classList.toggle('is-invalid', Boolean(hora) && calcularTurno(hora) === null);
+    });
+}
+
+document.addEventListener('focusin', (e) => {
+    if (e.target.matches('.input-hora')) activarMascaraHora(e.target);
+});
+
+document.querySelectorAll('.input-hora').forEach(activarMascaraHora);
 
 function formatHora(horaStr) {
     const [h, m] = horaStr.split(':').map(Number);
@@ -690,8 +756,13 @@ function resetearContenedorHoras() {
             <span class="input-group-text border-end-0">
                 <i class="ri-time-line text-secondary"></i>
             </span>
-            <input type="time" name="horas[]" class="form-control border-start-0"
-                   min="06:00" max="23:59" required>
+            <input type="text" name="horas[]" class="form-control border-start-0 input-hora"
+                   inputmode="numeric"
+                   pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                   maxlength="5"
+                   placeholder="HH:MM"
+                   autocomplete="off"
+                   required>
         </div>`;
 }
 
@@ -753,8 +824,13 @@ if (btnAgregarHora) {
             <span class="input-group-text border-end-0">
                 <i class="ri-time-line text-secondary"></i>
             </span>
-            <input type="time" name="horas[]" class="form-control border-start-0"
-                   min="06:00" max="23:59" required>
+            <input type="text" name="horas[]" class="form-control border-start-0 input-hora"
+                   inputmode="numeric"
+                   pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                   maxlength="5"
+                   placeholder="HH:MM"
+                   autocomplete="off"
+                   required>
             <button type="button" class="btn-quitar-hora" onclick="this.closest('.hora-item').remove()">
                 <i class="ri-close-line"></i>
             </button>`;
@@ -918,8 +994,13 @@ function renderAcordeonDias(diasData, origen, destino, editable) {
                     <span class="input-group-text border-end-0">
                         <i class="ri-time-line text-secondary"></i>
                     </span>
-                    <input type="time" class="form-control border-start-0"
-                           id="nuevaHora-${sid}" min="06:00" max="23:59">
+                    <input type="text" class="form-control border-start-0 input-hora"
+                           id="nuevaHora-${sid}"
+                           inputmode="numeric"
+                           pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                           maxlength="5"
+                           placeholder="HH:MM"
+                           autocomplete="off">
                 </div>
                 <button class="btn-agregar-hora-dia"
                         onclick="agregarHoraADia('${dia}','${sid}','${origen}','${destino}')">
@@ -1040,8 +1121,12 @@ function seccionNuevoDia(diasFaltantes, origen, destino) {
                 <span class="input-group-text border-end-0">
                     <i class="ri-time-line text-secondary"></i>
                 </span>
-                <input type="time" id="horaSelectNuevoDia" class="form-control border-start-0"
-                       min="06:00" max="23:59">
+                <input type="text" id="horaSelectNuevoDia" class="form-control border-start-0 input-hora"
+                       inputmode="numeric"
+                       pattern="^([01][0-9]|2[0-3]):[0-5][0-9]$"
+                       maxlength="5"
+                       placeholder="HH:MM"
+                       autocomplete="off">
             </div>
             <button class="btn-agregar-hora-dia" onclick="agregarNuevoDia('${origen}','${destino}')">
                 <i class="ri-add-line me-1"></i>Agregar día
