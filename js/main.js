@@ -513,42 +513,33 @@ function calcularTurno(horaStr) {
 }
 
 function normalizarHoraInput(valor) {
-    if (valor.includes(':')) {
-        const [horas = '', minutos = ''] = valor.replace(/[^\d:]/g, '').split(':');
-        return `${horas.slice(0, 2)}:${minutos.slice(0, 2)}`;
+    const digitos = valor.replace(/\D/g, '').slice(0, 4);
+    if (!digitos) return '';
+
+    const primerDigito = Number(digitos[0]);
+    if (primerDigito > 2) {
+        const minutos = digitos.slice(1, 3);
+        return `0${digitos[0]}${minutos ? `:${minutos}` : ':'}`;
     }
 
-    const digitos = valor.replace(/\D/g, '').slice(0, 4);
+    if (digitos.length === 1) return digitos;
+
+    if (primerDigito === 2 && Number(digitos[1]) > 3) {
+        return '2';
+    }
+
     if (digitos.length <= 2) return digitos;
     return `${digitos.slice(0, 2)}:${digitos.slice(2)}`;
 }
 
 function completarHoraInput(valor) {
-    const limpio = valor.trim();
-    if (!limpio) return '';
+    const normalizada = normalizarHoraInput(valor);
+    if (!normalizada) return '';
 
-    let horas = '';
-    let minutos = '';
+    const partes = normalizada.split(':');
+    const horas = partes[0] || '';
+    const minutos = partes[1] || '00';
 
-    if (limpio.includes(':')) {
-        const partes = limpio.split(':');
-        horas = partes[0] || '';
-        minutos = partes[1] || '';
-    } else {
-        const digitos = limpio.replace(/\D/g, '').slice(0, 4);
-        if (digitos.length <= 2) {
-            horas = digitos;
-            minutos = '00';
-        } else if (digitos.length === 3) {
-            horas = digitos.slice(0, 1);
-            minutos = digitos.slice(1);
-        } else {
-            horas = digitos.slice(0, 2);
-            minutos = digitos.slice(2);
-        }
-    }
-
-    if (!horas) return normalizarHoraInput(valor);
     const h = Number(horas);
     const m = Number(minutos || '0');
     if (!Number.isInteger(h) || !Number.isInteger(m)) return normalizarHoraInput(valor);
