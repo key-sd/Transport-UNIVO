@@ -1580,6 +1580,11 @@ let conductorDetalleId            = null;
 let conductorDetalleNombre        = '';
 let asigReasignarId               = null;
 
+if (modalDetalleConductorEl) {
+    modalDetalleConductorEl.addEventListener('hide.bs.modal', () => {
+        if (document.activeElement) document.activeElement.blur();
+    });
+}
 // ── Inicializar botones de vista ──
 if (btnsVistaDetalle.length) {
     btnsVistaDetalle.forEach(btn => {
