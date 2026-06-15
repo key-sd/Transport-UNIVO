@@ -495,7 +495,7 @@ let cronogramas         = [];
 let modoModalCronograma = 'crear'; // 'crear' | 'ver' | 'editar'
 let rutaEditando        = null;
 
-const ORDEN_DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const ORDEN_DIAS = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
 
 // ── sanitiza el nombre del día para usarlo como ID en el DOM ──
 // "Miércoles" → "Miercoles", "Sábado" → "Sabado"
@@ -1536,8 +1536,8 @@ function editarUnidad(id) {
 // ══════════════════════════════════════════════════════════════
 
 const ORDEN_DIAS_ASIG = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
-const ABREV_DIAS      = { Lunes:'Lun', Martes:'Mar', 'Miercoles':'Mié', Jueves:'Jue',
-                          Viernes:'Vie', 'Sabado':'Sáb', Domingo:'Dom' };
+const ABREV_DIAS      = { Lunes:'Lun', Martes:'Mar', 'Miercoles':'Mie', Jueves:'Jue',
+                          Viernes:'Vie', 'Sabado':'Sab', Domingo:'Dom' };
 
 // ── Referencias DOM ──
 const btnNuevaAsignacion     = document.getElementById('btnNuevaAsignacion');
@@ -1683,10 +1683,10 @@ function renderTablaAsig(lista) {
                        <i class="ri-user-shared-line me-1"></i>Reasignar
                    </button>
                    <button class="btn-accion btn-accion-ver"
-                           onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
-                           title="Ver asignaciones">
-                       <i class="ri-edit-line me-1"></i>Ver
-                   </button>
+                          onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
+                          title="Ver asignaciones">
+                          <i class="ri-edit-line me-1"></i>Ver
+                    </button>
                </div>`
             : `<span class="text-muted small">—</span>`;
 
@@ -1740,8 +1740,8 @@ function renderTarjetasAsig(lista) {
                    </button>
                    <button class="btn-accion btn-accion-ver"
                            onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
-                       <i class="ri-edit-line me-1"></i>Ver
-                   </button>
+                           <i class="ri-edit-line me-1"></i>Ver
+                    </button>
                </div>`
             : '';
 
