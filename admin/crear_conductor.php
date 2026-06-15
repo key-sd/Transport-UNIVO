@@ -39,6 +39,11 @@ $stmtDup->bind_param('s', $codigo);
 $stmtDup->execute();
 $stmtDup->store_result();
 
+if (!preg_match('/^[267][0-9]{3}-?[0-9]{4}$/', $telefono)) {
+    echo json_encode(['error' => true, 'mensaje' => 'Número validado con un tipo de insertacion con número salvadoreño']);
+    exit();
+}
+
 if ($stmtDup->num_rows > 0) {
     $stmtDup->close();
     echo json_encode(['success' => false, 'message' => "El código '{$codigo}' ya está registrado."]);

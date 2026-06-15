@@ -50,6 +50,11 @@ if (empty($usuario_id)) {
     echo json_encode(['success' => false, 'message' => 'Conductor no encontrado.']);
     exit;
 }
+
+if (!preg_match('/^[267][0-9]{3}-?[0-9]{4}$/', $telefono)) {
+    echo json_encode(['error' => true, 'mensaje' => 'Número validado con un tipo de insertacion con número salvadoreño']);
+    exit();
+}
 // 4. VERIFICAR QUE EL CÓDIGO NO LO USE OTRO USUARIO
 $stmtDup = $conn->prepare(
     "SELECT id FROM usuarios WHERE codigo = ? AND id != ? LIMIT 1"
