@@ -209,14 +209,15 @@ function actualizarTiempoRealYTrayecto() {
         return estado !== 'pendiente' && estado !== 'completado' && estado !== 'cancelado';
     };
 
-    const viajesActivos = todosLosSchedules.filter(s => {
+    const schedulesVisibles = todosLosSchedules.filter(s => {
         if (filtroOrigen && filtroDestino) {
-            if (s.origen_id != filtroOrigen || s.destino_id != filtroDestino) return false;
+            return s.origen_id == filtroOrigen && s.destino_id == filtroDestino;
         }
-        return esViajeActivo(s);
+        return true;
     });
 
-    const viajesConGps = viajesActivos.filter(s => s.gps);
+    const viajesActivos = schedulesVisibles.filter(esViajeActivo);
+    const viajesConGps = schedulesVisibles.filter(s => s.gps);
     const etaTiempo = document.getElementById('eta-tiempo');
     const etaDesc = document.getElementById('eta-desc');
     const etaRuta = document.getElementById('eta-ruta');
@@ -227,29 +228,21 @@ function actualizarTiempoRealYTrayecto() {
         mapa.invalidateSize();
     }
 
-    if (!viajesActivos.length) {
-        limpiarMarcadoresInactivos(new Set());
-        if (etaTiempo) etaTiempo.textContent = '-- min';
-        if (etaDesc) etaDesc.textContent = filtroOrigen && filtroDestino
-            ? 'No hay unidades activas en esta ruta en este momento.'
-            : 'Selecciona una ruta para monitorear el transporte activo.';
-        if (etaRuta) etaRuta.style.display = 'none';
-        return;
-    }
-
     const keysActivas = new Set();
     const bounds = [];
 
     viajesConGps.forEach((viaje, index) => {
         const key = marcadorKey(viaje);
         keysActivas.add(key);
-        const { lat, lng } = viaje.gps;
+        const lat = viaje.gps.lat;
+        const lng = viaje.gps.lng;
         const titulo = viaje.unidad ? `${viaje.unidad.nombre} (${viaje.unidad.placa})` : 'Transporte';
         const conductor = viaje.conductor ? `<br>Conductor: ${viaje.conductor.nombre}` : '';
         const hora = moment(viaje.hora_salida, 'HH:mm:ss').format('HH:mm');
         const edadSeg = Number(viaje.gps.edad_seg || 0);
         const actualizado = edadSeg < 60 ? 'actualizado hace menos de 1 min' : `actualizado hace ${Math.round(edadSeg / 60)} min`;
-        const popup = `<b>${titulo}</b><br>${viaje.origen} a ${viaje.destino}<br>Salida: ${hora}<br>Estado: ${viaje.estado_recorrido}${conductor}<br><small>${actualizado}</small>`;
+        const estado = normalizarEstadoRecorrido(viaje.estado_recorrido);
+        const popup = `<b>${titulo}</b><br>${viaje.origen} a ${viaje.destino}<br>Salida: ${hora}<br>Estado: ${estado}${conductor}<br><small>${actualizado}</small>`;
 
         if (!markersBuses.has(key)) {
             markersBuses.set(key, L.marker([lat, lng], { icon: crearIconoBus(index) }).addTo(mapa).bindPopup(popup));
@@ -269,8 +262,19 @@ function actualizarTiempoRealYTrayecto() {
         mapa.fitBounds(bounds, { padding: [35, 35], maxZoom: 14 });
     }
 
+    if (!viajesActivos.length) {
+        if (etaTiempo) etaTiempo.textContent = viajesConGps.length ? `${viajesConGps.length} GPS` : '-- min';
+        if (etaDesc) etaDesc.textContent = viajesConGps.length
+            ? 'Hay ubicaciones compartidas, pero no hay viajes activos en este momento.'
+            : (filtroOrigen && filtroDestino
+                ? 'No hay unidades activas en esta ruta en este momento.'
+                : 'Selecciona una ruta para monitorear el transporte activo.');
+        if (etaRuta) etaRuta.style.display = 'none';
+        return;
+    }
+
     const prioridadEstado = { llegando: 1, en_camino: 2, proximo_salir: 3, en_sede: 4 };
-    const viajePrincipal = [...viajesActivos].sort((a, b) => {
+    const viajePrincipal = viajesActivos.slice().sort((a, b) => {
         const estadoA = prioridadEstado[normalizarEstadoRecorrido(a.estado_recorrido)] || 9;
         const estadoB = prioridadEstado[normalizarEstadoRecorrido(b.estado_recorrido)] || 9;
         if (estadoA !== estadoB) return estadoA - estadoB;
@@ -280,15 +284,10 @@ function actualizarTiempoRealYTrayecto() {
     const estadoPrincipal = normalizarEstadoRecorrido(viajePrincipal.estado_recorrido);
     let etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : '-- min';
     let descTexto = viajesActivos.length > 1
-        ? `Se muestran ${viajesConGps.length} de ${viajesActivos.length} unidades con GPS activo.`
+        ? `Hay ${viajesActivos.length} unidades activas. ${viajesConGps.length} comparten GPS.`
         : 'Estado del transporte actualizado.';
 
-    if (!viajesConGps.length) {
-        etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : 'Sin GPS';
-        descTexto = viajesActivos.length > 1
-            ? `${viajesActivos.length} unidades activas, esperando que compartan ubicacion.`
-            : 'La unidad esta activa, esperando ubicacion GPS.';
-    } else if (estadoPrincipal === 'en_sede') {
+    if (estadoPrincipal === 'en_sede') {
         etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : 'En sede';
         descTexto = viajesActivos.length > 1 ? descTexto : 'El transporte esta en la sede de origen.';
     } else if (estadoPrincipal === 'proximo_salir') {
@@ -297,10 +296,13 @@ function actualizarTiempoRealYTrayecto() {
     } else if (estadoPrincipal === 'llegando') {
         etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : '< 2 min';
         descTexto = viajesActivos.length > 1 ? descTexto : 'El transporte esta llegando a la sede de destino.';
+    } else if (estadoPrincipal === 'en_camino') {
+        etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : 'En camino';
+        descTexto = viajesActivos.length > 1 ? descTexto : 'El transporte esta en ruta. Activa el mapa cuando haya ubicacion disponible.';
     }
 
-    const viajeParaEta = viajesConGps.find(v => normalizarEstadoRecorrido(v.estado_recorrido) === 'en_camino') || viajesConGps[0];
-    if (viajeParaEta && viajeParaEta.gps && normalizarEstadoRecorrido(viajeParaEta.estado_recorrido) === 'en_camino') {
+    const viajeParaEta = viajesActivos.find(v => v.gps && normalizarEstadoRecorrido(v.estado_recorrido) === 'en_camino');
+    if (viajeParaEta && viajeParaEta.gps) {
         const destCoords = sedesCoords[viajeParaEta.destino_id];
         if (destCoords) {
             const dist = calcularDistancia(viajeParaEta.gps.lat, viajeParaEta.gps.lng, destCoords.lat, destCoords.lng);
@@ -308,7 +310,7 @@ function actualizarTiempoRealYTrayecto() {
             const tiempoMinutos = Math.round(tiempoHoras * 60);
             etaTexto = `${tiempoMinutos < 2 ? 2 : tiempoMinutos} min`;
             descTexto = viajesActivos.length > 1
-                ? `Unidad mas proxima hacia ${viajeParaEta.destino}. Tambien hay ${viajesActivos.length - 1} unidad(es) activa(s).`
+                ? `ETA de una unidad en camino hacia ${viajeParaEta.destino}. Tambien hay ${viajesActivos.length - 1} unidad(es) activa(s).`
                 : `Tiempo estimado hacia ${viajeParaEta.destino} (a ${dist.toFixed(1)} km).`;
         }
     }

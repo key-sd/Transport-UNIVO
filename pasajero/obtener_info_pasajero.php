@@ -1,5 +1,6 @@
 <?php
 session_start();
+date_default_timezone_set('America/El_Salvador');
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'pasajero') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'No autorizado.']);
@@ -20,6 +21,7 @@ $dias = [
     7 => 'Domingo'
 ];
 $dia_hoy = $dias[date('N')];
+$fecha_hoy = date('Y-m-d');
 
 // Consulta de horarios con asignación y estado de viaje/GPS en tiempo real
 $sql = "
@@ -54,7 +56,7 @@ INNER JOIN asignaciones_conductor ac ON  ac.id_cronograma = ch.id AND ac.activo 
 INNER JOIN conductores c ON c.id = ac.id_conductor
 INNER JOIN usuarios usr ON usr.id = c.usuario_id AND usr.estado = 1
 INNER JOIN unidades u ON u.id = ac.id_unidad
-LEFT JOIN viajes v ON  v.id_asignacion = ac.id AND v.fecha = CURRENT_DATE()
+LEFT JOIN viajes v ON  v.id_asignacion = ac.id AND v.fecha = ?
 LEFT JOIN (
     SELECT u1.id_conductor, u1.latitud, u1.longitud, u1.actualizado_en
     FROM   ubicaciones u1
@@ -71,7 +73,7 @@ ORDER BY ch.hora_salida ASC
 
 try {
     $stmt = $conexion->prepare($sql);
-    $stmt->bind_param("s", $dia_hoy);
+    $stmt->bind_param("ss", $fecha_hoy, $dia_hoy);
     $stmt->execute();
     $resultado = $stmt->get_result();
 
