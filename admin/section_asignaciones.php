@@ -232,7 +232,7 @@ include("../includes/conexion.php");
                       </thead>
                       <tbody id="cuerpoTablaAsignacionesDetalle">
                         <tr>
-                          <td colspan="6" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i></td>
+                          <td colspan="5" class="tabla-empty"><i class="ri-loader-4-line ri-spin"></i></td>
                         </tr>
                       </tbody>
                     </table>

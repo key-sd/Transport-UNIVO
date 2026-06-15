@@ -1728,6 +1728,7 @@ function renderTarjetasAsig(lista) {
                    </button>
                    <button class="btn-accion btn-accion-ver"
                            onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
+                        <i class="ri-eye-line me-1"></i>Ver
                     </button>    
                </div>`
             : '';
@@ -2015,7 +2016,7 @@ function renderAsignacionesDetalle(asigs) {
                 <i class="ri-arrow-right-line mx-1 text-muted" style="font-size:11px;"></i>
                 <span class="fw-medium">${escHtml(a.sede_destino)}</span>
             </td>
-            <td><span class="badge-dia">${ABREV_DIAS[dia] || dia}</span></td>
+            <td><span class="badge-dia">${ABREV_DIAS[a.dia_semana] || a.dia_semana}</span></td>
             <td>${formatHora12(a.hora_salida)}</td>
             <td><span class="badge-turno badge-turno-${a.turno.toLowerCase()}">${a.turno}</span></td>
             <td>
