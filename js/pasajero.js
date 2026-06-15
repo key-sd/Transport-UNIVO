@@ -215,16 +215,16 @@ function actualizarTiempoRealYTrayecto() {
 
     if (estadoActivo === 'en_sede') {
         etaTexto = 'En sede';
-        descTexto = 'El transporte esta en la sede de origen.';
+        descTexto = 'El transporte está en la sede de origen.';
     } else if (estadoActivo === 'proximo_salir') {
         etaTexto = 'Por salir';
-        descTexto = 'El transporte esta listo para salir.';
+        descTexto = 'El transporte está listo para salir.';
     } else if (estadoActivo === 'llegando') {
         etaTexto = '< 2 min';
-        descTexto = 'El transporte esta llegando a la sede de destino.';
+        descTexto = 'El transporte está llegando a la sede de destino.';
     } else if (estadoActivo === 'en_camino') {
         etaTexto = 'En camino';
-        descTexto = 'El transporte esta en ruta. Activa el mapa cuando haya ubicacion disponible.';
+        descTexto = 'El transporte está en ruta. Activa el mapa cuando haya ubicación disponible.';
     }
 
     if (viajeActivo.gps) {
