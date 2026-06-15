@@ -189,7 +189,7 @@ include("../includes/conexion.php");
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <label class="form-label fw-medium mb-0">
                                                 Horarios de Salida *
-                                                <small class="text-muted fw-normal ms-1">(06:00 AM – 23:59 PM)</small>
+                                                <small class="text-muted fw-normal ms-1">(06:00 AM –18:00 PM)</small>
                                             </label>
                                             <button type="button" id="btnAgregarHora" class="btn btn-sm">
                                                 <i class="ri-add-line"></i> Agregar hora
@@ -219,7 +219,7 @@ include("../includes/conexion.php");
                             <div id="seccionEditarCronograma" style="display:none;">
                                 <p class="form-seccion-label mb-3">
                                     <i class="ri-calendar-check-line me-1"></i>Horarios por día
-                                    <small class="text-muted fw-normal ms-1">(06:00 AM – 23:59 PM)</small>
+                                    <small class="text-muted fw-normal ms-1">(06:00 AM – 18:00 PM)</small>
                                 </p>
                                 <div class="accordion accordion-flush" id="acordeonDias">
                                     <div class="text-center p-4 text-muted">

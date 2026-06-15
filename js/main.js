@@ -2038,6 +2038,13 @@ function renderAsignacionesDetalle(asigs) {
                     <span style="font-size:12px;">${escHtml(a.unidad)}</span>
                 </div>
             </td>
+            <td>
+                <button class="btn-accion btn-accion-ver"
+                        onclick="abrirModalReasignar(${a.asig_id},${a.unidad_id})"
+                        title="Editar esta asignación">
+                    <i class="ri-user-follow-line me-1"></i>Reasignar
+                </button>
+            </td>
         </tr>`
     ).join('');
 
