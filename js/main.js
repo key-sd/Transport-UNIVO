@@ -1667,9 +1667,8 @@ function renderTablaAsig(lista) {
                        <i class="ri-user-shared-line me-1"></i>Reasignar
                    </button>
                    <button class="btn-accion btn-accion-ver"
-                          onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
-                          title="Ver asignaciones">
-                          <i class="ri-eye-line me-1"></i>Ver
+                           onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
+                        <i class="ri-eye-line me-1"></i>Ver
                     </button>
                </div>`
             : `<span class="text-muted small">—</span>`;
