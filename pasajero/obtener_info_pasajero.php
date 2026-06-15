@@ -44,7 +44,8 @@ SELECT
     v.hora_salida_real,
     ub.latitud,
     ub.longitud,
-    ub.actualizado_en AS ubicacion_actualizado
+    ub.actualizado_en AS ubicacion_actualizado,
+    TIMESTAMPDIFF(SECOND, ub.actualizado_en, NOW()) AS ubicacion_edad_seg
 FROM cronograma_horarios ch
 INNER JOIN sedes so ON so.id = ch.id_sede_origen
 INNER JOIN sedes sd ON sd.id = ch.id_sede_destino
@@ -99,10 +100,11 @@ try {
             'estado_recorrido'=> $row['estado_recorrido'] ?? 'pendiente',
             'capacidad'       => $row['capacidad'] ?? 'desconocida',
             'hora_salida_real'=> $row['hora_salida_real'],
-            'gps'             => $row['latitud'] ? [
+            'gps'             => ($row['latitud'] !== null) ? [
                 'lat'            => (float) $row['latitud'],
                 'lng'            => (float) $row['longitud'],
                 'actualizado_en' => $row['ubicacion_actualizado'],
+                'edad_seg'       => (int) $row['ubicacion_edad_seg'],
             ] : null,
         ];
     }

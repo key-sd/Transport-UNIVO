@@ -430,20 +430,41 @@ let gpsActivo         = false;
 let watchId           = null;
 let marcadorConductor = null;
 let primeraUbicacion  = true;
+let ultimaUbicacionOk = 0;
+let gpsErrorMostrado  = false;
+let gpsErrorTimeoutId = null;
+const GPS_STORAGE_KEY = 'transport_univo_gps_activo';
 
 document.getElementById('btn-gps').addEventListener('click', () => {
-    gpsActivo ? desactivarGPS() : activarGPS();
+    gpsActivo ? desactivarGPS(true) : activarGPS();
 });
 
 function activarGPS() {
+    if (gpsActivo) return;
+
     if (!navigator.geolocation) {
-        Swal.fire({ icon: 'error', title: 'Sin GPS',
-            text: 'Tu navegador no soporta geolocalizaciÃƒÆ’Ã‚Â³n.', width: '320px' });
+        Swal.fire({
+            icon: 'error',
+            title: 'Sin GPS',
+            text: 'Tu navegador no soporta geolocalizacion.',
+            confirmButtonColor: '#0d2346',
+            width: '320px'
+        });
         return;
     }
+
+    gpsErrorMostrado = false;
+    localStorage.setItem(GPS_STORAGE_KEY, '1');
     watchId = navigator.geolocation.watchPosition(
         pos => {
             const { latitude, longitude } = pos.coords;
+            ultimaUbicacionOk = Date.now();
+            gpsErrorMostrado = false;
+            if (gpsErrorTimeoutId) {
+                clearTimeout(gpsErrorTimeoutId);
+                gpsErrorTimeoutId = null;
+            }
+
             if (!marcadorConductor) {
                 marcadorConductor = L.marker([latitude, longitude], {
                     icon: L.divIcon({
@@ -451,38 +472,116 @@ function activarGPS() {
                         html: `<div style="background:#f5c518;border:3px solid #0d2346;
                                width:16px;height:16px;border-radius:50%;"></div>`
                     })
-                }).addTo(mapa).bindPopup('Tu ubicaciÃƒÆ’Ã‚Â³n');
+                }).addTo(mapa).bindPopup('Tu ubicacion');
             } else {
                 marcadorConductor.setLatLng([latitude, longitude]);
             }
-            if (primeraUbicacion) { mapa.setView([latitude, longitude], 15); primeraUbicacion = false; }
+
+            if (primeraUbicacion) {
+                mapa.setView([latitude, longitude], 15);
+                primeraUbicacion = false;
+            }
+
             fetch('actualizar_ubicacion.php', {
                 method: 'POST',
-                body: (() => { const d = new FormData(); d.append('lat', latitude); d.append('lng', longitude); return d; })()
-            }).catch(e => console.error('Error enviando ubicaciÃƒÆ’Ã‚Â³n:', e));
+                body: (() => {
+                    const d = new FormData();
+                    d.append('lat', latitude);
+                    d.append('lng', longitude);
+                    return d;
+                })()
+            })
+                .then(r => r.json())
+                .then(resp => {
+                    if (!resp.success) console.error('Error guardando ubicacion:', resp.message || resp);
+                })
+                .catch(e => console.error('Error enviando ubicacion:', e));
+
             document.getElementById('gps-estado').textContent = 'GPS activo - ubicacion compartida';
         },
         err => {
             console.error('Error GPS:', err);
-            Swal.fire({ icon: 'error', title: 'Error GPS', text: 'No se pudo obtener tu ubicaciÃƒÆ’Ã‚Â³n.', width: '320px' });
+            const hayUbicacionReciente = ultimaUbicacionOk && (Date.now() - ultimaUbicacionOk) < 30000;
+            if (hayUbicacionReciente) {
+                document.getElementById('gps-estado').textContent = 'GPS activo - ajustando precision';
+                return;
+            }
+
+            const mensajes = {
+                1: 'Permiso de ubicacion denegado. Activalo en el navegador para compartir tu ruta.',
+                2: 'No se pudo obtener la ubicacion. Revisa la senal GPS o la conexion.',
+                3: 'El GPS esta tardando en responder. Intenta moverte a un lugar con mejor senal.'
+            };
+
+            const mostrarErrorGps = () => {
+                const ubicacionLlegoLuego = ultimaUbicacionOk && (Date.now() - ultimaUbicacionOk) < 30000;
+                if (ubicacionLlegoLuego || gpsErrorMostrado) return;
+                gpsErrorMostrado = true;
+                document.getElementById('gps-estado').textContent = 'GPS sin ubicacion disponible';
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'GPS sin ubicacion',
+                    text: mensajes[err.code] || 'No se pudo obtener tu ubicacion.',
+                    confirmButtonColor: '#0d2346',
+                    width: '320px'
+                });
+            };
+
+            if (err.code === 1) {
+                mostrarErrorGps();
+                desactivarGPS(false);
+                return;
+            }
+
+            document.getElementById('gps-estado').textContent = 'Buscando senal GPS...';
+            if (!gpsErrorTimeoutId) {
+                gpsErrorTimeoutId = setTimeout(() => {
+                    gpsErrorTimeoutId = null;
+                    mostrarErrorGps();
+                }, 2500);
+            }
         },
         { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
     );
+
     gpsActivo = true;
     const btn = document.getElementById('btn-gps');
     btn.classList.add('activo');
     btn.innerHTML = '<i class="ri-gps-fill"></i> Desactivar GPS';
 }
-
-function desactivarGPS() {
+function desactivarGPS(notificarServidor = true) {
+    localStorage.removeItem(GPS_STORAGE_KEY);
     if (watchId) navigator.geolocation.clearWatch(watchId);
+    watchId = null;
     if (marcadorConductor) { mapa.removeLayer(marcadorConductor); marcadorConductor = null; }
     primeraUbicacion = true;
+    ultimaUbicacionOk = 0;
+    gpsErrorMostrado = false;
+    if (gpsErrorTimeoutId) {
+        clearTimeout(gpsErrorTimeoutId);
+        gpsErrorTimeoutId = null;
+    }
     gpsActivo = false;
     const btn = document.getElementById('btn-gps');
     btn.classList.remove('activo');
     btn.innerHTML = '<i class="ri-gps-line"></i> Activar GPS';
     document.getElementById('gps-estado').textContent = 'GPS inactivo';
+
+    if (notificarServidor) {
+        const d = new FormData();
+        d.append('accion', 'desactivar');
+        fetch('actualizar_ubicacion.php', { method: 'POST', body: d })
+            .then(r => r.json())
+            .then(resp => {
+                if (!resp.success) console.error('Error desactivando ubicacion:', resp.message || resp);
+            })
+            .catch(e => console.error('Error desactivando ubicacion:', e));
+    }
+}
+
+if (localStorage.getItem(GPS_STORAGE_KEY) === '1') {
+    document.getElementById('gps-estado').textContent = 'Reanudando GPS...';
+    setTimeout(activarGPS, 600);
 }
 
 // Nav activa al hacer scroll

@@ -8,7 +8,7 @@ const sedesCoords = {
 
 let todosLosSchedules = [];
 let mapa = null;
-let markerBus = null;
+let markersBuses = new Map();
 let markerSedes = [];
 let pollingInterval = null;
 let filtroOrigen = '';
@@ -168,25 +168,55 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
+function marcadorKey(viaje) {
+    return String(viaje.id_asignacion || viaje.conductor?.id || viaje.id_cronograma);
+}
+
+function crearIconoBus(indice) {
+    const colores = ['#f5c518', '#22c55e', '#38bdf8', '#f97316', '#a78bfa'];
+    const color = colores[indice % colores.length];
+    return L.divIcon({
+        className: '',
+        html: `
+            <div class="animate__animated animate__pulse animate__infinite" style="
+                background:${color};
+                border:3px solid #0d2346;
+                width:24px;
+                height:24px;
+                border-radius:50%;
+                box-shadow: 0 0 10px rgba(13, 35, 70, 0.35);
+                display:flex;
+                align-items:center;
+                justify-content:center;
+            "><i class="ri-bus-2-fill" style="font-size:12px; color:#0d2346;"></i></div>
+        `
+    });
+}
+
+function limpiarMarcadoresInactivos(keysActivas) {
+    markersBuses.forEach((marker, key) => {
+        if (!keysActivas.has(key)) {
+            mapa.removeLayer(marker);
+            markersBuses.delete(key);
+        }
+    });
+}
+
 // Actualizar Mapa y Tarjeta de ETA en Tiempo Real
 function actualizarTiempoRealYTrayecto() {
-    let viajeActivo = null;
-
     const esViajeActivo = (s) => {
         const estado = normalizarEstadoRecorrido(s.estado_recorrido);
         return estado !== 'pendiente' && estado !== 'completado' && estado !== 'cancelado';
     };
 
-    if (filtroOrigen && filtroDestino) {
-        viajeActivo = todosLosSchedules.find(s =>
-            s.origen_id == filtroOrigen &&
-            s.destino_id == filtroDestino &&
-            esViajeActivo(s)
-        );
-    } else {
-        viajeActivo = todosLosSchedules.find(esViajeActivo);
-    }
+    const viajesActivos = todosLosSchedules.filter(s => {
+        if (filtroOrigen && filtroDestino) {
+            if (s.origen_id != filtroOrigen || s.destino_id != filtroDestino) return false;
+        }
+        return esViajeActivo(s);
+    });
 
+    const viajesConGps = viajesActivos.filter(s => s.gps);
     const etaTiempo = document.getElementById('eta-tiempo');
     const etaDesc = document.getElementById('eta-desc');
     const etaRuta = document.getElementById('eta-ruta');
@@ -197,88 +227,99 @@ function actualizarTiempoRealYTrayecto() {
         mapa.invalidateSize();
     }
 
-    if (!viajeActivo) {
-        if (markerBus && mapa) {
-            mapa.removeLayer(markerBus);
-            markerBus = null;
-        }
-
+    if (!viajesActivos.length) {
+        limpiarMarcadoresInactivos(new Set());
         if (etaTiempo) etaTiempo.textContent = '-- min';
-        if (etaDesc) etaDesc.textContent = 'No hay unidades activas en esta ruta en este momento.';
+        if (etaDesc) etaDesc.textContent = filtroOrigen && filtroDestino
+            ? 'No hay unidades activas en esta ruta en este momento.'
+            : 'Selecciona una ruta para monitorear el transporte activo.';
         if (etaRuta) etaRuta.style.display = 'none';
         return;
     }
 
-    const estadoActivo = normalizarEstadoRecorrido(viajeActivo.estado_recorrido);
-    let etaTexto = '-- min';
-    let descTexto = 'Estado del transporte actualizado.';
+    const keysActivas = new Set();
+    const bounds = [];
 
-    if (estadoActivo === 'en_sede') {
-        etaTexto = 'En sede';
-        descTexto = 'El transporte esta en la sede de origen.';
-    } else if (estadoActivo === 'proximo_salir') {
-        etaTexto = 'Por salir';
-        descTexto = 'El transporte esta listo para salir.';
-    } else if (estadoActivo === 'llegando') {
-        etaTexto = '< 2 min';
-        descTexto = 'El transporte esta llegando a la sede de destino.';
-    } else if (estadoActivo === 'en_camino') {
-        etaTexto = 'En camino';
-        descTexto = 'El transporte esta en ruta. Activa el mapa cuando haya ubicacion disponible.';
+    viajesConGps.forEach((viaje, index) => {
+        const key = marcadorKey(viaje);
+        keysActivas.add(key);
+        const { lat, lng } = viaje.gps;
+        const titulo = viaje.unidad ? `${viaje.unidad.nombre} (${viaje.unidad.placa})` : 'Transporte';
+        const conductor = viaje.conductor ? `<br>Conductor: ${viaje.conductor.nombre}` : '';
+        const hora = moment(viaje.hora_salida, 'HH:mm:ss').format('HH:mm');
+        const edadSeg = Number(viaje.gps.edad_seg || 0);
+        const actualizado = edadSeg < 60 ? 'actualizado hace menos de 1 min' : `actualizado hace ${Math.round(edadSeg / 60)} min`;
+        const popup = `<b>${titulo}</b><br>${viaje.origen} a ${viaje.destino}<br>Salida: ${hora}<br>Estado: ${viaje.estado_recorrido}${conductor}<br><small>${actualizado}</small>`;
+
+        if (!markersBuses.has(key)) {
+            markersBuses.set(key, L.marker([lat, lng], { icon: crearIconoBus(index) }).addTo(mapa).bindPopup(popup));
+        } else {
+            const marker = markersBuses.get(key);
+            marker.setLatLng([lat, lng]);
+            marker.getPopup().setContent(popup);
+        }
+        bounds.push([lat, lng]);
+    });
+
+    limpiarMarcadoresInactivos(keysActivas);
+
+    if (bounds.length === 1) {
+        mapa.setView(bounds[0], 14);
+    } else if (bounds.length > 1) {
+        mapa.fitBounds(bounds, { padding: [35, 35], maxZoom: 14 });
     }
 
-    if (viajeActivo.gps) {
-        const { lat, lng } = viajeActivo.gps;
+    const prioridadEstado = { llegando: 1, en_camino: 2, proximo_salir: 3, en_sede: 4 };
+    const viajePrincipal = [...viajesActivos].sort((a, b) => {
+        const estadoA = prioridadEstado[normalizarEstadoRecorrido(a.estado_recorrido)] || 9;
+        const estadoB = prioridadEstado[normalizarEstadoRecorrido(b.estado_recorrido)] || 9;
+        if (estadoA !== estadoB) return estadoA - estadoB;
+        return String(a.hora_salida).localeCompare(String(b.hora_salida));
+    })[0];
 
-        if (!markerBus) {
-            markerBus = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: '',
-                    html: `
-                        <div class="animate__animated animate__pulse animate__infinite" style="
-                            background:#f5c518;
-                            border:3px solid #0d2346;
-                            width:22px;
-                            height:22px;
-                            border-radius:50%;
-                            box-shadow: 0 0 10px rgba(245, 197, 24, 0.6);
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                        "><i class="ri-bus-2-fill" style="font-size:12px; color:#0d2346;"></i></div>
-                    `
-                })
-            }).addTo(mapa)
-            .bindPopup(`<b>${viajeActivo.unidad ? viajeActivo.unidad.nombre : 'Transporte'}</b><br>Estado: ${viajeActivo.estado_recorrido}`);
-        } else {
-            markerBus.setLatLng([lat, lng]);
-            markerBus.getPopup().setContent(`<b>${viajeActivo.unidad ? viajeActivo.unidad.nombre : 'Transporte'}</b><br>Estado: ${viajeActivo.estado_recorrido}`);
-        }
+    const estadoPrincipal = normalizarEstadoRecorrido(viajePrincipal.estado_recorrido);
+    let etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : '-- min';
+    let descTexto = viajesActivos.length > 1
+        ? `Se muestran ${viajesConGps.length} de ${viajesActivos.length} unidades con GPS activo.`
+        : 'Estado del transporte actualizado.';
 
-        mapa.setView([lat, lng], 14);
+    if (!viajesConGps.length) {
+        etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : 'Sin GPS';
+        descTexto = viajesActivos.length > 1
+            ? `${viajesActivos.length} unidades activas, esperando que compartan ubicacion.`
+            : 'La unidad esta activa, esperando ubicacion GPS.';
+    } else if (estadoPrincipal === 'en_sede') {
+        etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : 'En sede';
+        descTexto = viajesActivos.length > 1 ? descTexto : 'El transporte esta en la sede de origen.';
+    } else if (estadoPrincipal === 'proximo_salir') {
+        etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : 'Por salir';
+        descTexto = viajesActivos.length > 1 ? descTexto : 'El transporte esta listo para salir.';
+    } else if (estadoPrincipal === 'llegando') {
+        etaTexto = viajesActivos.length > 1 ? `${viajesActivos.length} activos` : '< 2 min';
+        descTexto = viajesActivos.length > 1 ? descTexto : 'El transporte esta llegando a la sede de destino.';
+    }
 
-        const destCoords = sedesCoords[viajeActivo.destino_id];
-        if (destCoords && estadoActivo === 'en_camino') {
-            const dist = calcularDistancia(lat, lng, destCoords.lat, destCoords.lng);
+    const viajeParaEta = viajesConGps.find(v => normalizarEstadoRecorrido(v.estado_recorrido) === 'en_camino') || viajesConGps[0];
+    if (viajeParaEta?.gps && normalizarEstadoRecorrido(viajeParaEta.estado_recorrido) === 'en_camino') {
+        const destCoords = sedesCoords[viajeParaEta.destino_id];
+        if (destCoords) {
+            const dist = calcularDistancia(viajeParaEta.gps.lat, viajeParaEta.gps.lng, destCoords.lat, destCoords.lng);
             const tiempoHoras = dist / 30;
             const tiempoMinutos = Math.round(tiempoHoras * 60);
-
             etaTexto = `${tiempoMinutos < 2 ? 2 : tiempoMinutos} min`;
-            descTexto = `Tiempo estimado hacia ${viajeActivo.destino} (a ${dist.toFixed(1)} km).`;
+            descTexto = viajesActivos.length > 1
+                ? `Unidad mas proxima hacia ${viajeParaEta.destino}. Tambien hay ${viajesActivos.length - 1} unidad(es) activa(s).`
+                : `Tiempo estimado hacia ${viajeParaEta.destino} (a ${dist.toFixed(1)} km).`;
         }
-    } else if (markerBus && mapa) {
-        mapa.removeLayer(markerBus);
-        markerBus = null;
     }
 
     if (etaTiempo) etaTiempo.textContent = etaTexto;
     if (etaDesc) etaDesc.textContent = descTexto;
     if (etaRuta) {
         etaRuta.style.display = 'inline-flex';
-        etaRuta.innerHTML = `<i class="ri-route-line"></i> ${viajeActivo.origen} a ${viajeActivo.destino}`;
+        etaRuta.innerHTML = `<i class="ri-route-line"></i> ${viajePrincipal.origen} a ${viajePrincipal.destino}`;
     }
 }
-
 // Alertas de Salida 10 minutos antes y cancelaciones
 function verificarNotificacionesSalida() {
     const ahora = moment();
