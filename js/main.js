@@ -1722,6 +1722,9 @@ function renderTarjetasAsig(lista) {
                            onclick="abrirReasignarBloque(${c.id},'${escHtml(c.nombre)}')">
                        <i class="ri-user-shared-line me-1"></i>Reasignar
                    </button>
+                   <button class="btn-accion btn-accion-ver"
+                           onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
+                    </button>    
                </div>`
             : '';
 
@@ -1868,7 +1871,7 @@ function renderGrillaHorarios(horarios) {
     let html = '';
     ORDEN_DIAS_ASIG.forEach(dia => {
         if (!porDia[dia].length) return;
-        html += `<div class="horario-dia-grupo"><div class="horario-dia-label">${dia}</div><div class="horario-dia-slots">`;
+        html += `<div class="horario-dia-grupo"><div class="horario-dia-label">${ABREV_DIAS[dia] || dia}</div><div class="horario-dia-slots">`;
         porDia[dia].forEach(h => {
             const yaAsignado = h.tiene_asignacion;
             const hora12     = formatHora12(h.hora_salida);
@@ -2313,7 +2316,7 @@ function renderAcordeonReasignarBloque(asigs) {
                         <label class="reasig-check-item" data-asig-id="${a.asig_id}">
                             <input type="checkbox" class="reasig-bloque-check"
                                    value="${a.asig_id}"
-                                   data-dia="${ABREV_DIAS[dia] || dia}"
+                                   data-dia="${ABREV_DIAS[a.dia_semana] || a.dia_semana}"
                                    data-hora="${escHtml(a.hora_salida)}"
                                    onchange="actualizarContadorBloque()">
                             <span class="reasig-check-hora">${formatHora12(a.hora_salida)}</span>
