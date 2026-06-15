@@ -169,7 +169,7 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
 }
 
 function marcadorKey(viaje) {
-    return String(viaje.id_asignacion || viaje.conductor?.id || viaje.id_cronograma);
+    return String(viaje.id_asignacion || (viaje.conductor && viaje.conductor.id) || viaje.id_cronograma);
 }
 
 function crearIconoBus(indice) {
@@ -300,7 +300,7 @@ function actualizarTiempoRealYTrayecto() {
     }
 
     const viajeParaEta = viajesConGps.find(v => normalizarEstadoRecorrido(v.estado_recorrido) === 'en_camino') || viajesConGps[0];
-    if (viajeParaEta?.gps && normalizarEstadoRecorrido(viajeParaEta.estado_recorrido) === 'en_camino') {
+    if (viajeParaEta && viajeParaEta.gps && normalizarEstadoRecorrido(viajeParaEta.estado_recorrido) === 'en_camino') {
         const destCoords = sedesCoords[viajeParaEta.destino_id];
         if (destCoords) {
             const dist = calcularDistancia(viajeParaEta.gps.lat, viajeParaEta.gps.lng, destCoords.lat, destCoords.lng);

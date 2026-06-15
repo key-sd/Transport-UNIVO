@@ -162,6 +162,6 @@ while ($s = mysqli_fetch_assoc($sedes_query)) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Script Propio -->
-    <script src="../js/pasajero.js"></script>
+    <script src="../js/pasajero.js?v=20260615-1"></script>
 </body>
 </html>
