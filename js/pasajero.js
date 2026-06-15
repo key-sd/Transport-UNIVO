@@ -348,7 +348,7 @@ function actualizarTiempoRealYTrayecto() {
             const tiempoMinutos = Math.round(tiempoHoras * 60);
             etaTexto = `${tiempoMinutos < 2 ? 2 : tiempoMinutos} min`;
             descTexto = viajesActivos.length > 1
-                ? `ETA de una unidad en camino hacia ${viajeParaEta.destino}. Tambien hay ${viajesActivos.length - 1} unidad(es) activa(s).`
+                ? `La unidad en camino hacia ${viajeParaEta.destino} llegará aproximadamente en ese tiempo. Tambien hay ${viajesActivos.length - 1} unidad(es) activa(s).`
                 : `Tiempo estimado hacia ${viajeParaEta.destino} (a ${dist.toFixed(1)} km).`;
         }
     }
