@@ -6,6 +6,13 @@ solo_admin();
 date_default_timezone_set('America/El_Salvador');
 header('Content-Type: application/json; charset=utf-8');
 
+// TEMPORAL
+echo json_encode([
+    'session' => $_SESSION,
+    'rol' => $_SESSION['rol'] ?? 'NO EXISTE'
+]);
+exit;
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Método no permitido.']);
     exit;
