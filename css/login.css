@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    color: #0d2346;
 }
 
 .login-wrapper {
@@ -110,7 +111,7 @@ body {
 
 /* lado derecho con degradado animado */
 .lado-derecho {
-    width: 60%;
+    width: 50%;
     background: linear-gradient(135deg, #0d2346, #0d2346, #1862a8, #f5c518);
     background-size: 300% 300%;
     padding: 2rem;
@@ -123,9 +124,9 @@ body {
     max-width: 400px;
     background: #c0d8ff;
     border: 1px solid #be8f0280;
-    border-radius: 20px;
+    border-radius: 18px;
     padding: 1.2rem 2rem 2.5rem 2rem;
-    box-shadow: 0 20px 60px #00000066;
+    box-shadow: 0 20px 60px #00000052;
 }
 
 .bus-icon {
@@ -154,15 +155,15 @@ body {
 
 /* campos del formulario */
 .campo-input-group .input-group-text {
-    background: #ffffff1a;
-    border-color: #ffffff33;
-    color: #28426b;
+    background: #eef5ff;
+    border-color: #d7e3f5;
+    color: #0d2346;
 }
 
 .campo-input-group .form-control {
-    background: #ffffff1a;
-    border-color: #ffffff33;
-    color: #5b79aa;
+    background: #ffffff;
+    border-color: #d7e3f5;
+    color: #0d2346;
     border-radius: 0 6px 6px 0;
 }
 
@@ -184,8 +185,8 @@ body {
 /* ojito ver/ocultar contraseña */
 #btnVerPass {
     cursor: pointer;
-    background: #E8F0FE;
-    border-color: #ffffff33;
+    background: #eef5ff;
+    border-color: #d7e3f5;
     color: #0d1246;
 }
 
@@ -240,12 +241,14 @@ body {
         z-index: 2;
         width: 100%;
         min-height: 100vh;
-        background: transparent;
+        background: linear-gradient(135deg, #0d2346, #0d2346, #1862a8, #f5c518);
+        background-size: 300% 300%;
+        animation: moverDegradado 8s ease infinite;
         padding: 2rem 1.25rem;
     }
 
     .login-card {
-        max-width: 80%;
+        max-width: 420px;
     }
 
     .bienvenida-titulo { font-size: 1.6rem; }
@@ -253,23 +256,33 @@ body {
 
 /* Ajustes finales para que Bootstrap/Flowbite no deformen los campos */
 .campo-input-group {
-    border-radius: 10px;
-    box-shadow: 0 1px 0 #ffffff80;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px #0d23460f;
+    overflow: hidden;
+    background: #dcecff;
+    border: 1px solid #c7daf5;
 }
 
 .campo-input-group .input-group-text,
 .campo-input-group .form-control,
 #btnVerPass {
-    min-height: 44px;
-    background: #f8fbff;
-    border-color: #d7e3f5;
+    min-height: 48px;
+    background: transparent;
+    border-color: transparent;
     color: #0d2346;
 }
 
+.campo-input-group .input-group-text {
+    border-right: 1px solid #d3e0f4;
+}
+
 .campo-input-group .form-control {
-    border-radius: 0 10px 10px 0;
+    border-radius: 0;
     font-family: 'Outfit', sans-serif;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    line-height: 1.2;
+    -webkit-text-fill-color: #0d2346;
+    box-shadow: 0 0 0 1000px #dcecff inset;
 }
 
 .campo-input-group .form-control::placeholder {
@@ -277,26 +290,41 @@ body {
 }
 
 .campo-input-group .form-control:focus {
-    background: #ffffff;
-    border-color: #f5c518;
+    background: transparent;
+    border-color: transparent;
     box-shadow: none;
     color: #0d2346;
 }
 
 .campo-input-group:focus-within .input-group-text,
 .campo-input-group:focus-within #btnVerPass {
-    background: #ffffff;
+    background: transparent;
+    border-color: transparent;
+}
+
+.campo-input-group:focus-within {
+    background: #e5f1ff;
     border-color: #f5c518;
+    box-shadow: 0 0 0 3px #f5c51826;
+}
+
+.campo-input-group:focus-within .form-control {
+    box-shadow: 0 0 0 1000px #e5f1ff inset;
+}
+
+.campo-input-group:focus-within .input-group-text {
+    border-right-color: #f5c51866;
 }
 
 #btnVerPass {
-    width: 44px;
+    width: 52px;
     justify-content: center;
-    border-radius: 0 10px 10px 0;
+    border-radius: 0;
+    border-left-color: transparent;
 }
 
 #btnVerPass:hover {
-    background: #eef5ff;
+    background: #d2e4fb;
 }
 
 @media (max-width: 768px) {
@@ -305,5 +333,27 @@ body {
         max-width: 420px;
         padding: 1.2rem 1.25rem 1.75rem;
         border-radius: 16px;
+    }
+
+    .logo-univo {
+        width: 82px;
+    }
+}
+
+@media (max-width: 380px) {
+    .lado-derecho {
+        padding: 1.25rem 0.9rem;
+    }
+
+    .login-card {
+        padding-inline: 1rem;
+    }
+
+    .campo-input-group .input-group-text {
+        padding-inline: 0.85rem;
+    }
+
+    #btnVerPass {
+        width: 48px;
     }
 }

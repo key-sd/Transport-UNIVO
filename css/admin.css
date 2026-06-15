@@ -5,6 +5,11 @@ body {
     padding: 0;
     background: linear-gradient(135deg, #f8faff 0%, #eef3fb 50%, #f5f0ff 100%);
     min-height: 100vh;
+    color: #0f172a;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 .admin-wrapper   { display: flex; min-height: 100vh; }
@@ -960,10 +965,13 @@ body {
     padding: 12px 16px;
     border-radius: 10px;
     font-size: 13px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    line-height: 1.35;
+    text-align: center;
 }
 
 .alerta-exito { 
@@ -978,12 +986,22 @@ body {
 }
 
 .alerta-modal {
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-size: 12.5px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    line-height: 1.35;
+    margin-bottom: 1.1rem !important;
+    text-align: center;
+}
+
+.alerta-global i,
+.alerta-modal i {
+    flex-shrink: 0;
+    line-height: 1;
 }
 
 /*Para el encabezado de modal*/
@@ -1023,8 +1041,23 @@ body {
 .modal-btn-cerrar:hover { color: #ffffff; }
 
 /* achica el ícono del SweetAlert */
-.swal-icono-chico { width: 48px !important; height: 48px !important; margin-bottom: 0.5rem !important; }
-.swal-icono-chico .swal2-icon-content { font-size: 24px !important; }
+.swal-icono-chico,
+.swal2-icon.swal2-warning,
+.swal2-icon.swal2-question,
+.swal2-icon.swal2-error,
+.swal2-icon.swal2-success {
+    width: 4.25rem !important;
+    height: 4.25rem !important;
+    margin: 0.35rem auto 1rem !important;
+}
+
+.swal-icono-chico .swal2-icon-content,
+.swal2-icon.swal2-warning .swal2-icon-content,
+.swal2-icon.swal2-question .swal2-icon-content,
+.swal2-icon.swal2-error .swal2-icon-content,
+.swal2-icon.swal2-success .swal2-icon-content {
+    font-size: 2.35rem !important;
+}
 .swal-sobre-modal {z-index: 9999 !important;}
 /*botones generales */
 .btn-agregar {
@@ -1165,6 +1198,170 @@ body {
     letter-spacing: 0.5px;
     margin-bottom: 0.75rem;
     display: block;
+}
+
+/* Base limpia para formularios y modales del admin */
+.modal-content,
+.modal-custom {
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px #0d23462e;
+}
+
+.modal-body {
+    background: #ffffff;
+}
+
+.campo-input-group {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px #0d23460d;
+}
+
+.campo-input-group .input-group-text {
+    min-width: 44px;
+    justify-content: center;
+    background: #e8f0fe;
+    border-color: #d3e0f4;
+    color: #47617f;
+}
+
+.campo-input-group .form-control,
+.campo-input-group .form-select,
+.modal-body .form-control,
+.modal-body .form-select,
+.tabla-buscador input {
+    font-family: 'Outfit', sans-serif;
+}
+
+.campo-input-group .form-control,
+.campo-input-group select.form-control,
+.modal-body .form-control,
+.modal-body .form-select {
+    min-height: 42px;
+    background-color: #f3f7ff;
+    border-color: #d3e0f4;
+    color: #0f172a;
+    font-size: 16px;
+    line-height: 1.25;
+    box-shadow: none;
+    -webkit-text-fill-color: #0f172a;
+}
+
+.campo-input-group .form-control:focus,
+.campo-input-group select.form-control:focus,
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    background-color: #ffffff;
+    border-color: #1862a8;
+    box-shadow: 0 0 0 3px #1862a81f;
+    color: #0f172a;
+}
+
+.campo-input-group:focus-within .input-group-text {
+    background: #eef5ff;
+    border-color: #1862a8;
+    color: #0d2346;
+}
+
+select.form-control,
+.form-select,
+.modal-body select.form-control,
+.modal-body select.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #f3f7ff;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #0d2346 50%),
+        linear-gradient(135deg, #0d2346 50%, transparent 50%);
+    background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    border: 1px solid #d3e0f4;
+    border-radius: 10px;
+    color: #0f172a;
+    cursor: pointer;
+    padding-right: 2.25rem;
+}
+
+.campo-input-group select.form-control {
+    border-radius: 0;
+    border-left: 0;
+}
+
+select.form-control option,
+.form-select option {
+    background: #ffffff;
+    color: #0f172a;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+}
+
+select.form-control option:checked,
+.form-select option:checked {
+    background: #1862a8;
+    color: #ffffff;
+}
+
+input[type="date"],
+input[type="time"] {
+    appearance: auto;
+    -webkit-appearance: auto;
+    position: relative;
+    min-width: 0;
+    padding-right: 0.75rem;
+    color-scheme: light;
+}
+
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+    min-height: 1.25em;
+    text-align: left;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0.9;
+    cursor: pointer;
+    padding: 4px;
+    margin-right: 0;
+    filter: invert(16%) sepia(31%) saturate(1827%) hue-rotate(183deg) brightness(90%) contrast(96%);
+}
+
+.hora-item {
+    width: 100%;
+}
+
+.hora-item input[type="time"] {
+    flex: 1 1 auto;
+}
+
+.form-check-inline {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.form-check-inline .form-check-input {
+    margin-top: 0;
+    accent-color: #1862a8;
+}
+
+.tabla-buscador {
+    min-height: 42px;
+}
+
+.tabla-buscador input {
+    min-width: 0;
+    font-size: 16px;
+}
+
+.admin-main > .d-flex.justify-content-between {
+    flex-wrap: wrap;
 }
 
 /*botones activo/inactivo de la tabla */
@@ -1390,9 +1587,43 @@ body {
     .stats-grid   { grid-template-columns: 1fr; }
     .dashboard-grid { grid-template-columns: 1fr; }
     .navbar-fecha  { font-size: 12px; }
+    .admin-contenido { min-width: 0; }
+    .navbar-admin {
+        padding: 0.85rem 1rem;
+        gap: 10px;
+    }
+    .navbar-nombre,
+    .navbar-divisor {
+        display: none;
+    }
     .admin-main > .d-flex.justify-content-between {
         gap: 12px;
         align-items: flex-start !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .admin-main > .d-flex.justify-content-between > div {
+        min-width: 0;
+        flex: 1 1 100%;
+    }
+
+    .admin-main h4 {
+        font-size: 1.1rem;
+        line-height: 1.25;
+    }
+
+    .banner-bienvenida {
+        padding: 1.2rem;
+        border-radius: 12px;
+        align-items: flex-start;
+    }
+
+    .banner-titulo {
+        font-size: 1.15rem;
+    }
+
+    .banner-desc {
+        max-width: 100%;
     }
 
     .btn-agregar,
@@ -1402,6 +1633,188 @@ body {
         padding: 0.5rem 0.85rem;
         border-radius: 8px;
         font-size: 0.82rem;
+    }
+
+    .admin-main > .d-flex.justify-content-between .btn-agregar {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tabla-card-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 0.9rem;
+    }
+
+    .tabla-buscador {
+        width: 100%;
+    }
+
+    .tabla-buscador input {
+        width: 100%;
+    }
+
+    .modal-dialog,
+    .modal-dialog.modal-lg,
+    .modal-dialog.modal-xl {
+        width: calc(100% - 1rem);
+        max-width: calc(100% - 1rem);
+        margin: 0.5rem auto;
+    }
+
+    .modal-dialog-centered {
+        min-height: calc(100% - 1rem);
+    }
+
+    .modal-custom-header,
+    .modal-header {
+        padding: 0.95rem 1rem !important;
+    }
+
+    .modal-custom-header h5,
+    .modal-header .modal-title {
+        font-size: 0.95rem !important;
+        line-height: 1.25;
+    }
+
+    .modal-body,
+    .modal-body.p-4 {
+        padding: 1rem !important;
+        max-height: calc(100vh - 145px) !important;
+        overflow-y: auto;
+    }
+
+    .alerta-global,
+    .alerta-modal {
+        font-size: 11.5px;
+        line-height: 1.35;
+        margin-bottom: 1rem !important;
+        padding: 10px 12px;
+    }
+
+    .modal-custom-footer,
+    .modal-footer {
+        padding: 0.85rem 1rem !important;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .modal-custom-footer .btn-cancelar,
+    .modal-custom-footer .btn-guardar,
+    .modal-footer .btn-cancelar,
+    .modal-footer .btn-guardar,
+    .modal-footer .btn-agregar,
+    .modal-footer .btn-light {
+        flex: 1 1 0;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .modal-body .row > [class*="col-"],
+    .modal-body .row > [class*="col-md-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .campo-input-group .form-control,
+    .campo-input-group select.form-control,
+    .modal-body .form-control,
+    .modal-body .form-select {
+        min-height: 38px;
+        border-radius: 9px;
+        font-size: 14px;
+    }
+
+    .campo-input-group .input-group-text {
+        min-width: 40px;
+        font-size: 14px;
+    }
+
+    .campo-input-group select.form-control,
+    .campo-input-group .form-control.border-start-0 {
+        border-radius: 0;
+    }
+
+    .modal-body select.form-control,
+    .modal-body select.form-select {
+        background-position:
+            calc(100% - 17px) 50%,
+            calc(100% - 11px) 50%;
+        padding-right: 2rem;
+    }
+
+    .form-label {
+        font-size: 0.78rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .form-seccion-label,
+    .asig-seccion-label {
+        font-size: 10px;
+        margin-bottom: 0.55rem;
+    }
+
+    .asig-vigencia-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .horarios-grilla-wrap {
+        padding: 0.85rem;
+    }
+
+    .horarios-quick-actions {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .horarios-quick-actions .d-flex {
+        width: 100%;
+    }
+
+    .btn-quick-sel {
+        flex: 1 1 0;
+        min-height: 34px;
+        text-align: center;
+    }
+
+    .horario-dia-slots {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .horario-slot {
+        min-width: 0;
+        width: 100%;
+        padding: 8px;
+    }
+
+    .horario-slot-hora,
+    .reasig-check-hora,
+    .asig-chip-hora {
+        font-size: 12px;
+    }
+
+    .horario-slot-turno,
+    .reasig-check-turno,
+    .asig-chip-unidad {
+        font-size: 9px;
+    }
+
+    .reasig-check-item {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .asig-grupo-ruta-body {
+        padding: 10px;
+    }
+
+    .asig-horario-chip {
+        min-width: 0;
+        width: 100%;
     }
 
     .conductor-card-mobile .btn-accion:has(i),
@@ -1438,6 +1851,44 @@ body {
     .stats-grid   { grid-template-columns: 1fr; }
     .banner-icono { display: none; }
     .admin-main   { padding: 1rem; }
+
+    .stat-card,
+    .dash-card,
+    .tabla-card,
+    .conductor-card-mobile,
+    .asig-card-mobile {
+        border-radius: 10px;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .form-check-inline {
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+        padding: 7px 10px;
+    }
+
+    #btnAgregarHora {
+        min-height: 34px;
+        padding-inline: 10px;
+        white-space: nowrap;
+    }
+
+    .hora-item .input-group-text {
+        min-width: 42px;
+    }
+
+    .hora-item .btn-eliminar-hora,
+    .btn-quitar-hora {
+        min-width: 42px;
+        padding-inline: 10px;
+    }
+
+    .horario-dia-slots {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Manejo de diseño de alertas */
@@ -1447,7 +1898,7 @@ body {
 
 .swal2-popup {
     border-radius: 16px !important;
-    padding: 1.5rem !important;
+    padding: 1.65rem 1.75rem 1.45rem !important;
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
 }
 
@@ -1455,11 +1906,22 @@ body {
     color: #0d2346 !important;
     font-size: 1.25rem !important;
     font-weight: 700 !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
 }
 
 .swal2-html-container {
     color: #475569 !important;
     font-size: 0.95rem !important;
+    line-height: 1.45 !important;
+    margin: 0.85rem auto 0 !important;
+    max-width: 28rem !important;
+    text-align: center !important;
+}
+
+.swal2-html-container > div,
+.swal2-html-container p {
+    text-align: center !important;
 }
 
 .swal2-actions {
@@ -1521,4 +1983,59 @@ body {
 
 .swal2-actions button.swal2-deny:focus {
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+}
+
+@media (max-width: 480px) {
+    .swal2-container {
+        padding: 0.75rem !important;
+    }
+
+    .swal2-popup {
+        width: min(92vw, 360px) !important;
+        border-radius: 14px !important;
+        padding: 1.05rem 1rem 1rem !important;
+    }
+
+    .swal-icono-chico,
+    .swal2-icon.swal2-warning,
+    .swal2-icon.swal2-question,
+    .swal2-icon.swal2-error,
+    .swal2-icon.swal2-success {
+        width: 3.4rem !important;
+        height: 3.4rem !important;
+        margin: 0.45rem auto 0.75rem !important;
+    }
+
+    .swal-icono-chico .swal2-icon-content,
+    .swal2-icon.swal2-warning .swal2-icon-content,
+    .swal2-icon.swal2-question .swal2-icon-content,
+    .swal2-icon.swal2-error .swal2-icon-content,
+    .swal2-icon.swal2-success .swal2-icon-content {
+        font-size: 2.15rem !important;
+    }
+
+    .swal2-title {
+        font-size: 1.02rem !important;
+        line-height: 1.18 !important;
+        padding: 0 0.35rem !important;
+    }
+
+    .swal2-html-container {
+        font-size: 0.78rem !important;
+        line-height: 1.35 !important;
+        margin: 0.65rem 0.9rem 0 !important;
+    }
+
+    .swal2-actions {
+        gap: 8px !important;
+        margin-top: 1rem !important;
+    }
+
+    .swal2-actions button.swal2-styled {
+        min-width: 78px !important;
+        min-height: 38px !important;
+        padding: 8px 16px !important;
+        border-radius: 9px !important;
+        font-size: 0.78rem !important;
+    }
 }

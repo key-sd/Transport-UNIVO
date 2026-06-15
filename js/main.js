@@ -2531,7 +2531,7 @@ function cambiarEstadoConductor(id, estadoActual) {
             Swal.fire({
                 title: 'Conductor con asignaciones activas',
                 html: `
-                    <div style="font-size:13px;color:#475569;text-align:left;">
+                    <div style="font-size:13px;color:#475569;text-align:center;max-width:300px;margin:0 auto;">
                         <p class="mb-2">${resp.message}</p>
                     </div>
                 `,
@@ -2586,7 +2586,7 @@ function cambiarEstadoUnidad(id, estadoActual) {
                 Swal.fire({
                     title: 'Unidad con asignaciones activas',
                     html: `
-                        <div style="font-size:13px;color:#475569;text-align:left;">
+                        <div style="font-size:13px;color:#475569;text-align:center;max-width:340px;margin:0 auto;">
                             <p class="mb-2">${resp.message}</p>
                             <p class="mb-0" style="color:#94a3b8;">
                                 Ve a <strong>Gestión de Asignaciones</strong> y reasigna
