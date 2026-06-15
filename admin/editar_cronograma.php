@@ -28,7 +28,7 @@ if ($accion === 'agregar') {
     if ($destino <= 0)  $errores[] = 'El destino es obligatorio.';
     if ($origen === $destino) $errores[] = 'El origen y destino no pueden ser iguales.';
 
-    $dias_validos = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+    $dias_validos = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
     if (!in_array($dia, $dias_validos)) $errores[] = 'El día seleccionado no es válido.';
 
     if (empty($hora_salida)) {

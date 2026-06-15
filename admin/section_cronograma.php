@@ -168,7 +168,7 @@ include("../includes/conexion.php");
                                         <label class="form-label fw-medium d-block">Días de la Semana *</label>
                                         <div class="d-flex flex-wrap gap-2 p-2 border rounded bg-light">
                                             <?php
-                                            $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+                                            $dias = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
                                             $abreviaturas = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
                                             foreach ($dias as $i => $dia):
                                                 $id = 'chk' . $abreviaturas[$i];
