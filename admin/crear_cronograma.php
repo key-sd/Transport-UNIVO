@@ -16,6 +16,12 @@ $destino = intval($_POST['id_sede_destino'] ?? 0);
 $dias    = $_POST['dias']  ?? [];   // array: ['Martes','Jueves',...]
 $horas   = $_POST['horas'] ?? [];   // array: ['06:40','12:30',...]
 
+// DEBUG TEMPORAL - borrar después
+error_log('DIAS RECIBIDOS: ' . print_r($dias, true));
+error_log('HORAS RECIBIDAS: ' . print_r($horas, true));
+echo json_encode(['debug' => true, 'dias' => $dias, 'horas' => $horas, 'origen' => $origen, 'destino' => $destino]);
+exit;
+
 /* Validaciones básicas */
 $errores = [];
 if ($origen  <= 0)           $errores[] = 'El origen es obligatorio.';
