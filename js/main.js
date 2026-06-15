@@ -1,5 +1,8 @@
 // PARA EL LOGIN
 // carrusel de fondo
+// Al inicio de main.js, antes de todo
+const _fetch = window.fetch;
+window.fetch = (url, opts = {}) => _fetch(url, { credentials: 'include', ...opts });
 const slides = document.querySelectorAll('.fondo-slide');
 const dots   = document.querySelectorAll('.dot');
 let actual   = 0;
@@ -865,7 +868,7 @@ if (btnGuardarCronograma) {
         dias.forEach(d  => fd.append('dias[]',  d));
         horas.forEach(h => fd.append('horas[]', h));
 
-        fetch('crear_cronograma.php', { method: 'POST', body: fd, credentials: 'include' })
+        fetch('crear_cronograma.php', { method: 'POST', body: fd})
             .then(r => {
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 return r.text();
