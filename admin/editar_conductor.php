@@ -34,6 +34,19 @@ if ($cambiarPassword) {
     if ($password !== $confirmar_pwd) $errores[] = 'Las contraseñas no coinciden.';
 }
 
+// solo ppermite letras, tilfes y espacios en nombtes y apellidos
+if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $nombre))
+    $errores[] = 'El nombre solo puede contener letras.';
+
+if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $apellido))
+    $errores[] = 'El apellido solo puede contener letras.';
+// solo permite el formato c y C
+if (!preg_match('/^c\d{4}$/', $codigo))
+    $errores[] = 'El código debe tener el formato c0000 (letra c seguida de 4 dígitos).';
+// valida que solo sean numeros salvadoreños
+if (!preg_match('/^[267]\d{3}-?\d{4}$/', $telefono))
+    $errores[] = 'El teléfono debe ser un número salvadoreño válido (ej. 7000-1234).';
+
 if (!empty($errores)) {
     echo json_encode(['success' => false, 'message' => implode(' ', $errores)]);
     exit;
@@ -51,10 +64,6 @@ if (empty($usuario_id)) {
     exit;
 }
 
-if (!preg_match('/^[267][0-9]{3}-?[0-9]{4}$/', $telefono)) {
-    echo json_encode(['error' => true, 'mensaje' => 'Número validado con un tipo de insertacion con número salvadoreño']);
-    exit();
-}
 // 4. VERIFICAR QUE EL CÓDIGO NO LO USE OTRO USUARIO
 $stmtDup = $conn->prepare(
     "SELECT id FROM usuarios WHERE codigo = ? AND id != ? LIMIT 1"

@@ -397,6 +397,7 @@ if (btnGuardar) {
 
         const pwd  = document.getElementById('password')?.value  || '';
         const pwd2 = document.getElementById('confirmar_password')?.value || '';
+        const codigoVal = document.getElementById('codigo')?.value.trim();
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
         if (modoModal === 'crear') {
@@ -409,6 +410,8 @@ if (btnGuardar) {
             if (pwd.length < 8) { mostrarAlerta(alertaModal, 'error', 'La contraseña debe tener al menos 8 caracteres.'); return; }
         }
 
+        if (!/^c\d{4}$/.test(codigoVal)) {mostrarAlerta(alertaModal, 'error', 'El código debe tener el formato c0000.'); return; }
+        
         btnGuardar.disabled  = true;
         btnGuardar.innerHTML = '<i class="ri-loader-4-line ri-spin me-1"></i>Guardando...';
 

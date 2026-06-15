@@ -28,21 +28,31 @@ if (empty($codigo)) $errores[] = 'El código es obligatorio.';
 if (strlen($password) < 8)        $errores[] = 'La contraseña debe tener al menos 8 caracteres.';
 if ($password !== $confirmar_pwd) $errores[] = 'Las contraseñas no coinciden.';
 
+// solo permite letras, espacios y tildes en nombre y apellidos
+if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $nombre))
+    $errores[] = 'El nombre solo puede contener letras.';
+
+if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/', $apellido))
+    $errores[] = 'El apellido solo puede contener letras.';
+
+// Código formato c0000
+if (!preg_match('/^c\d{4}$/', $codigo))
+    $errores[] = 'El código debe tener el formato c0000 (letra c seguida de 4 dígitos).';
+
+// numero de telefono salvadoreño
+if (!preg_match('/^[267]\d{3}-?\d{4}$/', $telefono))
+    $errores[] = 'El teléfono debe ser un número salvadoreño válido (ej. 7000-1234).';
+
 if (!empty($errores)) {
     echo json_encode(['success' => false, 'message' => implode(' ', $errores)]);
     exit;
 }
-
 // verificar que el código universitario no esté en uso
 $stmtDup = $conn->prepare("SELECT id FROM usuarios WHERE codigo = ? LIMIT 1");
 $stmtDup->bind_param('s', $codigo);
 $stmtDup->execute();
 $stmtDup->store_result();
 
-if (!preg_match('/^[267][0-9]{3}-?[0-9]{4}$/', $telefono)) {
-    echo json_encode(['error' => true, 'mensaje' => 'Número validado con un tipo de insertacion con número salvadoreño']);
-    exit();
-}
 
 if ($stmtDup->num_rows > 0) {
     $stmtDup->close();
