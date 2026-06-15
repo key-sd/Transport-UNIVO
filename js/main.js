@@ -495,7 +495,7 @@ let cronogramas         = [];
 let modoModalCronograma = 'crear'; // 'crear' | 'ver' | 'editar'
 let rutaEditando        = null;
 
-const ORDEN_DIAS = ['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+const ORDEN_DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 
 // ── sanitiza el nombre del día para usarlo como ID en el DOM ──
 // "Miércoles" → "Miercoles", "Sábado" → "Sabado"
@@ -850,7 +850,7 @@ if (btnGuardarCronograma) {
 
         for (const h of horas) {
             if (calcularTurno(h) === null) {
-                mostrarAlerta(alertaModalCronograma, 'error', `La hora ${h} está fuera del rango permitido (06:00 AM – 23:59 PM) en formato 24h.`);
+                mostrarAlerta(alertaModalCronograma, 'error', `La hora ${h} está fuera del rango permitido (06:00 AM – 18:00 PM) en formato 24h.`);
                 return;
             }
         }
@@ -1135,7 +1135,7 @@ function agregarHoraADia(dia, sid, origen, destino) {
 
     if (!hora) { mostrarAlerta(alertaModalCronograma, 'error', 'Ingresa una hora antes de agregar.'); return; }
     if (calcularTurno(hora) === null) {
-        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 23:59 PM) en formato 24h.`);
+        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 18:00 PM) en formato 24h.`);
         return;
     }
 
@@ -1195,7 +1195,7 @@ function agregarNuevoDia(origen, destino) {
     if (!dia)  { mostrarAlerta(alertaModalCronograma, 'error', 'Selecciona el día.'); return; }
     if (!hora) { mostrarAlerta(alertaModalCronograma, 'error', 'Ingresa la hora de salida.'); return; }
     if (calcularTurno(hora) === null) {
-        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 23:59 PM) en formato 24h.`);
+        mostrarAlerta(alertaModalCronograma, 'error', `La hora ${hora} está fuera del rango permitido (06:00 AM – 18:00 PM) en formato 24h.`);
         return;
     }
 
@@ -1669,7 +1669,7 @@ function renderTablaAsig(lista) {
             : `<span class="badge-estado badge-inactivo">Inactivo</span>`;
         const tieneAsig   = (c.total_asignaciones || 0) > 0;
 
-        // ── Solo se muestran acciones si tiene asignaciones activas ──
+        // Solo se muestran acciones si tiene asignaciones activas 
         const acciones = tieneAsig
             ? `<div class="d-flex align-items-center gap-1 flex-wrap">
                    <button class="btn-accion btn-accion-desactivar"
@@ -1684,8 +1684,8 @@ function renderTablaAsig(lista) {
                    </button>
                    <button class="btn-accion btn-accion-ver"
                            onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})"
-                           title="Ver y editar asignaciones individualmente">
-                       <i class="ri-edit-line me-1"></i>Editar
+                           title="Ver asignaciones">
+                       <i class="ri-edit-line me-1"></i>Ver
                    </button>
                </div>`
             : `<span class="text-muted small">—</span>`;
@@ -1740,7 +1740,7 @@ function renderTarjetasAsig(lista) {
                    </button>
                    <button class="btn-accion btn-accion-ver"
                            onclick="abrirDetalleConductor(${c.id},'${escHtml(c.nombre)}',${c.estado})">
-                       <i class="ri-edit-line me-1"></i>Editar
+                       <i class="ri-edit-line me-1"></i>Ver
                    </button>
                </div>`
             : '';
@@ -1803,6 +1803,11 @@ function resetearModalNuevaAsig() {
     ['asig_conductor','asig_unidad'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     ['asig_desde','asig_hasta'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     cargarCatalogos();
+    const hoy = new Date().toISOString().split('T')[0];
+    const desdeEl = document.getElementById('asig_desde');
+    const hastaEl = document.getElementById('asig_hasta');
+    if (desdeEl) desdeEl.min = hoy;
+    if (hastaEl) hastaEl.min = hoy;
 }
 
 function cargarCatalogos(forzar = false) {
@@ -2033,13 +2038,6 @@ function renderAsignacionesDetalle(asigs) {
                     <span style="font-size:12px;">${escHtml(a.unidad)}</span>
                 </div>
             </td>
-            <td>
-                <button class="btn-accion btn-accion-ver"
-                        onclick="abrirModalReasignar(${a.asig_id},${a.unidad_id})"
-                        title="Editar esta asignación">
-                    <i class="ri-user-follow-line me-1"></i>Reasignar
-                </button>
-            </td>
         </tr>`
     ).join('');
 
@@ -2087,11 +2085,6 @@ function renderAcordeonAsigRuta(asigs) {
                         <div class="asig-horario-chip">
                             <div class="asig-chip-hora">${formatHora12(a.hora_salida)}</div>
                             <div class="asig-chip-unidad">${escHtml(a.unidad)}</div>
-                            <button class="asig-chip-btn-editar"
-                                    onclick="abrirModalReasignar(${a.asig_id},${a.unidad_id})"
-                                    title="Editar esta asignación">
-                                <i class="ri-edit-2-line"></i>
-                            </button>
                         </div>`).join('');
                 return `
                     <div class="mb-3">
@@ -2368,9 +2361,9 @@ function abrirReasignarBloque(conductorId, nombre) {
     const selUnid  = document.getElementById('reasigBloque_unidad');
     const inpDesde = document.getElementById('reasigBloque_desde');
     const inpHasta = document.getElementById('reasigBloque_hasta');
-
-    if (inpDesde) inpDesde.value = new Date().toISOString().split('T')[0];
-    if (inpHasta) inpHasta.value = '';
+    const hoy = new Date().toISOString().split('T')[0];
+    if (inpDesde) { inpDesde.value = hoy; inpDesde.min = hoy; }
+    if (inpHasta) inpHasta.inpHasta.min = hoy;
 
     const llenarSelects = (data) => {
         if (selCond) {

@@ -16,6 +16,11 @@ $unidad_id       = intval($_POST['id_unidad']     ?? 0);
 $fecha_inicio    = trim($_POST['fecha_inicio']    ?? '');
 $fecha_fin       = trim($_POST['fecha_fin']       ?? '') ?: null;
 $cronogramas_raw = json_decode($_POST['cronogramas'] ?? '[]', true);
+$hoy = date('Y-m-d');
+if ($fecha_inicio < $hoy) {
+    echo json_encode(['success' => false, 'message' => 'La fecha de inicio no puede ser anterior a hoy.']);
+    exit;
+}
 
 $errores = [];
 if ($conductor_id <= 0)      $errores[] = 'Debes seleccionar un conductor.';

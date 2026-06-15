@@ -228,7 +228,6 @@ include("../includes/conexion.php");
                           <th>Hora</th>
                           <th>Turno</th>
                           <th>Unidad</th>
-                          <th>Acción</th>
                         </tr>
                       </thead>
                       <tbody id="cuerpoTablaAsignacionesDetalle">

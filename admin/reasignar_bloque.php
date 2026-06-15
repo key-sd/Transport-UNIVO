@@ -28,6 +28,11 @@ if ($fecha_fin && $fecha_fin < $fecha_inicio) {
     exit;
 }
 
+if ($fecha_inicio < $hoy) {
+    echo json_encode(['success' => false, 'message' => 'La fecha de inicio no puede ser anterior a hoy.']);
+    exit;
+}
+
 $asig_ids = array_filter(array_map('intval', $asig_ids_raw), fn($v) => $v > 0);
 if (empty($asig_ids)) {
     echo json_encode(['success'=>false,'message'=>'IDs de asignación inválidos.']);

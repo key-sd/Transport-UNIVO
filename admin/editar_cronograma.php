@@ -42,12 +42,12 @@ if ($accion === 'agregar') {
     /*Validar rango de horas de salida*/
     $t    = strtotime($hora_salida);
     $tmin = strtotime('06:00');
-    $tmax = strtotime('23:59');
+    $tmax = strtotime('18:00');
 
     if ($t === false || $t < $tmin || $t > $tmax) {
         echo json_encode([
             'success' => false,
-            'message' => 'La hora debe estar entre las 6:00 AM y las 11:59 PM.'
+            'message' => 'La hora debe estar entre las 6:00 AM y las 18:00 PM.'
         ]);
         exit;
     }
