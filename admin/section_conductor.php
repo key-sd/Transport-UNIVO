@@ -165,7 +165,7 @@ include("../includes/conexion.php");
                                     <i class="ri-lock-line me-1"></i>Acceso al sistema
                                 </p>
 
-                                <div class="row g-3">
+                                <div class="row g-2">
                                     <div class="col-12">
                                         <label class="form-label fw-medium">Código *</label>
                                         <div class="input-group campo-input-group">
